@@ -3,7 +3,7 @@ create unique index grade_unique_observation on public.grade_entries(workspace_i
 create unique index grade_unique_homework on public.grade_entries(workspace_id,homework_check_id) where homework_check_id is not null;
 create function public.propose_grade(p_ratio numeric,p_min numeric,p_max numeric,p_step numeric,p_points jsonb)
 returns numeric language plpgsql immutable set search_path='' as $$
-declare i integer; x numeric; y numeric; px numeric; py numeric; normalized numeric; last_x numeric:=-1;
+declare x numeric; y numeric; px numeric; py numeric; normalized numeric; last_x numeric:=-1;
 begin
  if p_ratio is null or p_ratio<0 or p_ratio>1 or p_max<=p_min or p_step<=0
  or jsonb_typeof(p_points)<>'array' or jsonb_array_length(p_points)<2 then raise exception 'Invalid grading rule'; end if;

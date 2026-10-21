@@ -1,78 +1,84 @@
-# Report test — 21 ottobre 2026
-## Esito finale reale
-**69 asserzioni SQL superate per ciascuno di due database nuovi: 138 asserzioni eseguite.** Anche la prova con due processi PostgreSQL concorrenti è superata in ciascun database: 2 scenari concorrenti reali. Nessun test Docker/pgTAP o lint viene dichiarato superato.
+# Report di collaudo — 21 ottobre 2026
 
-Comando: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-native.ps1. Exit code finale: 0.
-Log completo locale, ignorato da Git: .local-test/native-results.log.
-```text
-PASS concurrency: writer A committed, writer B rejected with 40001, winner preserved
-PASS 1 : clean migration, seed, integration and concurrent writers
-PASS concurrency: writer A committed, writer B rejected with 40001, winner preserved
-PASS 2 : clean migration, seed, integration and concurrent writers
+## Esito
+**Collaudo locale Supabase PostgreSQL 17.11 completato positivamente.** Due ricostruzioni da zero delle 16 migrazioni e del seed, con identico risultato:
+
+| Controllo | Ciclo 1 | Ciclo 2 |
+|---|---|---|
+| Versione PostgreSQL effettiva | 17.11 (170011) | 17.11 (170011) |
+| Migrazioni applicate | 16/16 | 16/16 |
+| pgTAP | 69/69 PASS | 69/69 PASS |
+| Asserzioni SQL dirette | 69/69 PASS | 69/69 PASS |
+| Lint public e private, fail-on warning | 0 problemi | 0 problemi |
+| Due connessioni concorrenti | PASS | PASS |
+
+Totale delle due ricostruzioni finali: **138 verifiche pgTAP, 138 verifiche SQL dirette e 2 prove di concorrenza reale**. pgTAP e SQL eseguono le stesse 69 verifiche applicative attraverso due modalità; non sono 138 casi funzionali distinti per ciclo.
+
+Comando eseguito:
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-supabase-local.ps1
 ```
+Alias disponibile: `npm run test:supabase:local`.
+Runner: scripts/test-supabase-local.ps1. Log completo locale escluso da Git: .local-test/supabase-test.log.
+Evidenza sintetica priva di credenziali: TEST_RESULTS.txt.
 
-## Ambiente
-| Strumento | Stato |
+## Ambiente reale
+| Componente | Versione / configurazione |
 |---|---|
-| Node.js / npm | 25.7.0 / 11.10.1 |
-| Supabase CLI | 2.121.0, devDependency esatta e lockfile |
-| PostgreSQL nativo | 16.14, cluster dedicato su 127.0.0.1:55439 |
-| Config stack Supabase | PostgreSQL 17, richiesto dalla CLI |
-| PostgreSQL 18 | Presente fuori PATH, non usato |
-| Docker Desktop/motore | Non disponibile |
-| pgTAP / plpgsql_check nativi | Non installati |
-| Auth nel test nativo | Shim auth.users/auth.uid(), ruoli SQL reali |
-| Supabase cloud | Non autenticato, non collegato, non modificato |
-| GitHub | origin collegato al repository indicato, main ed22cc3, branch dev locale |
+| Docker Desktop | 4.96.1, contesto desktop-linux |
+| Docker Engine | 29.9.2, WSL2 Linux |
+| Supabase CLI | 2.121.0, dipendenza locale esatta |
+| Immagine PostgreSQL | public.ecr.aws/supabase/postgres:17.11.0.004 |
+| PostgreSQL nel container | 17.11, server_version_num=170011 |
+| Node / npm | 25.7.0 / 11.10.1 |
+| Container database | supabase_db_pwa-docenti-local |
+| Porte locali | shadow 56320, API 56321, DB 56322, Studio 56323, SMTP 56324 |
 
-Il runner applica tutte le 16 migrazioni e il seed a due database creati da zero. Le asserzioni vengono rollbackate. Il cluster è arrestato al termine. Non usa il PostgreSQL di sistema o credenziali cloud.
+Il secondo collaudo usa i ruoli e lo schema Auth reali dello stack Supabase. Non usa scripts/native-bootstrap.sql o il PostgreSQL 16 nativo. Le precedenti prove native su PostgreSQL 16.14 erano già passate e restano un percorso alternativo di verifica.
 
-## Aree verificate
-| Area | Risultato |
-|---|---|
-| Provisioning | Due utenti, due workspace separati, ciascuno Owner |
-| Seed | 15 studenti fittizi e 3 classi; lezioni, compiti e verifiche coerenti |
-| Tenant | Accessi cross-workspace negati; FK composita verificata anche come amministratore SQL |
-| Ruoli | No autoassegnazioni o auto-promozioni; Viewer non scrive; Teacher non scrive assegnazioni altrui; Admin non cambia ruoli |
-| Privacy | Privati non leggibili da altri, anche Admin; visibilità immutabile |
-| Proprietà | Autore e workspace non riscrivibili; spoofing negato |
-| Privilegi | Anonimo senza accesso a tabelle, viste o RPC; audit non modificabile |
-| Integrità | Studente di altra classe, quesito di altra prova, argomento di materia diversa respinti |
-| Registro voti | Origini uniche; media fixture 7.6; descrittive non valutabili; esclusi/annullati fuori media |
-| Regole | Conversione lineare/non lineare, arrotondamento, curva non valida respinta |
-| Risultati | Punteggi oltre massimo negati; snapshot massimo immutabile |
-| Audit | Revisioni registrate; motivazione obbligatoria per cambio valore |
-| Compiti | Conteggi derivati coerenti |
-| Offline | Idempotenza, conflitti versione, campi protetti/sconosciuti, tombstone, autorizzazione rivalutata al retry |
-| Revoche | Perdita effettiva dell'accesso al workspace condiviso; workspace personale conservato |
-| Import | Anteprima duplicati e applicazione righe valide senza duplicazioni |
-| Viste | Tutte security_invoker; RPC medie non espone dati altrui |
-| AI | Disabilitata e non attivabile con UPDATE |
-| Ripetibilità | Due applicazioni complete su database nuovi |
-| Concorrenza | A acquisisce lock e conferma; B attende e riceve 40001; valore/versione di A conservati |
+## Aree verificate dai 69 casi
+- Workspace automatico per ogni utente e ruolo Owner, senza superamministratore globale.
+- Seed fittizio: 2 workspace, 2 scuole, 3 classi, 15 studenti.
+- Isolamento dei workspace in lettura e scrittura; FK composite anche in bypass RLS amministrativo.
+- Ruoli: nessuna auto-promozione, autoassegnazione o sostituzione del proprietario; limiti Teacher, Viewer e Admin.
+- Privati non leggibili da altri utenti, anche Admin; proprietà e visibilità protette.
+- Anonimo senza accesso a tabelle, viste e RPC; RLS su tutte le tabelle pubbliche.
+- Studenti di altra classe, quesiti di altra verifica e argomenti di altra materia respinti.
+- Registro canonico, unicità dell'origine, media fixture 7.6, esclusione di descrittive/voti annullati o esclusi.
+- Conversioni lineari/non lineari, arrotondamento, limiti dei punteggi e snapshot immutabili.
+- Audit delle revisioni, motivazione del cambio voto e impossibilità di modificare l'audit dal client.
+- Conteggi dei compiti derivati coerenti.
+- Retry idempotenti, conflitti di versione, campi protetti/sconosciuti, tombstone e rivalutazione delle autorizzazioni.
+- Revoca effettiva del workspace condiviso senza perdere il workspace personale.
+- Anteprima import, duplicati e applicazione delle righe valide.
+- Viste security_invoker e RPC medie senza accesso ai dati altrui.
+- AI disabilitata e non attivabile con UPDATE.
 
-Le prove negative verificano lo SQLSTATE esatto; un UPDATE/INSERT che non modifica righe non vale come prova di errore.
+Le prove negative verificano lo SQLSTATE esatto. Il corpo delle asserzioni viene rollbackato dopo l'esecuzione.
 
-## Controlli bloccati
-Tentati con CLI installata:
-- supabase db lint --local --level warning
-- supabase test db
+## Concorrenza effettiva
+Per ogni ricostruzione il runner avvia due processi psql indipendenti dentro il container PostgreSQL 17. Il primo aggiorna una riga e mantiene aperta la transazione per tre secondi. Il secondo tenta di scrivere la stessa revisione mentre il primo detiene il lock.
 
-Entrambi fermati con DbConnectError, ECONNREFUSED 127.0.0.1:54322, perché manca lo stack Supabase Docker. Nessuna esecuzione pgTAP/lint completata.
+Verificati: commit del primo processo, attesa e SQLSTATE 40001 del secondo, permanenza del valore del primo processo e versione 2. Nessuna sovrascrittura silenziosa. Due prove superate in totale, una per ricostruzione.
 
-Suite pgTAP preparata in supabase/tests/001_backend.test.sql, generata dalla stessa suite nativa tramite scripts/generate-pgtap.mjs. Verificata la corrispondenza con node scripts/generate-pgtap.mjs --check. Workflow GitHub predisposto per due cicli reset locale/test/lint, non eseguito su GitHub.
+## Correzioni emerse dal collaudo reale
+1. Windows riserva TCP 54229–54328. Sostituite le porte standard del solo ambiente locale con 56320–56324 e 56327.
+2. Il lint di propose_grade rilevava una variabile i dichiarata e poi ridefinita implicitamente dal FOR: rimossa la dichiarazione duplicata.
+3. Il lint di preview_import rilevava l'inizializzazione testuale dell'array seen: usato array[]::text[].
+4. Aggiornato il config da inbucket deprecato a local_smtp.
+5. Vector locale cercava il motore Docker su TCP 2375, non esposto. Disabilitata Analytics/Vector soltanto nel config locale, senza cambiare la sicurezza del motore Docker.
+6. Aggiunto runner ripetibile PostgreSQL 17 e allineato il lint di package.json/CI a public,private con --fail-on warning.
 
-Prima del cloud sono obbligatori stack Docker, pgTAP, lint --fail-on warning e ripetibilità su PostgreSQL Supabase 17; poi verifica Auth/PostgREST, identità remota, dry-run e autorizzazione esplicita.
-
-## Correzioni durante la verifica
-Corrette collisioni dei nomi degli indici e rilevamento degli indici FK esistenti. Reso ripetibile il bootstrap dei ruoli nel cluster. Corrette fixture affinché i tentativi proibiti non fossero INSERT SELECT vuoti e avessero autore nel test FK amministrativo. Rafforzato controllo ricorsivo delle assegnazioni e introdotta revoca logica dei membri. Corretto il recupero dell'exit code dei processi concorrenti PowerShell.
+Le due migrazioni corrette non erano mai state applicate al cloud. Rimangono 16 migrazioni; tutte sono state riapplicate da zero dopo le correzioni.
 
 ## Limiti residui
-Le prove SQL non costituiscono audit indipendente. Restano da verificare PostgreSQL 17, Auth reale/JWT, PostgREST, Edge runtime e carico realistico. Nessun frontend, IndexedDB o parser binario CSV/XLSX realizzato in questa fase: import backend tramite JSON normalizzato.
+Nessun errore o warning di schema residuo rilevato dal lint; tutti i controlli previsti passano.
 
-La progressione numerica per competenza copre le correzioni analitiche; evidenze qualitative restano consultabili separatamente. La sincronizzazione richiede scansioni complete periodiche: updated_at non è un cursore commit. Occorrono politiche operative di retention di audit/idempotenza e protezione del dispositivo.
+La raccolta centralizzata dei log locali è disabilitata; i servizi applicativi principali rimangono attivi. Non è un impedimento al deploy del database, ma i log di sviluppo centralizzati non sono disponibili in questa configurazione Windows.
 
-La registrazione pubblica cloud non è stata modificata: enable_signup=false locale non dimostra la configurazione cloud.
+Questi controlli non costituiscono un audit esterno o un test di carico. Non includono frontend/IndexedDB, browser, autenticazione end-to-end via HTTP, parser binario CSV/XLSX, provider AI o runtime delle future Edge Function. Le policy SQL sono state esercitate con ruoli Supabase reali. Restano le considerazioni operative su retention audit/idempotenza e protezione della cache offline.
 
-## Rilascio
-44 tabelle pubbliche e 2 private, 16 migrazioni, 10 viste. Seed solo locale. Nessun progetto creato/eliminato, nessuna migrazione/seed remoto, nessun reset cloud, nessun provider AI attivato, nessun frontend.
+## Prontezza al deploy
+**Il database è pronto per il preflight e il deploy cloud controllato sulla base del collaudo locale superato.** Prima dell'applicazione remota occorrono comunque identificazione del progetto pwa-docenti, controllo dello schema esistente e della cronologia, verifica della configurazione Auth per inviti, dry-run e autorizzazione esplicita dell'utente.
+
+Nessuna autenticazione/link cloud, migrazione/seed remoto o reset remoto eseguiti. Nessun frontend e nessun push/merge GitHub eseguiti in questo collaudo. Modifiche conservate nel branch locale dev.

@@ -1,17 +1,26 @@
 # Setup Supabase
 ## Rilevazione iniziale
-Cartella iniziale vuota, nessun repository Git né remote. Node 25.7.0, npm 11.10.1; PostgreSQL 16.14 e 18 presenti fuori dal PATH. Docker non disponibile. Installata CLI Supabase 2.121.0 come devDependency con package-lock.json. Nessuna autenticazione cloud effettuata e nessun progetto collegato.
+Cartella iniziale vuota, nessun repository Git né remote. Node 25.7.0, npm 11.10.1; PostgreSQL 16.14 e 18 presenti fuori dal PATH. Installata CLI Supabase 2.121.0 come devDependency con package-lock.json. Nel secondo collaudo Docker Desktop 4.96.1 / Engine 29.9.2 è disponibile e lo stack usa PostgreSQL 17.11. Nessuna autenticazione cloud effettuata e nessun progetto collegato.
 
 ## Verifica completa con Docker
-Installare/avviare Docker Desktop con motore Linux tramite procedura ufficiale, poi:
+Avviare Docker Desktop con motore Linux. Nell'installazione Windows rilevata docker.exe è in %LOCALAPPDATA%\Programs\DockerDesktop\resources\bin. Il runner lo aggiunge al PATH del solo processo. Poi:
 ```powershell
 npm ci
 npx --no-install supabase start
 npx --no-install supabase db reset --local
 npx --no-install supabase test db
-npx --no-install supabase db lint --local --level warning --fail-on warning
+npx --no-install supabase db lint --local --schema public,private --level warning --fail-on warning
 ```
 Ripetere reset --local, test e lint su ambiente pulito. La directory scripts/native-bootstrap.sql è soltanto uno shim Auth di test: non copiarla nelle migrazioni e non applicarla al cloud.
+
+Su Windows `npm run test:supabase:local` automatizza due cicli completi di reset locale, verifica PostgreSQL 17, 69 test pgTAP, lint di public/private, 69 asserzioni SQL e prova con due connessioni concorrenti. Richiede lo stack già avviato. Il runner usa il PostgreSQL Docker reale, non lo shim Auth nativo.
+
+### Porte e log locali
+Windows riserva l'intervallo TCP 54229–54328. Il config usa quindi API 56321, DB 56322, shadow DB 56320, Studio 56323 e posta locale 56324. Studio: http://127.0.0.1:56323. Le porte sono una configurazione di sviluppo e non cambiano endpoint o impostazioni cloud.
+
+Analytics/Vector è disabilitato solo nel config locale: Vector sulla macchina Windows cerca Docker TCP 2375, non disponibile. Non è stata abilitata alcuna esposizione TCP non autenticata del motore Docker. Il collaudo database e i servizi Auth/REST/Storage/Realtime rimangono utilizzabili; la raccolta centralizzata dei log locali non è attiva.
+
+L'output di `supabase start/status` può contenere credenziali locali generate: non pubblicarlo né copiarlo nei report. I log locali sono esclusi da Git.
 
 ## Collegamento cloud — da eseguire successivamente
 Il progetto autorizzato esiste già: pwa-docenti, West EU (Ireland), piano Free. Non crearne altri. Usare login ufficiale interattivo, non comunicare token/password in chat:

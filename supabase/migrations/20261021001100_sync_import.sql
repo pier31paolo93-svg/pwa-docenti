@@ -51,7 +51,7 @@ grant execute on function public.sync_mutation(uuid,text,uuid,uuid,bigint,jsonb)
 
 create function public.preview_import(p_workspace uuid,p_kind text,p_rows jsonb) returns uuid
 language plpgsql security invoker set search_path='' as $$
-declare batch uuid; item jsonb; errors jsonb; row_no integer:=0; duplicate uuid; seen text[]:='{}'; row_key text;
+declare batch uuid; item jsonb; errors jsonb; row_no integer:=0; duplicate uuid; seen text[]:=array[]::text[]; row_key text;
 begin
  if p_kind not in ('students','enrollments') or p_kind is null or jsonb_typeof(p_rows)<>'array' or jsonb_array_length(p_rows)>1000 then raise exception 'Invalid import (max 1000 rows)'; end if;
  insert into public.import_batches(workspace_id,kind) values(p_workspace,p_kind) returning id into batch;

@@ -1,7 +1,7 @@
 # PWA Docenti — backend, fase 1
 Backend SQL per Supabase; nessun frontend implementato.
 
-**Stato:** implementazione locale. Il deploy cloud richiede ancora la verifica dello stack Supabase Docker e l'autorizzazione esplicita. Nessuna migrazione remota eseguita.
+**Stato:** collaudo locale completato su Supabase Docker / PostgreSQL 17.11. Due ricostruzioni pulite, ciascuna con 69 test pgTAP, 69 controlli SQL, lint public/private senza warning e una prova di concorrenza. Pronto per preflight e deploy cloud controllato, previa autorizzazione esplicita. Nessuna migrazione remota eseguita.
 
 ## Contenuto
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 10 viste security_invoker.
@@ -22,7 +22,7 @@ npm run db:test
 npm run db:lint
 ```
 Il config usa PostgreSQL 17, richiesto dalla CLI installata 2.121.0.
-Per verificare la ripetibilità, ripetere reset locale, test e lint.
+Su Windows, dopo l'avvio dello stack, `npm run test:supabase:local` esegue due ricostruzioni con pgTAP, SQL diretto, lint e concorrenza. Porte locali: API 56321, database 56322, Studio 56323; vedere il setup per il conflitto con le porte riservate da Windows e la raccolta log opzionale disabilitata.
 Il seed non configura password o login utilizzabili: sono fixture SQL, non account di produzione.
 
 ## Verifica PostgreSQL nativa

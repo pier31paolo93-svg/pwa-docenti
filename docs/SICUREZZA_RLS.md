@@ -31,4 +31,4 @@ Il ruolo PostgreSQL postgres e la service_role sono amministrativi e possono byp
 
 RLS non cifra il dispositivo offline e non revoca dati già scaricati quando il dispositivo è disconnesso. Il contratto offline prescrive scadenza sessione, cancellazione cache al logout/revoca e nuova scansione autorizzata.
 
-Resta da verificare lo stack Supabase reale (Auth/JWT, PostgREST, pgTAP, plpgsql_check) con Docker. Le prove native verificano policy SQL reali usando ruoli e auth.uid() simulata; non costituiscono un audit esterno di sicurezza.
+Completato il collaudo database sullo stack Supabase reale PostgreSQL 17.11: pgTAP, SQL diretto, concorrenza e lint public/private senza warning, su due ricostruzioni pulite. I test usano ruoli e auth.uid() reali di Supabase. L'autenticazione end-to-end via HTTP/PostgREST e un audit esterno di sicurezza restano fuori dal perimetro di questo collaudo database; vedere TEST_REPORT.md.

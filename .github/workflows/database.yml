@@ -23,7 +23,7 @@ jobs:
           for pass in 1 2; do
             npx --no-install supabase db reset --local
             npx --no-install supabase test db
-            npx --no-install supabase db lint --local --level warning --fail-on warning
+            npx --no-install supabase db lint --local --schema public,private --level warning --fail-on warning
           done
       - if: always()
         run: npx --no-install supabase stop --no-backup
