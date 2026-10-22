@@ -1,0 +1,30 @@
+name: Database locale
+on:
+  push:
+    branches: [dev]
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/generate-pgtap.mjs --check
+      - run: npx --no-install supabase start > /tmp/docenti-db-start.log
+      - name: Migrazioni, seed, pgTAP e lint, due database puliti
+        run: |
+          for pass in 1 2; do
+            npx --no-install supabase db reset --local
+            npx --no-install supabase test db
+            npx --no-install supabase db lint --local --schema public,private --level warning --fail-on warning
+          done
+      - if: always()
+        run: npx --no-install supabase stop --no-backup

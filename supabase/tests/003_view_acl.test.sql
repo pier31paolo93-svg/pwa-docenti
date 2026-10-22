@@ -1,0 +1,12 @@
+begin;
+select extensions.plan(8);
+select extensions.ok(has_table_privilege('authenticated','public.v_homework_completion','SELECT'),'Authenticated SELECT retained');
+select extensions.ok(not has_table_privilege('authenticated','public.v_homework_completion','INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'),'Authenticated excessive privileges removed');
+select extensions.ok(not exists(select 1 from pg_class c cross join lateral aclexplode(c.relacl) a where c.oid='public.v_homework_completion'::regclass and a.grantee='authenticated'::regrole and a.privilege_type<>'SELECT'),'Authenticated direct ACL is SELECT only, including MAINTAIN');
+select extensions.ok(not exists(select 1 from pg_class c cross join lateral aclexplode(c.relacl) a where c.oid='public.v_homework_completion'::regclass and a.grantee=0),'PUBLIC has no grants');
+select extensions.ok(not has_table_privilege('anon','public.v_homework_completion','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'),'Anonymous has no effective API privileges');
+select extensions.ok((select 'security_invoker=true'=any(reloptions) from pg_class where oid='public.v_homework_completion'::regclass),'View retains security invoker');
+select extensions.ok((select relrowsecurity from pg_class where oid='public.homework_checks'::regclass),'Underlying homework RLS retained');
+select extensions.ok((select relrowsecurity from pg_class where oid='public.homework_exercise_results'::regclass),'Underlying exercise RLS retained');
+select * from extensions.finish();
+rollback;

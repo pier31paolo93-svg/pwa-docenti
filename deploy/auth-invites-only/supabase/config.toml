@@ -1,0 +1,7 @@
+# Isolated cloud Auth patch. Do not use this directory to start/reset a local stack.
+# Only this explicitly declared remote setting is proposed for writing.
+# Always pass --project-ref mwabfmooefmkszlrymyx and review config diff first.
+project_id = "pwa-docenti-auth-invites-only"
+
+[auth]
+enable_signup = false

@@ -1,0 +1,44 @@
+project_id = "pwa-docenti-local"
+
+[api]
+enabled = true
+port = 56321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 56322
+shadow_port = 56320
+major_version = 17
+
+[db.migrations]
+enabled = true
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+enable_signup = false
+
+[auth.email]
+# CLI maps this to the email provider switch. Global signup stays disabled.
+enable_signup = true
+enable_confirmations = true
+
+[studio]
+enabled = true
+port = 56323
+
+[local_smtp]
+port = 56324
+
+[analytics]
+enabled = false
+port = 56327
+
+[functions.ai-suggestions]
+verify_jwt = true

@@ -1,0 +1,39 @@
+name: Frontend e PWA
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: node scripts/test-release-config.mjs
+      - run: npm run build -- --mode test
+        env:
+          VITE_SUPABASE_URL: http://127.0.0.1:56321
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_local_build_only
+      - run: npx --no-install supabase start > /tmp/docenti-local-start.log
+      - run: node scripts/frontend-fixtures.cjs
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run test:pwa
+      - run: node scripts/verify-pages-build.mjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frontend-browser-results
+          path: playwright-report/
+          retention-days: 7
+      - if: always()
+        run: npx --no-install supabase stop --no-backup

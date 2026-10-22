@@ -1,0 +1,62 @@
+name: Pubblica PWA da main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  validate-frontend:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    uses: ./.github/workflows/frontend.yml
+  validate-database:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    uses: ./.github/workflows/database.yml
+  build:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    needs: [validate-frontend, validate-database]
+    permissions:
+      contents: read
+      pages: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Verifica configurazione pubblica autorizzata
+        run: |
+          test "$VITE_SUPABASE_URL" = 'https://mwabfmooefmkszlrymyx.supabase.co'
+          case "$VITE_SUPABASE_PUBLISHABLE_KEY" in sb_publishable_*) ;; *) exit 1 ;; esac
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - run: node scripts/verify-pages-build.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

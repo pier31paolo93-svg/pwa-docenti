@@ -1,0 +1,22 @@
+PWA Docenti - collaudo locale Supabase - 2026-10-21
+Docker Desktop 4.96.1 / Engine 29.9.2 / Supabase CLI 2.121.0
+PostgreSQL 17.11 (170011), migrations=16, public_tables=44, rls_tables=44, private_tables=2, public_views=10
+Comando: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-supabase-local.ps1
+Exit code finale: 0
+
+PostgreSQL server_version_num=170011
+Files=1, Tests=69,  1 wallclock secs ( 0.02 usr  0.01 sys +  0.00 cusr  0.03 csys =  0.06 CPU)
+Result: PASS
+Linting schema: public
+Linting schema: private
+No schema errors found
+{"results":[],"message":"db lint"}
+PASS Supabase PG17 cycle 1 : 69 pgTAP + 69 SQL + concurrent writers + lint
+PostgreSQL server_version_num=170011
+Files=1, Tests=69,  1 wallclock secs ( 0.03 usr  0.01 sys +  0.02 cusr  0.01 csys =  0.07 CPU)
+Result: PASS
+Linting schema: public
+Linting schema: private
+No schema errors found
+{"results":[],"message":"db lint"}
+PASS Supabase PG17 cycle 2 : 69 pgTAP + 69 SQL + concurrent writers + lint

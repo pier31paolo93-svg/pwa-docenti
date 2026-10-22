@@ -1,0 +1,255 @@
+{
+  "verified_at": "2026-10-22T10:20:53+02:00",
+  "project": {
+    "name": "pwa-docenti",
+    "ref": "mwabfmooefmkszlrymyx",
+    "region": "eu-west-1"
+  },
+  "source_commit": "e233cc0",
+  "supabase_cli": "2.121.0",
+  "postgres": "17.11",
+  "migrations_applied": 17,
+  "migration_versions": [
+    "20261021000100",
+    "20261021000200",
+    "20261021000300",
+    "20261021000400",
+    "20261021000500",
+    "20261021000600",
+    "20261021000700",
+    "20261021000800",
+    "20261021000900",
+    "20261021001000",
+    "20261021001100",
+    "20261021001200",
+    "20261021001300",
+    "20261021001400",
+    "20261021001500",
+    "20261021001600",
+    "20261022000100"
+  ],
+  "seeds_executed": false,
+  "reset_executed": false,
+  "accounts_created": 0,
+  "personal_data_inserted": false,
+  "auth": {
+    "project_ref": "mwabfmooefmkszlrymyx",
+    "public_signup": false,
+    "email_provider_enabled": true,
+    "accounts_created": 0,
+    "source": "readonly config diff against declared local values"
+  },
+  "verification": {
+    "passed": true,
+    "checks_count": 35,
+    "checks": [
+      {
+        "name": "10 public views",
+        "passed": true
+      },
+      {
+        "name": "17 exact migration versions",
+        "passed": true
+      },
+      {
+        "name": "2 private technical tables",
+        "passed": true
+      },
+      {
+        "name": "23 application functions present",
+        "passed": true
+      },
+      {
+        "name": "4 separate policies on every public table",
+        "passed": true
+      },
+      {
+        "name": "42 automatic stamp triggers",
+        "passed": true
+      },
+      {
+        "name": "44 public application tables",
+        "passed": true
+      },
+      {
+        "name": "56 authorization relation definitions",
+        "passed": true
+      },
+      {
+        "name": "7 public RPCs executable by authenticated",
+        "passed": true
+      },
+      {
+        "name": "AI disabled",
+        "passed": true
+      },
+      {
+        "name": "All constraints validated",
+        "passed": true
+      },
+      {
+        "name": "All indexes valid and ready",
+        "passed": true
+      },
+      {
+        "name": "All public application tables empty",
+        "passed": true
+      },
+      {
+        "name": "All views security_invoker",
+        "passed": true
+      },
+      {
+        "name": "Anonymous application function execute denied",
+        "passed": true
+      },
+      {
+        "name": "Audit direct writes denied",
+        "passed": true
+      },
+      {
+        "name": "Auth workspace bootstrap installed",
+        "passed": true
+      },
+      {
+        "name": "Authenticated hard DELETE denied",
+        "passed": true
+      },
+      {
+        "name": "Canonical grade register empty",
+        "passed": true
+      },
+      {
+        "name": "Grade audit trigger installed",
+        "passed": true
+      },
+      {
+        "name": "Linear decimal grade conversion",
+        "passed": true
+      },
+      {
+        "name": "Membership direct writes denied",
+        "passed": true
+      },
+      {
+        "name": "No anonymous table or view privileges",
+        "passed": true
+      },
+      {
+        "name": "No Auth user accounts",
+        "passed": true
+      },
+      {
+        "name": "Non-linear grade conversion",
+        "passed": true
+      },
+      {
+        "name": "PostgreSQL 17",
+        "passed": true
+      },
+      {
+        "name": "Private schema inaccessible to anon",
+        "passed": true
+      },
+      {
+        "name": "PUBLIC execute denied for application functions",
+        "passed": true
+      },
+      {
+        "name": "RLS enabled on every public table",
+        "passed": true
+      },
+      {
+        "name": "SECURITY DEFINER search_path safe",
+        "passed": true
+      },
+      {
+        "name": "Student average empty without records",
+        "passed": true
+      },
+      {
+        "name": "Sync operation log empty",
+        "passed": true
+      },
+      {
+        "name": "Trigger function direct execute denied",
+        "passed": true
+      },
+      {
+        "name": "Trusted application function owners",
+        "passed": true
+      },
+      {
+        "name": "Workspace owner column update denied",
+        "passed": true
+      }
+    ],
+    "object_counts": {
+      "constraints": 401,
+      "functions": 23,
+      "indexes": 258,
+      "private_tables": 2,
+      "public_policies": 176,
+      "public_tables": 44,
+      "triggers": 65,
+      "views": 10
+    },
+    "public_table_row_counts": {
+      "ai_requests": 0,
+      "ai_workspace_settings": 0,
+      "assessment_questions": 0,
+      "assessment_results": 0,
+      "assessment_rubrics": 0,
+      "assessments": 0,
+      "assignment_exercises": 0,
+      "assignment_topics": 0,
+      "assignments": 0,
+      "class_subjects": 0,
+      "classes": 0,
+      "competencies": 0,
+      "enrollments": 0,
+      "error_types": 0,
+      "evaluation_categories": 0,
+      "evaluation_rules": 0,
+      "grade_audit_log": 0,
+      "grade_entries": 0,
+      "homework_checks": 0,
+      "homework_errors": 0,
+      "homework_exercise_results": 0,
+      "import_batches": 0,
+      "import_rows": 0,
+      "lesson_activities": 0,
+      "lesson_topics": 0,
+      "lessons": 0,
+      "observation_competencies": 0,
+      "observation_errors": 0,
+      "observation_topics": 0,
+      "observation_types": 0,
+      "observations": 0,
+      "profiles": 0,
+      "question_errors": 0,
+      "question_results": 0,
+      "rubric_criteria": 0,
+      "rubric_scores": 0,
+      "school_years": 0,
+      "schools": 0,
+      "students": 0,
+      "subjects": 0,
+      "teaching_assignments": 0,
+      "topics": 0,
+      "workspace_members": 0,
+      "workspaces": 0
+    }
+  },
+  "structural_comparison": {
+    "local_objects": 1505,
+    "remote_objects": 1505,
+    "differences": []
+  },
+  "final_plan": {
+    "up_to_date": true,
+    "pending_migrations": [],
+    "seeds": [],
+    "roles": []
+  }
+}
