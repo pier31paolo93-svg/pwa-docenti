@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useData } from "../state/data";
 import { usePermissions } from "../hooks/permissions";
-import { ErrorBox } from "./ui";
+import { ErrorBox, ModalActions, useModalClean } from "./ui";
+import { useUnsavedChanges } from "../hooks/unsaved";
 import { text, today, type Row, type Patch } from "../types/model";
-import { tr } from "../domain/catalog";
+import { tr, label } from "../domain/catalog";
 export function GradeEditor({
   source,
   origin,
@@ -48,6 +49,11 @@ export function GradeEditor({
   );
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
+  const [review, setReview] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [dirty, setDirty] = useState(false);
+  const cleanModal = useModalClean();
+  useUnsavedChanges(dirty);
   async function submit(confirm: boolean) {
     setBusy(true);
     setError(undefined);
@@ -90,6 +96,14 @@ export function GradeEditor({
         });
       const result = await save("grade_entries", patch, row);
       setSaved(result);
+      setDirty(false);
+      cleanModal?.();
+      setReview(false);
+      setFeedback(
+        confirm
+          ? "Voto confermato nel registro."
+          : "Bozza salvata. Verifica la proposta prima della conferma.",
+      );
       if (result.suggested_value != null && !confirm)
         setValue(String(result.suggested_value));
     } catch (e) {
@@ -99,7 +113,13 @@ export function GradeEditor({
     }
   }
   return (
-    <section className="card grade-editor">
+    <section
+      className="card grade-editor"
+      onChangeCapture={() => {
+        setDirty(true);
+        setReview(false);
+      }}
+    >
       <h3>Voto finale</h3>
       <p className="muted">
         La proposta è calcolata dal database. Solo la conferma del docente entra
@@ -143,6 +163,7 @@ export function GradeEditor({
           Voto confermato
           <input
             type="number"
+            inputMode="decimal"
             step="any"
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -152,6 +173,7 @@ export function GradeEditor({
           Peso
           <input
             type="number"
+            inputMode="decimal"
             min="0.001"
             step="any"
             value={weight}
@@ -188,7 +210,46 @@ export function GradeEditor({
           {text(row, "suggested_value") || "—"}
         </p>
       )}
-      <div className="form-actions">
+      <p role="status" aria-live="polite">
+        {feedback}
+      </p>
+      {review && (
+        <div
+          className="grade-review"
+          role="region"
+          aria-label="Riepilogo prima della conferma"
+        >
+          <h4>Riepilogo del voto</h4>
+          <p>
+            Voto: <strong>{value || "Da indicare"}</strong> · Peso: {weight} ·{" "}
+            {excluded ? "Escluso dalla media" : "Incluso nella media"}
+          </p>
+          <p>
+            Studente:{" "}
+            {data.enrollments?.find((e) => e.id === enrollment)
+              ? label(
+                  "enrollments",
+                  data.enrollments.find((e) => e.id === enrollment)!,
+                  data,
+                )
+              : "Seleziona studente"}{" "}
+            · Categoria:{" "}
+            {text(
+              data.evaluation_categories?.find((c) => c.id === category),
+              "name",
+            )}{" "}
+            · Regola:{" "}
+            {text(
+              data.evaluation_rules?.find((r) => r.id === rule),
+              "name",
+            )}
+          </p>
+          <button className="button" onClick={() => setReview(false)}>
+            Torna alla modifica
+          </button>
+        </div>
+      )}
+      <ModalActions>
         <button
           className="button"
           disabled={
@@ -205,11 +266,15 @@ export function GradeEditor({
         <button
           className="button primary"
           disabled={disabled || busy || !writable("grade_entries", row)}
-          onClick={() => void submit(true)}
+          onClick={() => {
+            if (window.matchMedia("(max-width: 640px)").matches && !review)
+              setReview(true);
+            else void submit(true);
+          }}
         >
-          Conferma voto
+          {review ? "Conferma definitiva" : "Conferma voto"}
         </button>
-      </div>
+      </ModalActions>
     </section>
   );
 }

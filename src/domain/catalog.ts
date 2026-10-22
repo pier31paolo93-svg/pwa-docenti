@@ -97,7 +97,7 @@ export const catalog: Partial<Record<TableName, Entity>> = {
     ],
   },
   enrollments: {
-    title: "Iscrizioni e storico",
+    title: "Iscrizioni",
     singular: "iscrizione",
     group: "Organizzazione",
     fields: [
@@ -111,7 +111,7 @@ export const catalog: Partial<Record<TableName, Entity>> = {
     ],
   },
   class_subjects: {
-    title: "Materie nelle classi",
+    title: "Classi / Materie",
     singular: "associazione",
     group: "Organizzazione",
     fields: [
@@ -522,7 +522,7 @@ export function label(
 ): string {
   const find = (t: TableName, id: unknown) => data[t]?.find((r) => r.id === id);
   if (table === "members")
-    return text(row, "display_name") || text(row, "user_id");
+    return text(row, "display_name") || "Docente assegnato";
   if (table === "enrollments")
     return (
       label("students", find("students", row.student_id) ?? row, data) +
@@ -610,3 +610,25 @@ export function derivePatch(table: TableName, p: Patch, data: DataMap): Patch {
   return v;
 }
 export const essentialTables = Object.keys(catalog) as TableName[];
+export const organizationOrder: TableName[] = [
+  "school_years",
+  "schools",
+  "subjects",
+  "classes",
+  "class_subjects",
+  "teaching_assignments",
+  "students",
+  "enrollments",
+];
+export function organizationEntries(group: string) {
+  const entries = Object.entries(catalog);
+  return (
+    group === "Organizzazione"
+      ? [...entries].sort(
+          ([a], [b]) =>
+            organizationOrder.indexOf(a as TableName) -
+            organizationOrder.indexOf(b as TableName),
+        )
+      : entries
+  ).filter(([, c]) => c.group === group);
+}

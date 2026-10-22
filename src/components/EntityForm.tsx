@@ -1,16 +1,17 @@
 import { useCapabilities } from "../hooks/capabilities";
-import { useState } from "react";
+import { useState, useId } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { catalog, derivePatch, label, tr, type Field } from "../domain/catalog";
 import { formSchema, serialize } from "../domain/validation";
 import { useData } from "../state/data";
 import { useAuth } from "../state/auth";
-import { supabase } from "../services/supabase";
-import { useQuery } from "@tanstack/react-query";
+import { useTeachers } from "../hooks/teachers";
+import { validTeacher } from "../domain/teachers";
+import { TeacherPicker } from "./TeacherPicker";
 import type { Row, TableName, Patch } from "../types/model";
 
-import { ErrorBox } from "./ui";
+import { ErrorBox, ModalActions, useModalClose } from "./ui";
 export function EntityForm({
   table,
   row,
@@ -25,8 +26,10 @@ export function EntityForm({
   onSaved?: (row: Row) => void;
 }) {
   const spec = catalog[table]!;
+  const formId = useId();
+  const closeModal = useModalClose();
   const { data, save, filters } = useData();
-  const { session, workspace } = useAuth();
+  const { session } = useAuth();
   const [error, setError] = useState<unknown>();
   const privacy: Field = {
     name: "visibility",
@@ -77,22 +80,22 @@ export function EntityForm({
     resolver: zodResolver(formSchema(fields)),
   });
   const values = form.watch();
-  const members = useQuery({
-    queryKey: ["members", session?.user.id, workspace],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("workspace_members")
-        .select("*")
-        .eq("workspace_id", workspace)
-        .is("revoked_at", null);
-      if (error) throw error;
-      return data.map((m) => ({ ...m, id: m.user_id })) as Row[];
-    },
-    enabled: table === "teaching_assignments",
-  });
+  const members = useTeachers(table === "teaching_assignments");
   async function submit(values: Record<string, unknown>) {
     try {
       setError(undefined);
+      if (
+        table === "teaching_assignments" &&
+        !row &&
+        (members.isFetching ||
+          members.isError ||
+          !validTeacher(values.teacher_id, members.data ?? []))
+      ) {
+        form.setError("teacher_id", {
+          message: "Seleziona un docente autorizzato del workspace corrente.",
+        });
+        return;
+      }
       let patch = derivePatch(table, serialize(fields, values), data);
       if (row) {
         for (const key of Object.keys(patch))
@@ -115,10 +118,7 @@ export function EntityForm({
     }
   }
   function options(f: Field): Row[] {
-    const rows =
-      f.ref === "members"
-        ? (members.data ?? [])
-        : (data[f.ref as TableName] ?? []);
+    const rows = f.ref === "members" ? [] : (data[f.ref as TableName] ?? []);
     return rows.filter((r) => {
       if (r.deleted_at) return false;
       if (f.ref === "enrollments") {
@@ -153,58 +153,97 @@ export function EntityForm({
     });
   }
   return (
-    <form onSubmit={form.handleSubmit(submit)} className="form-grid">
-      {fields.map((f) => (
-        <label
-          className={f.type === "textarea" || f.type === "json" ? "wide" : ""}
-          key={f.name}
-        >
-          <span>
-            {f.label}
-            {f.required ? " *" : ""}
-          </span>
-          {f.type === "select" ? (
-            <select
-              {...form.register(f.name)}
-              disabled={!!row && f.name.endsWith("_id")}
-            >
-              <option value="">Seleziona…</option>
-              {f.ref
-                ? options(f).map((r) => (
-                    <option value={r.id} key={r.id}>
-                      {label(f.ref!, r, data)}
-                    </option>
-                  ))
-                : f.options?.map((v) => (
-                    <option key={v} value={v}>
-                      {tr(v)}
-                    </option>
-                  ))}
-            </select>
-          ) : f.type === "textarea" || f.type === "json" ? (
-            <textarea
-              {...form.register(f.name)}
-              rows={f.type === "json" ? 5 : 3}
-              spellCheck={f.type !== "json"}
+    <form
+      id={formId}
+      onSubmit={form.handleSubmit(submit)}
+      className="form-grid entity-form"
+      aria-label={"Dati " + spec.singular}
+    >
+      {fields.map((f) =>
+        f.name === "teacher_id" ? (
+          <div key={f.name}>
+            <TeacherPicker
+              teachers={members.data ?? []}
+              value={String(values.teacher_id ?? "")}
+              disabled={!!row}
+              loading={members.isPending}
+              error={members.isError}
+              onChange={(id) => {
+                form.setValue("teacher_id", id, { shouldValidate: true });
+              }}
             />
-          ) : f.type === "checkbox" ? (
-            <input type="checkbox" {...form.register(f.name)} />
-          ) : (
-            <input
-              type={f.type}
-              min={f.min}
-              max={f.max}
-              step={f.type === "number" ? "any" : undefined}
-              {...form.register(f.name)}
-            />
-          )}
-          {form.formState.errors[f.name] && (
-            <small className="field-error">
-              {String(form.formState.errors[f.name]?.message)}
-            </small>
-          )}
-        </label>
-      ))}
+            {form.formState.errors.teacher_id && (
+              <small className="field-error">
+                {String(form.formState.errors.teacher_id.message)}
+              </small>
+            )}
+          </div>
+        ) : (
+          <label
+            className={f.type === "textarea" || f.type === "json" ? "wide" : ""}
+            key={f.name}
+          >
+            <span>
+              {f.label}
+              {f.required ? " *" : ""}
+            </span>
+            {f.type === "select" ? (
+              <select
+                {...form.register(f.name)}
+                aria-label={f.label + (f.required ? " *" : "")}
+                disabled={!!row && f.name.endsWith("_id")}
+              >
+                <option value="">Seleziona…</option>
+                {f.ref
+                  ? options(f).map((r) => (
+                      <option value={r.id} key={r.id}>
+                        {label(f.ref!, r, data)}
+                      </option>
+                    ))
+                  : f.options?.map((v) => (
+                      <option key={v} value={v}>
+                        {tr(v)}
+                      </option>
+                    ))}
+              </select>
+            ) : f.type === "textarea" || f.type === "json" ? (
+              <textarea
+                {...form.register(f.name)}
+                aria-label={f.label + (f.required ? " *" : "")}
+                rows={f.type === "json" ? 5 : 3}
+                spellCheck={f.type !== "json"}
+              />
+            ) : f.type === "checkbox" ? (
+              <input type="checkbox" {...form.register(f.name)} />
+            ) : (
+              <input
+                type={f.type}
+                aria-label={f.label + (f.required ? " *" : "")}
+                aria-invalid={!!form.formState.errors[f.name]}
+                aria-describedby={
+                  form.formState.errors[f.name]
+                    ? `${formId}-${f.name}-error`
+                    : undefined
+                }
+                min={f.min}
+                max={f.max}
+                step={f.type === "number" ? "any" : undefined}
+                inputMode={f.type === "number" ? "decimal" : undefined}
+                {...form.register(f.name)}
+              />
+            )}
+            {form.formState.errors[f.name] && (
+              <small
+                className="field-error"
+                id={`${formId}-${f.name}-error`}
+                role="alert"
+              >
+                {String(form.formState.errors[f.name]?.message)}
+              </small>
+            )}
+          </label>
+        ),
+      )}
       {row && (
         <p className="wide muted">
           Revisione {row.version}. I riferimenti storici e la visibilità
@@ -214,20 +253,29 @@ export function EntityForm({
       <div className="wide">
         <ErrorBox error={error} />
       </div>
-      <div className="wide form-actions">
-        <button type="button" className="button" onClick={done}>
-          Annulla
-        </button>
-        <button
-          className="button primary"
-          disabled={form.formState.isSubmitting}
-        >
-          {form.formState.isSubmitting
-            ? "Salvataggio…"
-            : row
-              ? "Salva modifiche"
-              : "Crea " + spec.singular}
-        </button>
+      <div className="wide">
+        <ModalActions>
+          <button type="button" className="button" onClick={closeModal ?? done}>
+            Annulla
+          </button>
+          <button
+            className="button primary"
+            type="submit"
+            form={formId}
+            disabled={
+              form.formState.isSubmitting ||
+              (table === "teaching_assignments" &&
+                !row &&
+                (members.isFetching || members.isError))
+            }
+          >
+            {form.formState.isSubmitting
+              ? "Salvataggio…"
+              : row
+                ? "Salva modifiche"
+                : "Crea " + spec.singular}
+          </button>
+        </ModalActions>
       </div>
     </form>
   );

@@ -3735,6 +3735,14 @@ export type Database = {
         };
         Returns: Json;
       };
+      workspace_teacher_directory: {
+        Args: { p_workspace: string };
+        Returns: {
+          display_name: string;
+          member_role: string;
+          user_id: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

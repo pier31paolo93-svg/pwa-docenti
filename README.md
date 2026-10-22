@@ -8,6 +8,8 @@ Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il f
 
 ## Contenuto
 
+**Aggiornamento backoffice e icone:** [implementazione, collaudo e migrazione 20 da autorizzare](docs/BACKOFFICE_IDENTITY.md). Nessuna applicazione cloud della nuova migrazione da questo lavoro.
+
 **Primo rilascio Pages:** [stato e procedura](docs/FIRST_RELEASE.md). Gate abilitato su richiesta dell'utente; pubblicazione consentita soltanto da main dopo validazioni riuscite. PR #1 in attesa dell'autorizzazione al merge; nessun deploy avviato da questa preparazione. [Preflight storico](docs/RELEASE_READINESS.md).
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 11 viste security_invoker.
 - 19 migrazioni SQL applicate, inclusa la correzione ACL della nuova vista.
@@ -37,6 +39,8 @@ npm run test:native
 Usa PostgreSQL 16 in C:\Program Files\PostgreSQL\16\bin, loopback 127.0.0.1:55439 e cluster .local-test/; crea due database puliti e arresta il server alla fine. Non accede al PostgreSQL di sistema o al cloud. Auth è simulata soltanto nel bootstrap di test. Dettagli e limiti in [TEST_REPORT](docs/TEST_REPORT.md).
 
 ## Documentazione
+- [Deploy autorizzato migrazione 20 e controlli remoti](docs/DEPLOY_MIGRATION_20.md)
+- [Upgrade UX mobile e audit responsive](docs/MOBILE_UX.md)
 - [Architettura](docs/ARCHITETTURA_DATABASE.md)
 - [Modello dati](docs/MODELLO_DATI.md)
 - [Sicurezza RLS](docs/SICUREZZA_RLS.md)

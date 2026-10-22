@@ -1,5 +1,7 @@
 # Deploy controllato Supabase — 22 ottobre 2026
 
+Stato successivo aggiornato: **20/20 migrazioni** dopo il deploy autorizzato della sola directory docenti; [risultati migrazione 20](DEPLOY_MIGRATION_20.md). Le sezioni seguenti conservano il report storico del primo deploy di 17 migrazioni.
+
 ## Risultato
 **Deploy completato sul solo progetto pwa-docenti. 17 migrazioni applicate, nessuna anomalia rilevata.**
 Ultima verifica: 22 ottobre 2026, 10:20:53 Europe/Rome (UTC+02:00).
