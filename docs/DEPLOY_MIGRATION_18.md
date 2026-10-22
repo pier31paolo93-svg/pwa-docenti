@@ -1,5 +1,7 @@
 # Deploy migrazione 18 — 22 ottobre 2026
 
+> Anomalia successivamente risolta con la migrazione 19 autorizzata: **19/19, 35/35**. Vedere [report aggiornato](DEPLOY_MIGRATION_19.md). Il seguito documenta il deploy storico della 18.
+
 ## Esito e blocco residuo
 
 Applicata esclusivamente `20261022000200_frontend_workflows.sql` al progetto **pwa-docenti**, Project Ref **mwabfmooefmkszlrymyx**. Cronologia finale **18/18**. Il deploy SQL è riuscito; il rilascio operativo resta sospeso per un'anomalia ACL rilevata nei controlli successivi: **34/35 controlli remoti superati**. Nessuna correzione cloud è stata tentata dopo la rilevazione.

@@ -1,5 +1,8 @@
 # Frontend PWA — Quaderno Docenti
 
+> Aggiornamento dopo la correzione autorizzata: **19/19 migrazioni, 35/35 controlli remoti, 89/89 pgTAP locali**. Anomalia ACL della vista risolta; account/workspace invariati. [Report migrazione 19](DEPLOY_MIGRATION_19.md). Le precedenti indicazioni di blocco ACL descrivono lo stato storico dopo la 18.
+
+
 ## Avvio
 
 Node 22.12+ e npm. `npm ci`, copiare `.env.example` in `.env.local` e configurare l'URL del progetto e la sola chiave `sb_publishable_…`. `npm run dev`; aprire `/pwa-docenti/`. `.env.local`, `.env.test.local`, build e dati di collaudo sono ignorati da Git. Non inserire password degli account o chiavi privilegiate nel frontend.

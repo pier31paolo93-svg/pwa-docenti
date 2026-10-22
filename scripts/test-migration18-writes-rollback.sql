@@ -86,6 +86,8 @@ begin
  for f in select value from jsonb_array_elements(fixtures) loop
   perform set_config('request.jwt.claim.sub',f->>'owner',true);
   execute 'set local role authenticated';
+  if (select count(*) from public.v_homework_completion where workspace_id=(f->>'workspace')::uuid and completion_status='excused')<1 then raise exception 'FAIL own fictional homework not readable';end if;
+  if exists(select 1 from public.v_homework_completion where workspace_id<>(f->>'workspace')::uuid) then raise exception 'FAIL other workspace homework readable';end if;
   for item in select value from jsonb_array_elements(fixtures) where value->>'workspace'<>f->>'workspace' loop
    if exists(select 1 from public.students where id=(item->>'student')::uuid) then raise exception 'FAIL other workspace student readable';end if;
    begin

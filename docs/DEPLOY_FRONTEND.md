@@ -1,5 +1,8 @@
 # Deploy frontend
 
+> Aggiornamento dopo la correzione autorizzata: **19/19 migrazioni, 35/35 controlli remoti, 89/89 pgTAP locali**. Anomalia ACL della vista risolta; account/workspace invariati. [Report migrazione 19](DEPLOY_MIGRATION_19.md). Le precedenti indicazioni di blocco ACL descrivono lo stato storico dopo la 18.
+
+
 ## Stato e autorizzazioni
 
 Il lavoro resta su `dev`. Nessun merge su `main` o pubblicazione Pages. La migrazione **18** è stata autorizzata e applicata separatamente al solo progetto `pwa-docenti`, Ref `mwabfmooefmkszlrymyx`: **18/18**. Comprende gli adapter HTTP PT409 e i campi didattici aggiuntivi; le 17 migrazioni esistenti non sono state riscritte. Il rilascio resta sospeso per una discrepanza ACL sulla nuova vista: [esito, controlli e proposta di correzione](DEPLOY_MIGRATION_18.md).
