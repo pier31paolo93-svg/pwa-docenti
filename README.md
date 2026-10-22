@@ -39,6 +39,7 @@ npm run test:native
 Usa PostgreSQL 16 in C:\Program Files\PostgreSQL\16\bin, loopback 127.0.0.1:55439 e cluster .local-test/; crea due database puliti e arresta il server alla fine. Non accede al PostgreSQL di sistema o al cloud. Auth è simulata soltanto nel bootstrap di test. Dettagli e limiti in [TEST_REPORT](docs/TEST_REPORT.md).
 
 ## Documentazione
+- [Deploy autorizzato migrazione 20 e controlli remoti](docs/DEPLOY_MIGRATION_20.md)
 - [Upgrade UX mobile e audit responsive](docs/MOBILE_UX.md)
 - [Architettura](docs/ARCHITETTURA_DATABASE.md)
 - [Modello dati](docs/MODELLO_DATI.md)

@@ -10,15 +10,15 @@ L'email disponibile è esclusivamente quella dell'utente corrente, letta dalla s
 
 La query è separata per account/workspace e non entra nella cache offline cifrata. Nuovi incarichi richiedono una selezione UUID presente nella directory autorizzata; caricamento/errore impediscono la creazione. Gli incarichi esistenti mantengono riferimenti immutabili, secondo i trigger già presenti: il teacher_id non viene riscritto. Quando manca la RPC, l'app segnala indisponibilità e blocca soltanto la nuova selezione; consultazione e riferimenti storici rimangono disponibili. Gli altri flussi non dipendono dalla nuova RPC.
 
-## Migrazione 20 — autorizzazione cloud ancora necessaria
+## Migrazione 20 — deploy cloud autorizzato completato
 
-File: `20261022000400_workspace_teacher_directory.sql`. **Applicato esclusivamente al Docker locale; nessuna applicazione, reset, seed o modifica Supabase cloud eseguita.**
+File: `20261022000400_workspace_teacher_directory.sql`. **Applicato al cloud il 22 ottobre 2026 dopo autorizzazione esplicita, sul solo progetto pwa-docenti: 20/20 migrazioni. Nessun reset, seed o modifica di dati/account/membership.** Risultati e limiti di copertura: [DEPLOY_MIGRATION_20](DEPLOY_MIGRATION_20.md).
 
 La migrazione aggiunge soltanto la funzione read-only `public.workspace_teacher_directory(p_workspace uuid)`, con risultato user_id, display_name, member_role. SECURITY DEFINER con search_path vuoto è necessario perché la policy profiles esistente permette di leggere direttamente solo il proprio profilo. Prima di qualsiasi lettura la funzione verifica il ruolo dell'attore con private.member_role: solo Owner/Admin attivi del workspace richiesto; altri ruoli, membership revocate, workspace estranei/non disponibili vengono negati con 42501.
 
 Il join restituisce esclusivamente membership attive di quel workspace con ruolo owner/admin/teacher; viewer e revocati non sono candidati. Non legge auth.users o email. EXECUTE revocato a PUBLIC/anon e concesso ad authenticated, con controllo del workspace dentro la funzione. Nessuna modifica a tabelle, FK, indici, trigger, policy RLS o funzioni esistenti; le prime 19 migrazioni restano inalterate. Le RLS e i vincoli delle RPC di scrittura preesistenti restano l'ultima difesa dei salvataggi.
 
-Prima del rilascio occorre autorizzare separatamente il deploy della sola migrazione 20 sul progetto pwa-docenti, ref mwabfmooefmkszlrymyx, verificarne cronologia e dry-run, applicarla e ripetere i controlli remoti autorizzati. Non pubblicare il nuovo selettore come operativo prima di tale passaggio. Non è stato eseguito un dry-run cloud da questo lavoro.
+Il dry-run e il deploy della sola migrazione 20 sul progetto pwa-docenti, ref mwabfmooefmkszlrymyx, sono completati con verifiche remote positive. Il blocco SQL del selettore è risolto; merge e pubblicazione frontend richiedono ancora l'autorizzazione dell'utente e CI positiva.
 
 ## Asset originali e aggiornamento PWA
 
