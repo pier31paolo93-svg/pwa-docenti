@@ -1,4 +1,5 @@
 # Preflight deploy Supabase — 22 ottobre 2026
+**Documento storico del piano approvato.** Il deploy qui proposto è stato successivamente autorizzato e completato: vedere [DEPLOY_SUPABASE.md](DEPLOY_SUPABASE.md) per lo stato attuale. Le descrizioni e i comandi non ancora eseguiti nelle sezioni seguenti si riferiscono al momento del preflight.
 
 ## Esito e arresto prima del deploy
 **Preflight completato. Dry-run riuscito; nessuna migrazione applicata al cloud.**

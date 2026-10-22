@@ -1,7 +1,7 @@
 # PWA Docenti — backend, fase 1
 Backend SQL per Supabase; nessun frontend implementato.
 
-**Stato:** collaudo locale completato su Supabase Docker / PostgreSQL 17.11. Due ricostruzioni pulite, ciascuna con 69 test pgTAP, 69 controlli SQL, lint public/private senza warning e una prova di concorrenza. Pronto per preflight e deploy cloud controllato, previa autorizzazione esplicita. Nessuna migrazione remota eseguita.
+**Stato:** deploy cloud autorizzato completato il 22 ottobre 2026 sul solo pwa-docenti, Ref mwabfmooefmkszlrymyx. Applicate 17 migrazioni senza seed; signup pubblico disabilitato. Superati 35 controlli remoti in sola lettura e confronto di 1.505 definizioni con il locale, senza differenze. Nessun account o dato personale inserito. Vedere il report di deploy.
 
 ## Contenuto
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 10 viste security_invoker.
@@ -40,5 +40,6 @@ Usa PostgreSQL 16 in C:\Program Files\PostgreSQL\16\bin, loopback 127.0.0.1:5543
 - [Setup e deploy](docs/SETUP_SUPABASE.md)
 - [Report verifiche](docs/TEST_REPORT.md)
 - [Preflight deploy cloud](docs/PREDEPLOY_SUPABASE.md)
+- [Risultato deploy cloud](docs/DEPLOY_SUPABASE.md)
 
 Non usare reset remoto, --include-seed o chiavi privilegiate nel client. Il deploy e il push GitHub non sono automatizzati da questo progetto.

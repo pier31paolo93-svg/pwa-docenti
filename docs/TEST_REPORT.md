@@ -1,4 +1,5 @@
 # Report di collaudo — 21 ottobre 2026
+Deploy remoto autorizzato completato il 22 ottobre: 17 migrazioni, 35 controlli non distruttivi superati e 1.505 definizioni coincidenti con il locale. Nessuna fixture o account remoto creati. Esito separato in [DEPLOY_SUPABASE.md](DEPLOY_SUPABASE.md).
 
 Aggiornamento 22 ottobre: nel preflight è stata aggiunta una migrazione ACL, lasciando invariate le 16 qui collaudate. Il pacchetto di 17 migrazioni ha superato nuovamente due cicli di 69 pgTAP, 69 SQL, lint e concorrenza. Collegamento cloud e dry-run verificati senza applicazione remota: vedere [PREDEPLOY_SUPABASE.md](PREDEPLOY_SUPABASE.md). I risultati del 21 ottobre qui sotto restano come evidenza storica.
 
