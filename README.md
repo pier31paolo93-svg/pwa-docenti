@@ -1,5 +1,8 @@
-# PWA Docenti — backend, fase 1
-Backend SQL per Supabase; nessun frontend implementato.
+# PWA Docenti — Quaderno Docenti
+
+Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il frontend: `npm ci`, configurare `.env.local` seguendo `.env.example`, poi `npm run dev` e aprire `/pwa-docenti/`.
+
+**Fase 2:** interfaccia e flussi integrati con RLS, collaudo su dati fittizi locali. La migrazione 18 è locale e richiede approvazione per il cloud, inclusi gli adapter di conflitto compatibili con PostgREST 14. Nessun merge su `main`, pubblicazione o migrazione cloud automatica. [Architettura e utilizzo](docs/FRONTEND.md), [deploy frontend](docs/DEPLOY_FRONTEND.md), [report fase 2](docs/REPORT_FASE_2.md).
 
 **Stato:** deploy cloud autorizzato completato il 22 ottobre 2026 sul solo pwa-docenti, Ref mwabfmooefmkszlrymyx. Applicate 17 migrazioni senza seed; signup pubblico disabilitato. Superati 35 controlli remoti in sola lettura e confronto di 1.505 definizioni con il locale, senza differenze. Nessun account o dato personale inserito. Vedere il report di deploy.
 

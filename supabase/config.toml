@@ -25,7 +25,8 @@ site_url = "http://localhost:5173"
 enable_signup = false
 
 [auth.email]
-enable_signup = false
+# CLI maps this to the email provider switch. Global signup stays disabled.
+enable_signup = true
 enable_confirmations = true
 
 [studio]

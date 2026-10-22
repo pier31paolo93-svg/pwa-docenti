@@ -6,3 +6,6 @@ node_modules/
 **/supabase/.branches/
 .local-test/
 *.log
+dist/
+playwright-report/
+test-results/

@@ -45,5 +45,5 @@ for ($pass = 1; $pass -le 2; $pass++) {
   if ($procB.ExitCode -eq 0 -or (Get-Content $bErr -Raw) -notmatch '40001') { throw 'Expected 40001 for writer B' }
   $result = & $dockerExe @common -At -c "select count(*) from public.students s join public.workspaces w on w.id=s.workspace_id where w.owner_id='11111111-1111-4111-8111-111111111111' and s.external_code='TEST-1-1' and s.first_name='Concurrent A' and s.version=2"
   if ($LASTEXITCODE -ne 0 -or "$result".Trim() -ne '1') { throw 'Newer revision overwritten' }
-  Write-Output "PASS Supabase PG17 cycle $pass : 69 pgTAP + 69 SQL + concurrent writers + lint"
+  Write-Output "PASS Supabase PG17 cycle $pass : 81 pgTAP + 69 SQL + concurrent writers + lint"
 }
