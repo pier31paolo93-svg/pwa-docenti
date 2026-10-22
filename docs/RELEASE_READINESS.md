@@ -1,5 +1,7 @@
 # Preparazione rilascio Quaderno Docenti — 22 ottobre 2026
 
+> Aggiornamento successivo autorizzato: Pages e environment github-pages configurati, solo main ammesso; gate repository abilitato a true. Nessun merge o deploy eseguito. Vedere [primo rilascio](FIRST_RELEASE.md). Le indicazioni false/non configurato sotto documentano il preflight storico.
+
 ## Stato
 
 Preparazione sul branch `dev`, che include `ae03059` e tutte le 19 migrazioni. Backend cloud invariato in questo intervento. Il repository `pier31paolo93-svg/pwa-docenti` è **pubblico**; Actions è abilitato. Nessun merge su main, pubblicazione Pages o dispatch di produzione. Il gate repository **PAGES_DEPLOY_ENABLED=false** è stato configurato e verificato.

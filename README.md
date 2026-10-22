@@ -8,7 +8,7 @@ Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il f
 
 ## Contenuto
 
-**Preparazione Pages:** [controlli, workflow e passaggi manuali](docs/RELEASE_READINESS.md). Il gate di produzione resta disabilitato; nessun merge su main o deploy è autorizzato da questa preparazione.
+**Primo rilascio Pages:** [stato e procedura](docs/FIRST_RELEASE.md). Gate abilitato su richiesta dell'utente; pubblicazione consentita soltanto da main dopo validazioni riuscite. PR #1 in attesa dell'autorizzazione al merge; nessun deploy avviato da questa preparazione. [Preflight storico](docs/RELEASE_READINESS.md).
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 11 viste security_invoker.
 - 19 migrazioni SQL applicate, inclusa la correzione ACL della nuova vista.
 - Workspace personale automatico per ogni utente; Owner, Admin, Teacher, Viewer.
