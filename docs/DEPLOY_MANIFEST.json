@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-22",
+  "base_commit": "b84c37d",
+  "migrations": [
+    {
+      "file": "20261021000100_accounts.sql",
+      "sha256": "64afd5d4e965b12a53d45ed31ebe8fbd8725e89886f38601a24cc3827b1051d8"
+    },
+    {
+      "file": "20261021000200_school.sql",
+      "sha256": "e8bdda13b612c78138c0d52c7c1b35b9aa119a4d1c62f72a859710f54d8a34b9"
+    },
+    {
+      "file": "20261021000300_lessons.sql",
+      "sha256": "e18febb9dad1301be27f11d5ba71be268ca028aab720456d5698917739e687b3"
+    },
+    {
+      "file": "20261021000400_homework.sql",
+      "sha256": "ad31c750fb7bbc37193b4d947bf2abcd659e215967e473b8c6c0ff3c07b8bdf5"
+    },
+    {
+      "file": "20261021000500_observations.sql",
+      "sha256": "954b54cf75a2e5c14855461c788fb3135b6bdea5e57d1a92ccd762341526dff0"
+    },
+    {
+      "file": "20261021000600_assessments.sql",
+      "sha256": "d63969c5280a566326d37dfe85b5598c25ca4733bfdad0daae28f6e179b4b854"
+    },
+    {
+      "file": "20261021000700_evaluation.sql",
+      "sha256": "57b439bd027bc320b4e324fab675732f00f5097b0e5dccdfde02b093882bbd82"
+    },
+    {
+      "file": "20261021000800_offline_ai.sql",
+      "sha256": "27f5d03010bc8b6eea0d926b5770240ad05c2043b5531c0005c0e7de8616fbe4"
+    },
+    {
+      "file": "20261021000900_security.sql",
+      "sha256": "3b3f8aa965870cbdb6a517368b92d14c341a911f4517361173439002737ef6f2"
+    },
+    {
+      "file": "20261021001000_grading.sql",
+      "sha256": "f2a6b012c0abcd0a8970caa3912d1c79acadaca9c309ac5cd6e8812656f24256"
+    },
+    {
+      "file": "20261021001100_sync_import.sql",
+      "sha256": "bafa4798bab5cacedcd081904bb28a46f67653c68e63a5a6bcc4600ecc7d838e"
+    },
+    {
+      "file": "20261021001200_views.sql",
+      "sha256": "5785959eaf00cda234a3aa90fd89d173e890d1bd710e858ff238b418bbda6afc"
+    },
+    {
+      "file": "20261021001300_integrity.sql",
+      "sha256": "2a3957fe00d931e14a44804fab730c2cb8792c21b5cbe6d9b484ca7d5b16cac9"
+    },
+    {
+      "file": "20261021001400_assignment_authorization.sql",
+      "sha256": "e8fbe2fe3812cc0d6484636e88027d921bbaf79952e276cad6be85d169b4ed31"
+    },
+    {
+      "file": "20261021001500_domain_guards.sql",
+      "sha256": "e4c76904d5aa435eefb8de929722be5601734d69daa84a7ab3e2341e5186bcc6"
+    },
+    {
+      "file": "20261021001600_membership_revocation.sql",
+      "sha256": "a5b5d850ea7cf9aaba6b7b130eac7660d366dd2e278343ce7ebe11619f4651c5"
+    },
+    {
+      "file": "20261022000100_restrict_trigger_execute.sql",
+      "sha256": "c8f638e50ccf27b5b532cc79dc21797c1818287a9ea1a96d76b8d0cbb3e22353"
+    }
+  ],
+  "hash_normalization": "LF",
+  "project": {
+    "name": "pwa-docenti",
+    "ref": "mwabfmooefmkszlrymyx",
+    "region": "eu-west-1"
+  },
+  "auth_patch": {
+    "file": "deploy/auth-invites-only/supabase/config.toml",
+    "sha256": "a4f0b91023325282046ae1a23931d1b1734234d02093c015d2c1ec64e47792a9",
+    "declared_remote_update": {
+      "auth.enable_signup": false
+    }
+  }
+}

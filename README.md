@@ -5,7 +5,7 @@ Backend SQL per Supabase; nessun frontend implementato.
 
 ## Contenuto
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 10 viste security_invoker.
-- 16 migrazioni SQL ordinate per dipendenza.
+- 17 migrazioni SQL ordinate per dipendenza: 16 originali e una revoca ACL aggiunta nel preflight del 22 ottobre.
 - Workspace personale automatico per ogni utente; Owner, Admin, Teacher, Viewer.
 - Registro canonico dei voti, curve configurabili, audit e snapshot di correzione.
 - RPC offline con idempotenza e controllo versione; import JSON con anteprima.
@@ -39,5 +39,6 @@ Usa PostgreSQL 16 in C:\Program Files\PostgreSQL\16\bin, loopback 127.0.0.1:5543
 - [AI e privacy](docs/AI_PRIVACY.md)
 - [Setup e deploy](docs/SETUP_SUPABASE.md)
 - [Report verifiche](docs/TEST_REPORT.md)
+- [Preflight deploy cloud](docs/PREDEPLOY_SUPABASE.md)
 
 Non usare reset remoto, --include-seed o chiavi privilegiate nel client. Il deploy e il push GitHub non sono automatizzati da questo progetto.

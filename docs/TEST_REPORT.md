@@ -1,5 +1,7 @@
 # Report di collaudo — 21 ottobre 2026
 
+Aggiornamento 22 ottobre: nel preflight è stata aggiunta una migrazione ACL, lasciando invariate le 16 qui collaudate. Il pacchetto di 17 migrazioni ha superato nuovamente due cicli di 69 pgTAP, 69 SQL, lint e concorrenza. Collegamento cloud e dry-run verificati senza applicazione remota: vedere [PREDEPLOY_SUPABASE.md](PREDEPLOY_SUPABASE.md). I risultati del 21 ottobre qui sotto restano come evidenza storica.
+
 ## Esito
 **Collaudo locale Supabase PostgreSQL 17.11 completato positivamente.** Due ricostruzioni da zero delle 16 migrazioni e del seed, con identico risultato:
 

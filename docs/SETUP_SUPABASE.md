@@ -1,4 +1,5 @@
 # Setup Supabase
+Stato aggiornato al 22 ottobre: login ufficiale completato e collegamento verificato al solo `pwa-docenti`, Ref `mwabfmooefmkszlrymyx`. Schema/cronologia remoti letti e dry-run riuscito per 17 migrazioni, senza applicazione. Signup pubblico ancora attivo e modifica isolata preparata ma non applicata. Piano e richiesta di autorizzazione in [PREDEPLOY_SUPABASE.md](PREDEPLOY_SUPABASE.md).
 ## Rilevazione iniziale
 Cartella iniziale vuota, nessun repository Git né remote. Node 25.7.0, npm 11.10.1; PostgreSQL 16.14 e 18 presenti fuori dal PATH. Installata CLI Supabase 2.121.0 come devDependency con package-lock.json. Nel secondo collaudo Docker Desktop 4.96.1 / Engine 29.9.2 è disponibile e lo stack usa PostgreSQL 17.11. Nessuna autenticazione cloud effettuata e nessun progetto collegato.
 

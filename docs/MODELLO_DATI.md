@@ -576,6 +576,9 @@ Applicare tutti i file nell'ordine lessicografico; ogni file dipende dai precede
 
 La policy ricorsiva viene definita prima dell'helper per assegnazioni; PostgreSQL risolve il corpo PL/pgSQL al runtime. Tutti gli helper sono disponibili prima del seed o dell'utilizzo client.
 
+### Aggiornamento preflight del 22 ottobre 2026
+La migrazione aggiuntiva `20261022000100_restrict_trigger_execute.sql` revoca l'EXECUTE superfluo sulla funzione trigger privata di completezza delle verifiche. Le 16 migrazioni precedenti restano invariate; il pacchetto corrente comprende 17 file, ricollaudati localmente. Piano remoto e autorizzazione in [PREDEPLOY_SUPABASE.md](PREDEPLOY_SUPABASE.md).
+
 ## Viste e RPC
 | Oggetto | Uso |
 |---|---|
