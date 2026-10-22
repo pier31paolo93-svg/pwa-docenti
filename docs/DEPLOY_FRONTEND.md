@@ -2,13 +2,13 @@
 
 ## Stato e autorizzazioni
 
-Il lavoro resta su `dev`. Nessun merge su `main`, pubblicazione Pages o modifica cloud viene eseguito dallo sviluppo frontend. La nuova migrazione **18** deve essere approvata e applicata separatamente al solo progetto `pwa-docenti`, Ref `mwabfmooefmkszlrymyx`, prima di abilitare i salvataggi dell'applicazione. Comprende gli adapter HTTP che evitano i retry infiniti di PostgREST 14 sui conflitti `40001`, oltre ai campi didattici aggiuntivi. Le 17 migrazioni esistenti non sono state riscritte.
+Il lavoro resta su `dev`. Nessun merge su `main` o pubblicazione Pages. La migrazione **18** è stata autorizzata e applicata separatamente al solo progetto `pwa-docenti`, Ref `mwabfmooefmkszlrymyx`: **18/18**. Comprende gli adapter HTTP PT409 e i campi didattici aggiuntivi; le 17 migrazioni esistenti non sono state riscritte. Il rilascio resta sospeso per una discrepanza ACL sulla nuova vista: [esito, controlli e proposta di correzione](DEPLOY_MIGRATION_18.md).
 
 Il workflow `frontend.yml` si esegue su `dev`, `main` e PR: test, build e test browser con Supabase locale, senza credenziali cloud. Il workflow `pages.yml` pubblica esclusivamente `main` e solo con la variabile `PAGES_DEPLOY_ENABLED=true`; il gate resta chiuso per impostazione predefinita. La compilazione non contiene comandi Supabase di deploy.
 
 ## Prima dell'attivazione
 
-1. Revisionare codice, report e migrazione 18; autorizzare separatamente il suo deploy dopo nuova verifica di Project Ref, cronologia e dry-run. Nessun seed/reset sul cloud.
+1. Risolvere con autorizzazione separata la discrepanza ACL della vista e ripetere i controlli remoti. La 18 è già applicata: non riscriverla o riapplicarla. Nessun seed/reset sul cloud.
 2. Valutare l'idoneità dell'hosting pubblico per il trattamento dei dati scolastici e le condizioni d'uso. La pagina serve solo asset statici; login e API passano via HTTPS direttamente a Supabase. La documentazione GitHub segnala che Pages non va usato per transazioni sensibili come l'invio di password: non presumere che questa architettura sia automaticamente approvata. [Limiti e condizioni ufficiali](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
 3. Configurare manualmente le URL Auth di Supabase: Site URL dell'app autorizzata e redirect di recupero password esatto, inclusi `/pwa-docenti/` e l'eventuale dominio personalizzato. Mantenere signup disabilitato e provider email abilitato. Non usare `supabase config push`: la configurazione nel repository riguarda il locale.
 4. Impostare le variabili Actions **pubbliche** `VITE_SUPABASE_URL=https://mwabfmooefmkszlrymyx.supabase.co` e `VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_…`. Questa chiave è pubblica per progetto: la sicurezza risiede in Auth/RLS. Mai `service_role`, `sb_secret_…`, token CLI o password nelle variabili Vite.

@@ -2,13 +2,13 @@
 
 Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il frontend: `npm ci`, configurare `.env.local` seguendo `.env.example`, poi `npm run dev` e aprire `/pwa-docenti/`.
 
-**Fase 2:** interfaccia e flussi integrati con RLS, collaudo su dati fittizi locali. La migrazione 18 è locale e richiede approvazione per il cloud, inclusi gli adapter di conflitto compatibili con PostgREST 14. Nessun merge su `main`, pubblicazione o migrazione cloud automatica. [Architettura e utilizzo](docs/FRONTEND.md), [deploy frontend](docs/DEPLOY_FRONTEND.md), [report fase 2](docs/REPORT_FASE_2.md).
+**Fase 2:** interfaccia e flussi integrati con RLS, collaudo su dati fittizi locali. Migrazione 18 applicata sul cloud autorizzato: **18/18**. Rilascio sospeso per anomalia ACL sulla nuova vista, controlli remoti **34/35**; correzione separata proposta e non applicata. [Deploy migrazione 18](docs/DEPLOY_MIGRATION_18.md), [architettura e utilizzo](docs/FRONTEND.md), [deploy frontend](docs/DEPLOY_FRONTEND.md), [report fase 2](docs/REPORT_FASE_2.md). Nessun merge su `main` o pubblicazione Pages.
 
-**Stato:** deploy cloud autorizzato completato il 22 ottobre 2026 sul solo pwa-docenti, Ref mwabfmooefmkszlrymyx. Applicate 17 migrazioni senza seed; signup pubblico disabilitato. Superati 35 controlli remoti in sola lettura e confronto di 1.505 definizioni con il locale, senza differenze. Nessun account o dato personale inserito. Vedere il report di deploy.
+**Storico backend:** primo deploy di 17 migrazioni completato il 22 ottobre 2026 sul solo pwa-docenti, Ref mwabfmooefmkszlrymyx, senza seed e con signup pubblico disabilitato. Il relativo report documenta i precedenti 35 controlli e confronto di 1.505 definizioni. Lo stato attuale dopo la migrazione 18 è riportato sopra; i due account Owner e i rispettivi workspace sono rimasti invariati.
 
 ## Contenuto
-- 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 10 viste security_invoker.
-- 17 migrazioni SQL ordinate per dipendenza: 16 originali e una revoca ACL aggiunta nel preflight del 22 ottobre.
+- 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 11 viste security_invoker.
+- 18 migrazioni SQL applicate; proposta ACL successiva fuori dalla cartella delle migrazioni attive.
 - Workspace personale automatico per ogni utente; Owner, Admin, Teacher, Viewer.
 - Registro canonico dei voti, curve configurabili, audit e snapshot di correzione.
 - RPC offline con idempotenza e controllo versione; import JSON con anteprima.

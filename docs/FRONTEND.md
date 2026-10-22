@@ -31,7 +31,7 @@ Le medie provengono da `v_student_averages`, `v_class_dashboard`, `v_subject_das
 
 `20261022000200_frontend_workflows.sql` aggiunge giustificazione/motivo dei compiti, regola predefinita della verifica e vista protetta del completamento. Include gli adapter `frontend_sync_mutation` e `frontend_apply_import`, security invoker: intercettano `40001` e restituiscono `PT409` (HTTP 409). Il test ha riprodotto il problema dei retry infiniti di PostgREST 14, documentato da [Supabase](https://supabase.com/docs/guides/troubleshooting/high-cpu-and-infinite-transaction-retries-when-using-custom-error-codes-in-rpc-functions-77326b).
 
-La migrazione è stata applicata **solo localmente**. Le prime 17 migrazioni pubblicate restano inalterate. La 18 è un prerequisito dei salvataggi didattici del frontend. Sul cloud a 17 migrazioni resta disponibile la consultazione; la UI blocca le modifiche didattiche con un avviso. Serve approvazione esplicita prima di applicare la 18. Non eseguire `db push`, `config push`, reset o seed sul cloud senza nuova autorizzazione.
+La migrazione 18 è stata applicata sul solo cloud autorizzato pwa-docenti: **18/18**, prime 17 inalterate. Il rilascio operativo resta sospeso per privilegi ereditati eccessivi sulla nuova vista (34/35 controlli remoti superati). Correzione ACL proposta separatamente e non applicata: [report deploy 18](DEPLOY_MIGRATION_18.md). Non eseguire ulteriori modifiche cloud senza nuova autorizzazione.
 
 ## Offline e privacy
 

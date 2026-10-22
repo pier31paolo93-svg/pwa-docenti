@@ -1,5 +1,7 @@
 # Fase 2 — report tecnico frontend
 
+> Aggiornamento successivo alla fase di sviluppo: commit frontend `c44bdb6` pubblicato su dev; migrazione 18 applicata al cloud autorizzato, **18/18**. Controlli remoti **34/35**, anomalia ACL sulla nuova vista ancora aperta. Rilascio sospeso; nessuna correzione cloud applicata. [Report aggiornato](DEPLOY_MIGRATION_18.md). Le indicazioni sotto di mancato push/deploy descrivono la fase storica di sviluppo locale.
+
 Data: 22 ottobre 2026. Branch: `dev`. Base di lavoro: `d7cfc05`, successiva al deploy backend di 17 migrazioni. Tutte le verifiche applicative descritte sotto usano **account e nominativi fittizi su Supabase locale**. Nessun database cloud, account reale o branch `main` è stato modificato durante questa fase.
 
 ## Risultato
