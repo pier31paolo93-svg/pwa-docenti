@@ -8,6 +8,8 @@ Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il f
 
 ## Contenuto
 
+**Aggiornamento backoffice e icone:** [implementazione, collaudo e migrazione 20 da autorizzare](docs/BACKOFFICE_IDENTITY.md). Nessuna applicazione cloud della nuova migrazione da questo lavoro.
+
 **Primo rilascio Pages:** [stato e procedura](docs/FIRST_RELEASE.md). Gate abilitato su richiesta dell'utente; pubblicazione consentita soltanto da main dopo validazioni riuscite. PR #1 in attesa dell'autorizzazione al merge; nessun deploy avviato da questa preparazione. [Preflight storico](docs/RELEASE_READINESS.md).
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 11 viste security_invoker.
 - 19 migrazioni SQL applicate, inclusa la correzione ACL della nuova vista.

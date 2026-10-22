@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Plus, Pencil, Archive, ArrowRight } from "lucide-react";
-import { catalog, label, tr } from "../domain/catalog";
+import {
+  catalog,
+  label,
+  tr,
+  organizationEntries,
+  type Field,
+} from "../domain/catalog";
+import { useTeachers } from "../hooks/teachers";
+import { teacherChoices } from "../domain/teachers";
 import { useRows, useData } from "../state/data";
 import { usePermissions } from "../hooks/permissions";
 import type { Row, TableName, Patch } from "../types/model";
@@ -36,8 +44,8 @@ export function Organization() {
           <section key={group}>
             <h2>{group}</h2>
             <div className="resource-grid">
-              {Object.entries(catalog)
-                .filter(([, c]) => c.group === group && (!c.admin || admin))
+              {organizationEntries(group)
+                .filter(([, c]) => !c.admin || admin)
                 .map(([key, c]) => (
                   <Link
                     className="resource-card"
@@ -73,6 +81,22 @@ function ResourceTable({ table }: { table: TableName }) {
   const query = useRows(table);
   const { data, filters, save } = useData();
   const { writable } = usePermissions();
+  const teachers = useTeachers(table === "teaching_assignments");
+  const teacherLabels = teacherChoices(teachers.data ?? []);
+  function referenceLabel(field: Field, row: Row) {
+    if (field.ref === "members")
+      return (
+        teacherLabels.find((t) => t.id === row[field.name])?.label ??
+        "Docente assegnato"
+      );
+    return label(
+      field.ref!,
+      (data[field.ref as TableName] ?? []).find(
+        (x) => x.id === row[field.name],
+      ) ?? { id: text(row, field.name) },
+      data,
+    );
+  }
   const [editing, setEditing] = useState<Row | null | undefined>();
   const [search, setSearch] = useState("");
   const [archived, setArchived] = useState(false);
@@ -126,13 +150,7 @@ function ResourceTable({ table }: { table: TableName }) {
       spec.fields.map((f) => [
         f.label,
         f.ref
-          ? label(
-              f.ref,
-              (data[f.ref as TableName] ?? []).find(
-                (x) => x.id === row[f.name],
-              ) ?? { id: text(row, f.name) },
-              data,
-            )
+          ? referenceLabel(f, row)
           : f.type === "checkbox"
             ? row[f.name]
               ? "Sì"
@@ -229,6 +247,9 @@ function ResourceTable({ table }: { table: TableName }) {
                 "regola",
                 "rubrica",
                 "competenza",
+                "assegnazione",
+                "associazione",
+                "iscrizione",
               ].includes(spec.singular)
                 ? "a"
                 : "o"}{" "}
@@ -288,24 +309,10 @@ function ResourceTable({ table }: { table: TableName }) {
                     <td key={f.name}>
                       {i === 0 && route(row) ? (
                         <Link className="table-link" to={route(row)}>
-                          {f.ref
-                            ? label(
-                                f.ref,
-                                (data[f.ref as TableName] ?? []).find(
-                                  (x) => x.id === row[f.name],
-                                ) ?? { id: text(row, f.name) },
-                                data,
-                              )
-                            : text(row, f.name)}
+                          {f.ref ? referenceLabel(f, row) : text(row, f.name)}
                         </Link>
                       ) : f.ref ? (
-                        label(
-                          f.ref,
-                          (data[f.ref as TableName] ?? []).find(
-                            (x) => x.id === row[f.name],
-                          ) ?? { id: text(row, f.name) },
-                          data,
-                        )
+                        referenceLabel(f, row)
                       ) : f.type === "select" ? (
                         <Badge>{tr(text(row, f.name))}</Badge>
                       ) : (

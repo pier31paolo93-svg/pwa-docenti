@@ -1,0 +1,37 @@
+begin;
+select extensions.plan(13);
+select extensions.ok(not has_function_privilege('anon','public.workspace_teacher_directory(uuid)','EXECUTE'),'Anonymous directory access denied');
+select extensions.ok(not exists(select 1 from pg_proc p cross join lateral aclexplode(p.proacl) a where p.oid='public.workspace_teacher_directory(uuid)'::regprocedure and a.grantee=0),'No PUBLIC execute');
+select extensions.ok((select prosecdef and 'search_path=""'=any(proconfig) from pg_proc where oid='public.workspace_teacher_directory(uuid)'::regprocedure),'Narrow definer uses empty search_path');
+select extensions.ok((select prosrc not like '%auth.users%' from pg_proc where oid='public.workspace_teacher_directory(uuid)'::regprocedure),'No auth.users query');
+create temp table directory_ctx as select
+ (select id from public.workspaces where owner_id='11111111-1111-4111-8111-111111111111') w1,
+ (select id from public.workspaces where owner_id='22222222-2222-4222-8222-222222222222') w2;
+grant select on directory_ctx to authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+set local role authenticated;
+select extensions.ok(exists(select 1 from public.workspace_teacher_directory((select w1 from directory_ctx)) where user_id=auth.uid()),'Owner sees their own name');
+select extensions.ok(not exists(select 1 from public.workspace_teacher_directory((select w1 from directory_ctx)) where user_id='22222222-2222-4222-8222-222222222222'),'Other workspace user excluded');
+select extensions.throws_ok('select * from public.workspace_teacher_directory((select w2 from directory_ctx))','42501','Workspace administrator required','Cross-workspace lookup denied');
+reset role;
+insert into public.workspace_members(workspace_id,user_id,role) select w1,'22222222-2222-4222-8222-222222222222','viewer' from directory_ctx;
+set local role authenticated;
+select extensions.ok(not exists(select 1 from public.workspace_teacher_directory((select w1 from directory_ctx)) where user_id='22222222-2222-4222-8222-222222222222'),'Viewer is not assignable');
+reset role;
+update public.workspace_members set role='teacher' where workspace_id=(select w1 from directory_ctx) and user_id='22222222-2222-4222-8222-222222222222';
+set local role authenticated;
+select extensions.ok(exists(select 1 from public.workspace_teacher_directory((select w1 from directory_ctx)) where user_id='22222222-2222-4222-8222-222222222222'),'Active teacher included');
+select extensions.ok(not exists(select 1 from public.profiles where id='22222222-2222-4222-8222-222222222222'),'Existing profiles RLS unchanged');
+select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+select extensions.throws_ok('select * from public.workspace_teacher_directory((select w1 from directory_ctx))','42501','Workspace administrator required','Teacher cannot enumerate directory');
+reset role;
+update public.workspace_members set role='admin' where workspace_id=(select w1 from directory_ctx) and user_id='22222222-2222-4222-8222-222222222222';
+set local role authenticated;
+select extensions.ok(exists(select 1 from public.workspace_teacher_directory((select w1 from directory_ctx)) where user_id=auth.uid()),'Active admin permitted');
+reset role;
+update public.workspace_members set revoked_at=now() where workspace_id=(select w1 from directory_ctx) and user_id='22222222-2222-4222-8222-222222222222';
+set local role authenticated;
+select extensions.throws_ok('select * from public.workspace_teacher_directory((select w1 from directory_ctx))','42501','Workspace administrator required','Revoked admin denied');
+reset role;
+select * from extensions.finish();
+rollback;

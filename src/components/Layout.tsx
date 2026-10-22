@@ -2,7 +2,6 @@ import { useCapabilities } from "../hooks/capabilities";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, Link } from "react-router-dom";
 import {
-  BookOpen,
   LayoutDashboard,
   CalendarDays,
   CheckSquare,
@@ -71,8 +70,13 @@ export function Layout() {
       </a>
       <aside className={"sidebar " + (open ? "open" : "")}>
         <Link to="/" className="brand" onClick={() => setOpen(false)}>
-          <span className="brand-icon">
-            <BookOpen size={24} />
+          <span className="brand-icon brand-art">
+            <img
+              src={import.meta.env.BASE_URL + "icon-192.png"}
+              alt=""
+              width={44}
+              height={44}
+            />
           </span>
           <span>
             quaderno<span className="brand-sub">DOCENTI</span>

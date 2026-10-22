@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, ArrowRight, LockKeyhole, WifiOff } from "lucide-react";
+import { ArrowRight, LockKeyhole, WifiOff } from "lucide-react";
 import { supabase, configured, recoveryUrl } from "../services/supabase";
 import { ErrorBox } from "../components/ui";
 export function Login() {
@@ -50,8 +50,13 @@ export function Login() {
     <main className="login-shell">
       <section className="login-story">
         <div className="brand">
-          <span className="brand-icon">
-            <BookOpen size={26} />
+          <span className="brand-icon brand-art">
+            <img
+              src={import.meta.env.BASE_URL + "icon-192.png"}
+              alt=""
+              width={44}
+              height={44}
+            />
           </span>
           <span>
             quaderno<span className="brand-sub">DOCENTI</span>
