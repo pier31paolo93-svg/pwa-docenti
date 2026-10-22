@@ -23,6 +23,9 @@ import {
   Upload,
 } from "lucide-react";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { useCompact } from "../hooks/viewport";
+import { useTableLabels } from "../hooks/tableLabels";
+import { allowContextChange } from "../hooks/unsaved";
 import { useAuth } from "../state/auth";
 import { useData, useSyncState } from "../state/data";
 import { label, tr } from "../domain/catalog";
@@ -35,12 +38,22 @@ const nav = [
   ["/studenti", "Studenti", Users],
   ["/statistiche", "Statistiche", BarChart3],
 ] as const;
+const mobileNav = [
+  ["/", "Home", LayoutDashboard],
+  ["/archivio/classes", "Classi", Users],
+  ["/osservazioni", "Registro", CalendarDays],
+  ["/verifiche", "Valutazioni", ClipboardList],
+] as const;
 export function Layout() {
+  useTableLabels();
   const capabilities = useCapabilities();
   const auth = useAuth();
   const { data, filters, setFilters, online } = useData();
   const ops = useSyncState();
   const [open, setOpen] = useState(false);
+  const compact = useCompact();
+  const narrowSidebar = useCompact(850);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [dark, setDark] = useState(localStorage.getItem("theme") === "dark");
   const {
@@ -51,6 +64,56 @@ export function Layout() {
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
+  useEffect(() => {
+    const keyboard = () =>
+      document.documentElement.classList.toggle(
+        "keyboard-open",
+        window.innerHeight -
+          (window.visualViewport?.height ?? window.innerHeight) >
+          150,
+      );
+    window.visualViewport?.addEventListener("resize", keyboard);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", keyboard);
+      document.documentElement.classList.remove("keyboard-open");
+    };
+  }, []);
+  useEffect(() => {
+    if (!open || !narrowSidebar) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const menu = document.querySelector<HTMLElement>(".sidebar");
+    const elements = () =>
+      Array.from(menu?.querySelectorAll<HTMLElement>("a,button") ?? []).filter(
+        (e) => e.getClientRects().length > 0,
+      );
+    elements()[0]?.focus();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const trap = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+      }
+      if (e.key === "Tab") {
+        const items = elements();
+        const first = items[0],
+          last = items.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", trap);
+    return () => {
+      document.removeEventListener("keydown", trap);
+      document.body.style.overflow = overflow;
+      previous?.focus({ preventScroll: true });
+    };
+  }, [open, narrowSidebar]);
   const classes = (data.classes ?? []).filter(
     (r) =>
       (!filters.year || r.school_year_id === filters.year) &&
@@ -68,7 +131,14 @@ export function Layout() {
       >
         Vai al contenuto
       </a>
-      <aside className={"sidebar " + (open ? "open" : "")}>
+      <aside
+        aria-label="Menu completo"
+        role={narrowSidebar && open ? "dialog" : undefined}
+        aria-modal={narrowSidebar && open ? true : undefined}
+        aria-hidden={narrowSidebar && !open}
+        inert={narrowSidebar && !open}
+        className={"sidebar " + (open ? "open" : "")}
+      >
         <Link to="/" className="brand" onClick={() => setOpen(false)}>
           <span className="brand-icon brand-art">
             <img
@@ -119,7 +189,7 @@ export function Layout() {
           </NavLink>
         </nav>
         <div className="sidebar-bottom">
-          <NavLink to="/impostazioni">
+          <NavLink to="/impostazioni" onClick={() => setOpen(false)}>
             <Settings size={18} />
             Impostazioni
           </NavLink>
@@ -137,7 +207,7 @@ export function Layout() {
           aria-label="Chiudi menu"
         />
       )}
-      <div className="app-body">
+      <div className="app-body" inert={open && narrowSidebar}>
         <header className="topbar">
           <button
             className="mobile-menu icon-button"
@@ -151,7 +221,9 @@ export function Layout() {
             <select
               aria-label="Workspace corrente"
               value={auth.workspace}
-              onChange={(e) => auth.setWorkspace(e.target.value)}
+              onChange={(e) => {
+                if (allowContextChange()) auth.setWorkspace(e.target.value);
+              }}
             >
               {auth.identity.workspaces.map((w) => (
                 <option key={w.id} value={w.id}>
@@ -214,57 +286,69 @@ export function Layout() {
             </button>
           </div>
         )}
-        <div className="context-bar">
-          <span className="context-label">Stai lavorando su</span>
-          <select
-            aria-label="Anno scolastico"
-            value={filters.year}
-            onChange={(e) => setFilters({ year: e.target.value })}
-          >
-            <option value="">Tutti gli anni</option>
-            {data.school_years?.map((r) => (
-              <option key={r.id} value={r.id}>
-                {String(r.label)}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Scuola"
-            value={filters.school}
-            onChange={(e) => setFilters({ school: e.target.value })}
-          >
-            <option value="">Tutte le scuole</option>
-            {data.schools?.map((r) => (
-              <option key={r.id} value={r.id}>
-                {String(r.name)}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Classe"
-            value={filters.classId}
-            onChange={(e) => setFilters({ classId: e.target.value })}
-          >
-            <option value="">Tutte le classi</option>
-            {classes.map((r) => (
-              <option key={r.id} value={r.id}>
-                {String(r.name)}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Materia"
-            value={filters.subject}
-            onChange={(e) => setFilters({ subject: e.target.value })}
-          >
-            <option value="">Tutte le materie</option>
-            {data.subjects?.map((r) => (
-              <option key={r.id} value={r.id}>
-                {String(r.name)}
-              </option>
-            ))}
-          </select>
-        </div>
+        <details
+          className="context-filters"
+          open={!compact || filtersOpen}
+          onToggle={(e) => {
+            if (compact) setFiltersOpen(e.currentTarget.open);
+          }}
+        >
+          <summary>
+            Filtri classe e materia{" "}
+            {filters.classId ? "· Classe selezionata" : "· Tutte le classi"}
+          </summary>
+          <div className="context-bar">
+            <span className="context-label">Stai lavorando su</span>
+            <select
+              aria-label="Anno scolastico"
+              value={filters.year}
+              onChange={(e) => setFilters({ year: e.target.value })}
+            >
+              <option value="">Tutti gli anni</option>
+              {data.school_years?.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {String(r.label)}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Scuola"
+              value={filters.school}
+              onChange={(e) => setFilters({ school: e.target.value })}
+            >
+              <option value="">Tutte le scuole</option>
+              {data.schools?.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {String(r.name)}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Classe"
+              value={filters.classId}
+              onChange={(e) => setFilters({ classId: e.target.value })}
+            >
+              <option value="">Tutte le classi</option>
+              {classes.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {String(r.name)}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Materia"
+              value={filters.subject}
+              onChange={(e) => setFilters({ subject: e.target.value })}
+            >
+              <option value="">Tutte le materie</option>
+              {data.subjects?.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {String(r.name)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </details>
         <main tabIndex={-1} id="main-content" className="main-content">
           {capabilities.data && !capabilities.data.extendedHomework && (
             <div className="banner">
@@ -280,15 +364,25 @@ export function Layout() {
           <span>Uno spazio per osservare, capire, accompagnare.</span>
         </footer>
       </div>
-      <nav className="bottom-nav" aria-label="Navigazione mobile">
-        {[nav[0], nav[1], nav[3], nav[5]].map(([to, title, Icon]) => (
+      <nav
+        className="bottom-nav"
+        aria-label="Navigazione mobile"
+        inert={open && narrowSidebar}
+      >
+        {mobileNav.map(([to, title, Icon]) => (
           <NavLink key={to} to={to} end={to === "/"}>
             <Icon size={21} />
-            <span>
-              {title === "La mia giornata" ? "Oggi" : title.split(" ")[0]}
-            </span>
+            <span>{title}</span>
           </NavLink>
         ))}
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen(true)}
+        >
+          <Menu size={21} />
+          <span>Altro</span>
+        </button>
       </nav>
       <div className="student-search">
         <label>

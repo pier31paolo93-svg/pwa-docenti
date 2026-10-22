@@ -27,13 +27,17 @@ jobs:
       - run: node scripts/frontend-fixtures.cjs
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - run: npm run audit:responsive
       - run: npm run test:pwa
       - run: node scripts/verify-pages-build.mjs
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: frontend-browser-results
-          path: playwright-report/
+          path: |
+            playwright-report/
+            .local-test/mobile-audit/after/
           retention-days: 7
+          include-hidden-files: true
       - if: always()
         run: npx --no-install supabase stop --no-backup

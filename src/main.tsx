@@ -17,6 +17,7 @@ import { Layout } from "./components/Layout";
 import { Organization, ResourcePage } from "./pages/Resources";
 import { Spinner, ErrorBox } from "./components/ui";
 import "./styles.css";
+import "./mobile.css";
 const client = new QueryClient({
   defaultOptions: {
     queries: { refetchOnReconnect: true, retry: 1, gcTime: 10 * 60_000 },

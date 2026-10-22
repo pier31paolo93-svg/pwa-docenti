@@ -57,8 +57,8 @@ export default defineConfig(({ mode, command }) => {
           start_url: "/pwa-docenti/",
           scope: "/pwa-docenti/",
           display: "standalone",
-          theme_color: "#164e42",
-          background_color: "#f5f5ef",
+          theme_color: "#1d4ed8",
+          background_color: "#f4f7fc",
           icons: [
             { src: "icon-192.png", sizes: "192x192", type: "image/png" },
             {

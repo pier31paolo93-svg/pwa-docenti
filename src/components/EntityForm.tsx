@@ -1,5 +1,5 @@
 import { useCapabilities } from "../hooks/capabilities";
-import { useState } from "react";
+import { useState, useId } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { catalog, derivePatch, label, tr, type Field } from "../domain/catalog";
@@ -11,7 +11,7 @@ import { validTeacher } from "../domain/teachers";
 import { TeacherPicker } from "./TeacherPicker";
 import type { Row, TableName, Patch } from "../types/model";
 
-import { ErrorBox } from "./ui";
+import { ErrorBox, ModalActions, useModalClose } from "./ui";
 export function EntityForm({
   table,
   row,
@@ -26,6 +26,8 @@ export function EntityForm({
   onSaved?: (row: Row) => void;
 }) {
   const spec = catalog[table]!;
+  const formId = useId();
+  const closeModal = useModalClose();
   const { data, save, filters } = useData();
   const { session } = useAuth();
   const [error, setError] = useState<unknown>();
@@ -151,7 +153,12 @@ export function EntityForm({
     });
   }
   return (
-    <form onSubmit={form.handleSubmit(submit)} className="form-grid">
+    <form
+      id={formId}
+      onSubmit={form.handleSubmit(submit)}
+      className="form-grid entity-form"
+      aria-label={"Dati " + spec.singular}
+    >
       {fields.map((f) =>
         f.name === "teacher_id" ? (
           <div key={f.name}>
@@ -183,6 +190,7 @@ export function EntityForm({
             {f.type === "select" ? (
               <select
                 {...form.register(f.name)}
+                aria-label={f.label + (f.required ? " *" : "")}
                 disabled={!!row && f.name.endsWith("_id")}
               >
                 <option value="">Seleziona…</option>
@@ -201,6 +209,7 @@ export function EntityForm({
             ) : f.type === "textarea" || f.type === "json" ? (
               <textarea
                 {...form.register(f.name)}
+                aria-label={f.label + (f.required ? " *" : "")}
                 rows={f.type === "json" ? 5 : 3}
                 spellCheck={f.type !== "json"}
               />
@@ -209,14 +218,26 @@ export function EntityForm({
             ) : (
               <input
                 type={f.type}
+                aria-label={f.label + (f.required ? " *" : "")}
+                aria-invalid={!!form.formState.errors[f.name]}
+                aria-describedby={
+                  form.formState.errors[f.name]
+                    ? `${formId}-${f.name}-error`
+                    : undefined
+                }
                 min={f.min}
                 max={f.max}
                 step={f.type === "number" ? "any" : undefined}
+                inputMode={f.type === "number" ? "decimal" : undefined}
                 {...form.register(f.name)}
               />
             )}
             {form.formState.errors[f.name] && (
-              <small className="field-error">
+              <small
+                className="field-error"
+                id={`${formId}-${f.name}-error`}
+                role="alert"
+              >
                 {String(form.formState.errors[f.name]?.message)}
               </small>
             )}
@@ -232,25 +253,29 @@ export function EntityForm({
       <div className="wide">
         <ErrorBox error={error} />
       </div>
-      <div className="wide form-actions">
-        <button type="button" className="button" onClick={done}>
-          Annulla
-        </button>
-        <button
-          className="button primary"
-          disabled={
-            form.formState.isSubmitting ||
-            (table === "teaching_assignments" &&
-              !row &&
-              (members.isFetching || members.isError))
-          }
-        >
-          {form.formState.isSubmitting
-            ? "Salvataggio…"
-            : row
-              ? "Salva modifiche"
-              : "Crea " + spec.singular}
-        </button>
+      <div className="wide">
+        <ModalActions>
+          <button type="button" className="button" onClick={closeModal ?? done}>
+            Annulla
+          </button>
+          <button
+            className="button primary"
+            type="submit"
+            form={formId}
+            disabled={
+              form.formState.isSubmitting ||
+              (table === "teaching_assignments" &&
+                !row &&
+                (members.isFetching || members.isError))
+            }
+          >
+            {form.formState.isSubmitting
+              ? "Salvataggio…"
+              : row
+                ? "Salva modifiche"
+                : "Crea " + spec.singular}
+          </button>
+        </ModalActions>
       </div>
     </form>
   );

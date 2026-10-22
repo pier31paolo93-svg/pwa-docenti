@@ -9,8 +9,15 @@ import { EntityForm } from "../components/EntityForm";
 import { GradeEditor } from "../components/GradeEditor";
 import { ResourcePage } from "./Resources";
 import { currentAssignments } from "../domain/context";
+import { useCompact } from "../hooks/viewport";
 export function Observations() {
-  const { data, filters, save } = useData();
+  const { data, filters, save, online } = useData();
+  const compact = useCompact();
+  const [search, setSearch] = useState("");
+  const [student, setStudent] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [last, setLast] = useState<Row>();
+  const [correction, setCorrection] = useState("");
   const { session, workspace } = useAuth();
   const { writable } = usePermissions();
   const [ta, setTa] = useState("");
@@ -25,7 +32,13 @@ export function Observations() {
   const selectedType = types.find((t) => t.id === type) ?? types[0];
   const students =
     data.enrollments?.filter(
-      (e) => e.class_id === selected?.class_id && !e.ends_on,
+      (e) =>
+        e.class_id === selected?.class_id &&
+        !e.ends_on &&
+        !e.deleted_at &&
+        label("enrollments", e, data)
+          .toLocaleLowerCase()
+          .includes(search.toLocaleLowerCase()),
     ) ?? [];
   let shortcuts = [
     "Partecipa con continuità",
@@ -46,7 +59,7 @@ export function Observations() {
     setBusy(e.id);
     setError(undefined);
     try {
-      await save(
+      const saved = await save(
         "observations",
         derivePatch(
           "observations",
@@ -61,6 +74,11 @@ export function Observations() {
           },
           data,
         ),
+      );
+      setLast(saved);
+      setCorrection(note);
+      setFeedback(
+        `${label("enrollments", e, data)}: ${online ? "osservazione salvata" : "in attesa di sincronizzazione"}.`,
       );
     } catch (err) {
       setError(err);
@@ -83,6 +101,9 @@ export function Observations() {
         }
       />
       <ErrorBox error={error} />
+      <p role="status" aria-live="polite">
+        {feedback}
+      </p>
       <div className="section-toolbar">
         <label>
           Classe e materia
@@ -111,6 +132,112 @@ export function Observations() {
           </select>
         </label>
       </div>
+      <div className="student-correction-toolbar">
+        <label>
+          Cerca studente
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </label>
+        {compact && (
+          <label>
+            Studente
+            <select
+              value={
+                (students.find((e) => e.id === student) ?? students[0])?.id ??
+                ""
+              }
+              onChange={(e) => setStudent(e.target.value)}
+            >
+              {students.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {label("enrollments", e, data)}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {compact && students.length > 0 && (
+          <div className="form-actions">
+            <button
+              className="button"
+              disabled={
+                !!busy ||
+                students.findIndex(
+                  (e) => e.id === (student || students[0]?.id),
+                ) <= 0
+              }
+              onClick={() =>
+                setStudent(
+                  students[
+                    Math.max(0, students.findIndex((e) => e.id === student) - 1)
+                  ].id,
+                )
+              }
+            >
+              Studente precedente
+            </button>
+            <button
+              className="button"
+              disabled={
+                !!busy ||
+                students.findIndex(
+                  (e) => e.id === (student || students[0]?.id),
+                ) >=
+                  students.length - 1
+              }
+              onClick={() =>
+                setStudent(
+                  students[
+                    Math.min(
+                      students.length - 1,
+                      Math.max(
+                        0,
+                        students.findIndex((e) => e.id === student),
+                      ) + 1,
+                    )
+                  ].id,
+                )
+              }
+            >
+              Studente successivo
+            </button>
+          </div>
+        )}
+      </div>
+      {last && (
+        <section className="card" aria-label="Correggi ultima osservazione">
+          <label>
+            Testo ultima osservazione
+            <input
+              value={correction}
+              onChange={(e) => setCorrection(e.target.value)}
+            />
+          </label>
+          <button
+            className="button"
+            disabled={!!busy || !correction.trim()}
+            onClick={() => {
+              setBusy(last.id);
+              void save("observations", { notes: correction }, last)
+                .then((r) => {
+                  setLast(r);
+                  setFeedback(
+                    online
+                      ? "Osservazione corretta e salvata."
+                      : "Correzione in attesa di sincronizzazione.",
+                  );
+                })
+                .catch(setError)
+                .finally(() => setBusy(""));
+            }}
+          >
+            Salva correzione
+          </button>
+        </section>
+      )}
       {!selected || !selectedType ? (
         <Empty
           title="Prepara le osservazioni"
@@ -119,7 +246,14 @@ export function Observations() {
         />
       ) : (
         <div className="student-grid">
-          {students.map((e) => (
+          {(compact
+            ? students.filter(
+                (e) =>
+                  e.id ===
+                  (students.find((s) => s.id === student) ?? students[0])?.id,
+              )
+            : students
+          ).map((e) => (
             <article className="card" key={e.id}>
               <h3>{label("enrollments", e, data)}</h3>
               <div className="quick-buttons">

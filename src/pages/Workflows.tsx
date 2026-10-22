@@ -2,7 +2,9 @@ import { CorrectionSummary } from "../components/CorrectionSummary";
 import { HomeworkOverview } from "../components/HomeworkOverview";
 import { useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useData, useRows } from "../state/data";
+import { useData, useRows, useSyncState } from "../state/data";
+import { useCompact } from "../hooks/viewport";
+import { allowContextChange } from "../hooks/unsaved";
 import { usePermissions } from "../hooks/permissions";
 import { useCapabilities } from "../hooks/capabilities";
 import { catalog, derivePatch, label, tr } from "../domain/catalog";
@@ -26,7 +28,17 @@ export function Workflow() {
       : path === "verifiche"
         ? "assessments"
         : "lessons";
-  const { data, save } = useData();
+  const { data, save, online } = useData();
+  const compact = useCompact();
+  const ops = useSyncState();
+  const [studentSearch, setStudentSearch] = useState("");
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const live = useRef<Record<string, Row>>({});
+  const [undo, setUndo] = useState<
+    { key: string; row: Row; previous: string } | undefined
+  >();
   const { writable } = usePermissions();
   const capabilities = useCapabilities();
   const parent = data[kind]?.find((r) => r.id === id);
@@ -49,15 +61,23 @@ export function Workflow() {
         description="Verifica i filtri e i permessi del workspace."
       />
     );
-  const enrollments = (data.enrollments ?? []).filter(
-    (e) =>
-      e.class_id === parent.class_id ||
-      (kind === "lessons" &&
-        e.class_id ===
-          data.teaching_assignments?.find(
-            (t) => t.id === parent.teaching_assignment_id,
-          )?.class_id),
-  );
+  const enrollments = (data.enrollments ?? [])
+    .filter(
+      (e) =>
+        e.class_id === parent.class_id ||
+        (kind === "lessons" &&
+          e.class_id ===
+            data.teaching_assignments?.find(
+              (t) => t.id === parent.teaching_assignment_id,
+            )?.class_id),
+    )
+    .filter(
+      (e) =>
+        !e.deleted_at &&
+        label("enrollments", e, data)
+          .toLocaleLowerCase()
+          .includes(studentSearch.toLocaleLowerCase()),
+    );
   const enrollment =
     enrollments.find((e) => e.id === selected) ?? enrollments[0];
   const results =
@@ -80,11 +100,47 @@ export function Workflow() {
   const criteria = (data.rubric_criteria ?? []).filter(
     (c) => c.rubric_id === parent.rubric_id,
   );
+  const steps = parent.correction_mode === "rubric" ? criteria : leaves;
+  const step = Math.min(questionIndex, Math.max(0, steps.length - 1));
+  const visibleQuestions =
+    compact && !showAll ? leaves.slice(step, step + 1) : leaves;
+  const visibleCriteria =
+    compact && !showAll ? criteria.slice(step, step + 1) : criteria;
+  function latest(
+    table: TableName,
+    key: string,
+    predicate: (r: Row) => boolean,
+  ) {
+    const remote = data[table]?.find(predicate),
+      local = live.current[key];
+    return Number(local?.version ?? 0) >= Number(remote?.version ?? 0)
+      ? local
+      : remote;
+  }
+  function exerciseResult(exerciseId: string) {
+    return latest(
+      "homework_exercise_results",
+      `h:${result?.id}:${exerciseId}`,
+      (r) => r.homework_check_id === result?.id && r.exercise_id === exerciseId,
+    );
+  }
+  function chooseStudent(value: string) {
+    if (!allowContextChange()) return;
+    setSelected(value);
+    setQuestionIndex(0);
+    setUndo(undefined);
+    setFeedback("");
+  }
   async function run(fn: () => Promise<void>) {
     setBusy(true);
     setError(undefined);
     try {
       await fn();
+      setFeedback(
+        online && ops.length === 0
+          ? "Modifica salvata. Puoi correggerla scegliendo un altro esito."
+          : "Modifica salvata sul dispositivo; sincronizzazione in attesa.",
+      );
     } catch (e) {
       setError(e);
     } finally {
@@ -114,10 +170,13 @@ export function Workflow() {
   }
   async function outcome(exercise: Row, value: string) {
     const check = await ensureResult();
-    const existing = data.homework_exercise_results?.find(
+    const key = `h:${check.id}:${exercise.id}`;
+    const existing = latest(
+      "homework_exercise_results",
+      key,
       (r) => r.homework_check_id === check.id && r.exercise_id === exercise.id,
     );
-    await save(
+    const saved = await save(
       "homework_exercise_results",
       existing
         ? { outcome: value }
@@ -130,17 +189,36 @@ export function Workflow() {
           },
       existing,
     );
+    live.current[key] = saved;
+    setUndo({
+      key,
+      row: saved,
+      previous: String(existing?.outcome ?? "not_done"),
+    });
   }
   async function correct(question: Row, value: string) {
     const r = await ensureResult();
-    const existing = data.question_results?.find(
+    const key = `q:${r.id}:${question.id}`;
+    const existing = latest(
+      "question_results",
+      key,
       (x) => x.assessment_result_id === r.id && x.question_id === question.id,
     );
     const p =
       parent!.correction_mode === "quick"
         ? { quick_result: value, score: null }
         : { score: Number(value), quick_result: null };
-    await save(
+    if (
+      parent!.correction_mode !== "quick" &&
+      (!Number.isFinite(Number(value)) ||
+        Number(value) < 0 ||
+        Number(value) >
+          Number(existing?.max_score_snapshot ?? question.max_score))
+    )
+      throw new Error(
+        "Indica un punteggio compreso tra zero e il massimo del quesito.",
+      );
+    const saved = await save(
       "question_results",
       existing
         ? p
@@ -154,13 +232,25 @@ export function Workflow() {
           },
       existing,
     );
+    live.current[key] = saved;
   }
   async function rubric(c: Row, value: string) {
     const r = await ensureResult();
-    const existing = data.rubric_scores?.find(
+    const key = `r:${r.id}:${c.id}`;
+    const existing = latest(
+      "rubric_scores",
+      key,
       (x) => x.assessment_result_id === r.id && x.criterion_id === c.id,
     );
-    await save(
+    if (
+      !Number.isFinite(Number(value)) ||
+      Number(value) < 0 ||
+      Number(value) > Number(existing?.max_score_snapshot ?? c.max_score)
+    )
+      throw new Error(
+        "Indica un punteggio compreso tra zero e il massimo del criterio.",
+      );
+    const saved = await save(
       "rubric_scores",
       existing
         ? { score: Number(value) }
@@ -176,6 +266,7 @@ export function Workflow() {
           ),
       existing,
     );
+    live.current[key] = saved;
   }
   const editor = (table: TableName, initial: Patch, row?: Row) =>
     setEdit({ table, initial, row });
@@ -209,6 +300,25 @@ export function Workflow() {
         }
       />
       <ErrorBox error={error} />
+      <div className="workflow-context">
+        <strong>
+          {label(
+            "teaching_assignments",
+            data.teaching_assignments?.find(
+              (t) => t.id === parent.teaching_assignment_id,
+            ) ?? parent,
+            data,
+          )}
+        </strong>
+        <p role="status" className="quick-feedback" aria-live="polite">
+          {busy
+            ? "Salvataggio in corso…"
+            : feedback ||
+              (!online
+                ? "Offline: le modifiche vengono conservate nella coda cifrata."
+                : "Pronto per la lezione")}
+        </p>
+      </div>
       {kind === "lessons" ? (
         <>
           <div className="dashboard-columns">
@@ -394,12 +504,21 @@ export function Workflow() {
           </section>
           {kind === "assignments" && <HomeworkOverview assignment={parent} />}
           <section className="card">
-            <div className="section-toolbar">
+            <div className="student-toolbar workflow-student">
+              <label>
+                Cerca studente nella classe
+                <input
+                  type="search"
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  placeholder="Nome o cognome"
+                />
+              </label>
               <label>
                 Studente da correggere
                 <select
                   value={enrollment?.id ?? ""}
-                  onChange={(e) => setSelected(e.target.value)}
+                  onChange={(e) => chooseStudent(e.target.value)}
                 >
                   {enrollments.map((e) => (
                     <option value={e.id} key={e.id}>
@@ -408,21 +527,45 @@ export function Workflow() {
                   ))}
                 </select>
               </label>
-              <button
-                className="button"
-                disabled={!enrollments.length}
-                onClick={() =>
-                  setSelected(
-                    enrollments[
-                      (enrollments.findIndex((e) => e.id === enrollment?.id) +
-                        1) %
-                        enrollments.length
-                    ].id,
-                  )
-                }
-              >
-                Studente successivo →
-              </button>
+              <div className="student-next">
+                <button
+                  className="button"
+                  disabled={busy || !enrollments.length}
+                  onClick={() =>
+                    chooseStudent(
+                      enrollments[
+                        (enrollments.findIndex((e) => e.id === enrollment?.id) -
+                          1 +
+                          enrollments.length) %
+                          enrollments.length
+                      ].id,
+                    )
+                  }
+                >
+                  ← Precedente
+                </button>
+                <span>
+                  {enrollments.length
+                    ? enrollments.findIndex((e) => e.id === enrollment?.id) + 1
+                    : 0}{" "}
+                  / {enrollments.length}
+                </span>
+                <button
+                  className="button"
+                  disabled={busy || !enrollments.length}
+                  onClick={() =>
+                    chooseStudent(
+                      enrollments[
+                        (enrollments.findIndex((e) => e.id === enrollment?.id) +
+                          1) %
+                          enrollments.length
+                      ].id,
+                    )
+                  }
+                >
+                  Studente successivo →
+                </button>
+              </div>
             </div>
             {!enrollment ? (
               <p>Non ci sono iscrizioni per questa classe.</p>
@@ -455,12 +598,7 @@ export function Workflow() {
                 <div className="quick-buttons">
                   {["correct", "partial", "wrong"].map((value) => {
                     const matching = exercises.filter(
-                      (e) =>
-                        (data.homework_exercise_results ?? []).find(
-                          (r) =>
-                            r.homework_check_id === result?.id &&
-                            r.exercise_id === e.id,
-                        )?.outcome === value,
+                      (e) => exerciseResult(e.id)?.outcome === value,
                     );
                     return (
                       <div className="counter" key={value}>
@@ -508,11 +646,7 @@ export function Workflow() {
                   })}
                 </div>
                 {exercises.map((e) => {
-                  const r = data.homework_exercise_results?.find(
-                    (x) =>
-                      x.homework_check_id === result?.id &&
-                      x.exercise_id === e.id,
-                  );
+                  const r = exerciseResult(e.id);
                   return (
                     <div className="correction-row" key={e.id}>
                       <strong>{text(e, "description")}</strong>
@@ -527,6 +661,7 @@ export function Workflow() {
                                 busy || !writable("homework_checks", result)
                               }
                               key={v}
+                              aria-pressed={r?.outcome === v}
                               onClick={() => void run(() => outcome(e, v))}
                             >
                               {tr(v)}
@@ -549,6 +684,25 @@ export function Workflow() {
                     </div>
                   );
                 })}
+                {undo && (
+                  <button
+                    className="button"
+                    disabled={busy}
+                    onClick={() =>
+                      void run(async () => {
+                        const restored = await save(
+                          "homework_exercise_results",
+                          { outcome: undo.previous },
+                          undo.row,
+                        );
+                        live.current[undo.key] = restored;
+                        setUndo(undefined);
+                      })
+                    }
+                  >
+                    Ripristina ultimo esercizio
+                  </button>
+                )}
                 {result && (
                   <>
                     <p>
@@ -610,9 +764,44 @@ export function Workflow() {
             ) : (
               <>
                 <CorrectionSummary assessment={parent} result={result} />
+                {compact && steps.length > 0 && (
+                  <div className="question-stepper">
+                    <button
+                      className="button"
+                      disabled={busy || step === 0}
+                      onClick={() => setQuestionIndex(step - 1)}
+                      aria-label="Quesito precedente"
+                    >
+                      ←
+                    </button>
+                    <span>
+                      {parent.correction_mode === "rubric"
+                        ? "Criterio"
+                        : "Quesito"}{" "}
+                      {step + 1} di {steps.length}
+                      <br />
+                      <button
+                        className="text-button"
+                        onClick={() => setShowAll((v) => !v)}
+                      >
+                        {showAll ? "Un quesito alla volta" : "Mostra tutti"}
+                      </button>
+                    </span>
+                    <button
+                      className="button"
+                      disabled={busy || step === steps.length - 1}
+                      onClick={() => setQuestionIndex(step + 1)}
+                      aria-label="Quesito successivo"
+                    >
+                      →
+                    </button>
+                  </div>
+                )}
                 {parent.correction_mode === "rubric"
-                  ? criteria.map((c) => {
-                      const r = data.rubric_scores?.find(
+                  ? visibleCriteria.map((c) => {
+                      const r = latest(
+                        "rubric_scores",
+                        `r:${result?.id}:${c.id}`,
                         (x) =>
                           x.assessment_result_id === result?.id &&
                           x.criterion_id === c.id,
@@ -625,6 +814,7 @@ export function Workflow() {
                           <input
                             key={r?.version ?? c.id}
                             type="number"
+                            inputMode="decimal"
                             defaultValue={text(r, "score")}
                             min="0"
                             max={Number(r?.max_score_snapshot ?? c.max_score)}
@@ -643,8 +833,10 @@ export function Workflow() {
                         </label>
                       );
                     })
-                  : leaves.map((q) => {
-                      const r = data.question_results?.find(
+                  : visibleQuestions.map((q) => {
+                      const r = latest(
+                        "question_results",
+                        `q:${result?.id}:${q.id}`,
                         (x) =>
                           x.assessment_result_id === result?.id &&
                           x.question_id === q.id,
@@ -662,6 +854,7 @@ export function Workflow() {
                                       (r?.quick_result === v ? "selected" : "")
                                     }
                                     key={v}
+                                    aria-pressed={r?.quick_result === v}
                                     disabled={
                                       busy ||
                                       !writable("assessment_results", result)
@@ -670,7 +863,11 @@ export function Workflow() {
                                       void run(() => correct(q, v))
                                     }
                                   >
-                                    {tr(v)}
+                                    {compact && v === "partial"
+                                      ? "Così così"
+                                      : compact && v === "unanswered"
+                                        ? "Non risposto"
+                                        : tr(v)}
                                   </button>
                                 ),
                               )}
@@ -685,6 +882,7 @@ export function Workflow() {
                               <input
                                 key={r?.version ?? q.id}
                                 type="number"
+                                inputMode="decimal"
                                 min="0"
                                 max={Number(
                                   r?.max_score_snapshot ?? q.max_score,

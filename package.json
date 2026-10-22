@@ -13,6 +13,7 @@
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "audit:responsive": "node scripts/audit-responsive.cjs after --assert",
     "typecheck": "tsc --noEmit",
     "test:pwa": "node scripts/test-pwa.cjs",
     "format": "prettier --write src tests *.ts index.html"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Plus, Pencil, Archive, ArrowRight } from "lucide-react";
 import {
@@ -25,6 +25,7 @@ import {
 import { EntityForm } from "../components/EntityForm";
 import { ExportMenu } from "../components/ExportMenu";
 import { GradeEditor } from "../components/GradeEditor";
+import { useCompact } from "../hooks/viewport";
 export function Organization() {
   const { admin } = usePermissions();
   return (
@@ -77,6 +78,7 @@ export function ResourcePage({ resource }: { resource?: TableName }) {
   return <ResourceTable key={table} table={table} />;
 }
 function ResourceTable({ table }: { table: TableName }) {
+  const compact = useCompact();
   const spec = catalog[table];
   const query = useRows(table);
   const { data, filters, save } = useData();
@@ -103,6 +105,18 @@ function ResourceTable({ table }: { table: TableName }) {
   const [error, setError] = useState<unknown>();
   const [initial, setInitial] = useState<Patch>({});
   const [grading, setGrading] = useState<Row>();
+  const [page, setPage] = useState(0);
+  useEffect(
+    () => setPage(0),
+    [
+      search,
+      archived,
+      filters.classId,
+      filters.subject,
+      filters.year,
+      filters.school,
+    ],
+  );
   if (!spec)
     return (
       <Empty
@@ -145,6 +159,21 @@ function ResourceTable({ table }: { table: TableName }) {
       return true;
     });
   const fields = spec.fields.slice(0, 4);
+  const currentPage = Math.min(
+    page,
+    Math.max(0, Math.ceil(rows.length / 50) - 1),
+  );
+  const visibleRows = rows.slice(currentPage * 50, (currentPage + 1) * 50);
+  const cell = (f: Field, row: Row) =>
+    f.ref
+      ? referenceLabel(f, row)
+      : f.type === "checkbox"
+        ? row[f.name]
+          ? "Sì"
+          : "No"
+        : f.type === "select"
+          ? tr(text(row, f.name))
+          : text(row, f.name);
   const exports = rows.map((row) =>
     Object.fromEntries(
       spec.fields.map((f) => [
@@ -292,84 +321,185 @@ function ResourceTable({ table }: { table: TableName }) {
           action={writable(table) ? () => setEditing(null) : undefined}
         />
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                {fields.map((f) => (
-                  <th key={f.name}>{f.label}</th>
-                ))}
-                <th>Azioni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id}>
-                  {fields.map((f, i) => (
-                    <td key={f.name}>
-                      {i === 0 && route(row) ? (
-                        <Link className="table-link" to={route(row)}>
-                          {f.ref ? referenceLabel(f, row) : text(row, f.name)}
-                        </Link>
-                      ) : f.ref ? (
-                        referenceLabel(f, row)
-                      ) : f.type === "select" ? (
-                        <Badge>{tr(text(row, f.name))}</Badge>
-                      ) : (
-                        text(row, f.name)
-                      )}
-                    </td>
+        <>
+          {!compact && (
+            <div className="table-wrap resource-desktop">
+              <table>
+                <thead>
+                  <tr>
+                    {fields.map((f) => (
+                      <th key={f.name}>{f.label}</th>
+                    ))}
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleRows.map((row) => (
+                    <tr key={row.id}>
+                      {fields.map((f, i) => (
+                        <td key={f.name}>
+                          {i === 0 && route(row) ? (
+                            <Link className="table-link" to={route(row)}>
+                              {f.ref
+                                ? referenceLabel(f, row)
+                                : text(row, f.name)}
+                            </Link>
+                          ) : f.ref ? (
+                            referenceLabel(f, row)
+                          ) : f.type === "select" ? (
+                            <Badge>{tr(text(row, f.name))}</Badge>
+                          ) : (
+                            text(row, f.name)
+                          )}
+                        </td>
+                      ))}
+                      <td>
+                        <div className="row-actions">
+                          {route(row) && (
+                            <Link
+                              className="icon-button"
+                              aria-label="Apri dettaglio"
+                              to={route(row)}
+                            >
+                              <ArrowRight size={17} />
+                            </Link>
+                          )}
+                          {table === "observations" &&
+                            row.mode === "GRADED" &&
+                            writable("grade_entries") && (
+                              <button
+                                className="button"
+                                onClick={() => setGrading(row)}
+                              >
+                                Voto
+                              </button>
+                            )}
+                          {writable(table, row) && (
+                            <>
+                              <button
+                                className="icon-button"
+                                onClick={() => setEditing(row)}
+                                aria-label="Modifica"
+                              >
+                                <Pencil size={16} />
+                              </button>
+                              <button
+                                className="icon-button"
+                                onClick={() => archive(row)}
+                                aria-label={
+                                  table === "grade_entries"
+                                    ? "Annulla voto"
+                                    : "Archivia"
+                                }
+                              >
+                                <Archive size={16} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                  <td>
-                    <div className="row-actions">
-                      {route(row) && (
-                        <Link
-                          className="icon-button"
-                          aria-label="Apri dettaglio"
-                          to={route(row)}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {compact && (
+            <div className="mobile-resource-list" aria-label={spec.title}>
+              {visibleRows.map((row) => (
+                <article className="card resource-mobile" key={row.id}>
+                  <h2>{cell(fields[0], row) || spec.singular}</h2>
+                  {row.status != null && (
+                    <Badge>{tr(String(row.status))}</Badge>
+                  )}
+                  {row.archived_at != null && <Badge>Archiviato</Badge>}
+                  <dl>
+                    {fields.slice(1).map((f) => (
+                      <div key={f.name}>
+                        <dt>{f.label}</dt>
+                        <dd>{cell(f, row) || "—"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="row-actions">
+                    {route(row) && (
+                      <Link className="button primary" to={route(row)}>
+                        Apri dettaglio
+                      </Link>
+                    )}
+                    {writable(table, row) && (
+                      <button
+                        className="button"
+                        onClick={() => setEditing(row)}
+                      >
+                        Modifica
+                      </button>
+                    )}
+                    {table === "observations" &&
+                      row.mode === "GRADED" &&
+                      writable("grade_entries") && (
+                        <button
+                          className="button"
+                          onClick={() => setGrading(row)}
                         >
-                          <ArrowRight size={17} />
-                        </Link>
+                          Voto
+                        </button>
                       )}
-                      {table === "observations" &&
-                        row.mode === "GRADED" &&
-                        writable("grade_entries") && (
-                          <button
-                            className="button"
-                            onClick={() => setGrading(row)}
-                          >
-                            Voto
-                          </button>
-                        )}
-                      {writable(table, row) && (
-                        <>
-                          <button
-                            className="icon-button"
-                            onClick={() => setEditing(row)}
-                            aria-label="Modifica"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            className="icon-button"
-                            onClick={() => archive(row)}
-                            aria-label={
-                              table === "grade_entries"
-                                ? "Annulla voto"
-                                : "Archivia"
-                            }
-                          >
-                            <Archive size={16} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                  </div>
+                  <details>
+                    <summary>Altri dettagli e azioni</summary>
+                    <dl>
+                      {spec.fields.slice(4).map((f) => (
+                        <div key={f.name}>
+                          <dt>{f.label}</dt>
+                          <dd>{cell(f, row) || "—"}</dd>
+                        </div>
+                      ))}
+                      <div>
+                        <dt>Visibilità</dt>
+                        <dd>{tr(text(row, "visibility")) || "Workspace"}</dd>
+                      </div>
+                    </dl>
+                    {writable(table, row) && (
+                      <button
+                        className="button danger"
+                        onClick={() => archive(row)}
+                      >
+                        {table === "grade_entries"
+                          ? "Annulla voto"
+                          : row.archived_at
+                            ? "Ripristina"
+                            : "Archivia"}
+                      </button>
+                    )}
+                  </details>
+                </article>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          )}
+          {rows.length > 50 && (
+            <nav className="resource-pager" aria-label="Pagine elenco">
+              <button
+                className="button"
+                disabled={currentPage === 0}
+                onClick={() => setPage(currentPage - 1)}
+              >
+                Precedenti
+              </button>
+              <span>
+                {currentPage * 50 + 1}–
+                {Math.min((currentPage + 1) * 50, rows.length)} di {rows.length}
+              </span>
+              <button
+                className="button"
+                disabled={(currentPage + 1) * 50 >= rows.length}
+                onClick={() => setPage(currentPage + 1)}
+              >
+                Successivi
+              </button>
+            </nav>
+          )}
+        </>
       )}
       {editing !== undefined && (
         <Modal

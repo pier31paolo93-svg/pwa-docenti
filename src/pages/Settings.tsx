@@ -12,6 +12,7 @@ import {
 } from "../offline/sync";
 import { PageTitle, ErrorBox, Badge } from "../components/ui";
 import { text, message } from "../types/model";
+import { useUnsavedChanges } from "../hooks/unsaved";
 export function Settings() {
   const auth = useAuth();
   const capabilities = useCapabilities();
@@ -22,6 +23,7 @@ export function Settings() {
     text(auth.identity.profile ?? undefined, "display_name"),
   );
   const [password, setPassword] = useState("");
+  const [savedName, setSavedName] = useState(name);
   const [enabled, setEnabled] = useState(consent(owner));
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
@@ -33,6 +35,10 @@ export function Settings() {
           )! as string,
         ).join("\n")
       : "Partecipa con continuità\nRichiede supporto\nIntervento pertinente",
+  );
+  const [savedShortcuts, setSavedShortcuts] = useState(shortcuts);
+  useUnsavedChanges(
+    name !== savedName || shortcuts !== savedShortcuts || !!password,
   );
   async function run(fn: () => Promise<void>) {
     setError(undefined);
@@ -109,6 +115,7 @@ export function Settings() {
                   .eq("version", Number(p.version));
                 if (error) throw error;
                 await auth.reload();
+                setSavedName(name);
               })
             }
           >
@@ -192,6 +199,7 @@ export function Settings() {
                   "quick:" + owner + ":" + auth.workspace,
                   JSON.stringify(items),
                 );
+                setSavedShortcuts(shortcuts);
               })
             }
           >
