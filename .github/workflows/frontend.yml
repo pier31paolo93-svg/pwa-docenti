@@ -3,6 +3,7 @@ on:
   push:
     branches: [dev, main]
   pull_request:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -17,15 +18,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run build
+      - run: node scripts/test-release-config.mjs
+      - run: npm run build -- --mode test
         env:
-          VITE_SUPABASE_URL: https://build-only.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_only
+          VITE_SUPABASE_URL: http://127.0.0.1:56321
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_local_build_only
       - run: npx --no-install supabase start > /tmp/docenti-local-start.log
       - run: node scripts/frontend-fixtures.cjs
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:pwa
+      - run: node scripts/verify-pages-build.mjs
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

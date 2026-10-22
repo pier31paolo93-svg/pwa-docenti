@@ -25,6 +25,7 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     { stdio: "ignore", windowsHide: true },
   );
   let browser;
+  let originalWorker;
   try {
     let ready = false;
     for (let i = 0; i < 60; i++) {
@@ -38,12 +39,14 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     }
     if (!ready) throw Error("Preview did not start");
     const manifest = await (await fetch(base + "manifest.webmanifest")).json();
-    if (manifest.scope !== "/pwa-docenti/" || manifest.icons.length < 2)
+    if (manifest.id !== "/pwa-docenti/" || manifest.start_url !== "/pwa-docenti/" || manifest.scope !== "/pwa-docenti/" || manifest.icons.length < 2)
       throw Error("Invalid manifest");
     browser = await chromium.launch();
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
+    context.setDefaultTimeout(30_000);
+    context.setDefaultNavigationTimeout(30_000);
     const p = await context.newPage();
     p.on("dialog", (d) => d.accept());
     const user = JSON.parse(fs.readFileSync(".local-test/e2e-users.json"))[0];
@@ -52,15 +55,20 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     await p.getByLabel("Password", { exact: true }).fill(user.password);
     await p.getByRole("button", { name: "Entra nel quaderno" }).click();
     await p.getByRole("heading", { name: /Buon/ }).waitFor();
+    console.log("PWA: local login and workspace loaded.");
     await p.goto(base + "#/impostazioni");
     await p.getByRole("button", { name: "Abilita e prepara dati" }).click();
     await p
       .getByRole("button", { name: "Rimuovi copia locale" })
       .waitFor({ state: "visible" });
     await p.waitForFunction(() => !document.querySelector("button:disabled"));
-    await p.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+    await p.evaluate(() => Promise.race([
+      navigator.serviceWorker.ready.then(() => true),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Service worker readiness timeout")), 30_000)),
+    ]));
     await p.reload();
     await p.waitForFunction(() => !!navigator.serviceWorker.controller);
+    console.log("PWA: service worker controls Pages base path.");
     await p.goto(base + "#/osservazioni");
     await p
       .getByRole("button", { name: "Intervento pertinente", exact: true })
@@ -77,6 +85,7 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     await p
       .getByText("Sincronizzato", { exact: true })
       .waitFor({ timeout: 45_000 });
+    console.log("PWA: offline reload, queue and synchronization passed.");
     const urls = await p.evaluate(async () => {
       const result = [];
       for (const key of await caches.keys())
@@ -86,12 +95,23 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     });
     if (urls.some((u) => /\/auth\/v1|\/rest\/v1/.test(u)))
       throw Error("Personal API response in Cache API");
+    originalWorker = fs.readFileSync("dist/sw.js", "utf8");
+    fs.writeFileSync("dist/sw.js", originalWorker + "\n// local release update probe\n");
+    await p.evaluate(async () => (await navigator.serviceWorker.ready).update());
+    await p.getByRole("button", { name: "Aggiorna", exact: true }).waitFor();
+    await p.getByRole("button", { name: "Aggiorna", exact: true }).click();
+    await p.waitForFunction(async () => {
+      const r = await navigator.serviceWorker.getRegistration();
+      return !!navigator.serviceWorker.controller && !r?.waiting;
+    });
+    await p.getByRole("heading", { name: "Osservazioni rapide" }).waitFor();
     console.log(
-      "PASS production PWA: manifest, active service worker, offline hard reload, queued observation, resync, static-only Cache API.",
+      "PASS production PWA: manifest, active service worker, offline hard reload, queued observation, resync, static-only Cache API, update prompt and activation preserving hash route.",
     );
   } finally {
     await browser?.close();
     server.kill();
+    if (originalWorker) fs.writeFileSync("dist/sw.js", originalWorker);
   }
 })().catch((e) => {
   console.error(e.message);

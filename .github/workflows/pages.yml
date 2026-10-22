@@ -9,8 +9,18 @@ concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
+  validate-frontend:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    uses: ./.github/workflows/frontend.yml
+  validate-database:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    uses: ./.github/workflows/database.yml
   build:
     if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
+    needs: [validate-frontend, validate-database]
+    permissions:
+      contents: read
+      pages: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +41,13 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - run: node scripts/verify-pages-build.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
   deploy:
+    if: github.ref == 'refs/heads/main' && vars.PAGES_DEPLOY_ENABLED == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:

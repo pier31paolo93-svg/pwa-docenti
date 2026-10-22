@@ -1,5 +1,7 @@
 # Deploy frontend
 
+> Stato attuale: migrazione 19 completata, anomalia ACL risolta. Preparazione PR/Pages e configurazione Actions aggiornate nel [report di rilascio](RELEASE_READINESS.md); gate di produzione false. Le indicazioni di blocco ACL sotto descrivono lo stato storico dopo la migrazione 18.
+
 > Aggiornamento dopo la correzione autorizzata: **19/19 migrazioni, 35/35 controlli remoti, 89/89 pgTAP locali**. Anomalia ACL della vista risolta; account/workspace invariati. [Report migrazione 19](DEPLOY_MIGRATION_19.md). Le precedenti indicazioni di blocco ACL descrivono lo stato storico dopo la 18.
 
 

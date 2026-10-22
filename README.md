@@ -7,6 +7,8 @@ Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il f
 **Storico backend:** primo deploy di 17 migrazioni completato il 22 ottobre 2026 sul solo pwa-docenti, Ref mwabfmooefmkszlrymyx, senza seed e con signup pubblico disabilitato. Il relativo report documenta i precedenti 35 controlli e confronto di 1.505 definizioni. Lo stato attuale dopo la migrazione 18 è riportato sopra; i due account Owner e i rispettivi workspace sono rimasti invariati.
 
 ## Contenuto
+
+**Preparazione Pages:** [controlli, workflow e passaggi manuali](docs/RELEASE_READINESS.md). Il gate di produzione resta disabilitato; nessun merge su main o deploy è autorizzato da questa preparazione.
 - 44 tabelle pubbliche con RLS, 2 tabelle tecniche private, 11 viste security_invoker.
 - 19 migrazioni SQL applicate, inclusa la correzione ACL della nuova vista.
 - Workspace personale automatico per ogni utente; Owner, Admin, Teacher, Viewer.
