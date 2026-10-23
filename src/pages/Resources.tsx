@@ -26,6 +26,12 @@ import { EntityForm } from "../components/EntityForm";
 import { ExportMenu } from "../components/ExportMenu";
 import { GradeEditor } from "../components/GradeEditor";
 import { useCompact } from "../hooks/viewport";
+import {
+  orderedEnrollments,
+  orderedStudents,
+  studentEnrollment,
+  type RegisterOrder,
+} from "../domain/register";
 export function Organization() {
   const { admin } = usePermissions();
   return (
@@ -57,6 +63,18 @@ export function Organization() {
                     <ArrowRight size={17} />
                   </Link>
                 ))}
+              {group === "Organizzazione" && admin && (
+                <Link className="resource-card" to="/passaggio-anno">
+                  <span>Passaggio anno</span>
+                  <ArrowRight size={17} />
+                </Link>
+              )}
+              {group === "Valutazione" && (
+                <Link className="resource-card" to="/griglie">
+                  <span>Griglie universali</span>
+                  <ArrowRight size={17} />
+                </Link>
+              )}
             </div>
           </section>
         ))}
@@ -125,7 +143,8 @@ function ResourceTable({ table }: { table: TableName }) {
         to="/"
       />
     );
-  const rows = (query.data ?? [])
+  const [order, setOrder] = useState<RegisterOrder>("register");
+  const filtered = (query.data ?? [])
     .filter(
       (r) =>
         !r.deleted_at &&
@@ -158,25 +177,47 @@ function ResourceTable({ table }: { table: TableName }) {
       }
       return true;
     });
-  const fields = spec.fields.slice(0, 4);
+  const rows =
+    table === "enrollments"
+      ? orderedEnrollments(filtered, data, order)
+      : table === "students"
+        ? orderedStudents(filtered, data, order, filters.classId)
+        : filtered;
+  const exportFields =
+    table === "students"
+      ? [
+          ...spec.fields,
+          {
+            name: "register_number",
+            label: "Numero di registro",
+            type: "number",
+          } as Field,
+        ]
+      : spec.fields;
+  const fields = exportFields.slice(0, 4);
   const currentPage = Math.min(
     page,
     Math.max(0, Math.ceil(rows.length / 50) - 1),
   );
   const visibleRows = rows.slice(currentPage * 50, (currentPage + 1) * 50);
   const cell = (f: Field, row: Row) =>
-    f.ref
-      ? referenceLabel(f, row)
-      : f.type === "checkbox"
-        ? row[f.name]
-          ? "Sì"
-          : "No"
-        : f.type === "select"
-          ? tr(text(row, f.name))
-          : text(row, f.name);
+    table === "students" && f.name === "register_number"
+      ? String(
+          studentEnrollment(row.id, data, filters.classId)?.register_number ??
+            "Non assegnato",
+        )
+      : f.ref
+        ? referenceLabel(f, row)
+        : f.type === "checkbox"
+          ? row[f.name]
+            ? "Sì"
+            : "No"
+          : f.type === "select"
+            ? tr(text(row, f.name))
+            : text(row, f.name);
   const exports = rows.map((row) =>
     Object.fromEntries(
-      spec.fields.map((f) => [
+      exportFields.map((f) => [
         f.label,
         f.ref
           ? referenceLabel(f, row)
@@ -184,7 +225,7 @@ function ResourceTable({ table }: { table: TableName }) {
             ? row[f.name]
               ? "Sì"
               : "No"
-            : text(row, f.name),
+            : cell(f, row),
       ]),
     ),
   );
@@ -289,6 +330,19 @@ function ResourceTable({ table }: { table: TableName }) {
       />
       <ErrorBox error={query.error ?? error} />
       <div className="section-toolbar">
+        {["students", "enrollments"].includes(table) && (
+          <label>
+            Ordina studenti
+            <select
+              value={order}
+              onChange={(e) => setOrder(e.target.value as RegisterOrder)}
+            >
+              <option value="register">Numero di registro</option>
+              <option value="surname">Cognome</option>
+              <option value="name">Nome</option>
+            </select>
+          </label>
+        )}
         <input
           type="search"
           aria-label="Cerca nell’elenco"
@@ -349,7 +403,7 @@ function ResourceTable({ table }: { table: TableName }) {
                           ) : f.type === "select" ? (
                             <Badge>{tr(text(row, f.name))}</Badge>
                           ) : (
-                            text(row, f.name)
+                            cell(f, row)
                           )}
                         </td>
                       ))}

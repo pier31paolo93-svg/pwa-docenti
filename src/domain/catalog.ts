@@ -101,12 +101,20 @@ export const catalog: Partial<Record<TableName, Entity>> = {
     singular: "iscrizione",
     group: "Organizzazione",
     fields: [
-      ref("student_id", "Studente", "students"),
       ref("class_id", "Classe", "classes"),
+      ref("student_id", "Studente", "students"),
+      f("register_number", "Numero di registro", "number", { min: 1 }),
       date("starts_on", "Data di ingresso"),
       f("ends_on", "Data di uscita", "date"),
       f("outcome", "Esito", "select", {
-        options: ["promoted", "repeating", "transferred", "withdrawn"],
+        options: [
+          "promoted",
+          "repeating",
+          "transferred",
+          "withdrawn",
+          "graduated",
+          "pending",
+        ],
       }),
     ],
   },
@@ -438,6 +446,15 @@ export const catalog: Partial<Record<TableName, Entity>> = {
           [1, 1],
         ],
       }),
+      f("conversion_mode", "Conversione", "select", {
+        options: ["curve", "linear", "bands"],
+        default: "curve",
+      }),
+      f("bands", "Fasce: soglia inclusiva e voto (JSON)", "json", {
+        default: [],
+      }),
+      num("band_maximum", "Base punti delle fasce", 80, 0.001),
+      f("pass_mark", "Sufficienza", "number"),
     ],
   },
   grade_entries: {
@@ -502,6 +519,11 @@ export const translations: Record<string, string> = {
   repeating: "Ripetente",
   transferred: "Trasferito",
   withdrawn: "Ritirato",
+  graduated: "Diplomato / fine ciclo",
+  pending: "Da definire",
+  curve: "Curva personalizzata",
+  linear: "Lineare",
+  bands: "Fasce",
   manual: "Manuale",
   assessment: "Verifica",
   observation: "Osservazione",
@@ -525,6 +547,10 @@ export function label(
     return text(row, "display_name") || "Docente assegnato";
   if (table === "enrollments")
     return (
+      (Number(row.register_number) > 0
+        ? `N. ${row.register_number}`
+        : "N. non assegnato") +
+      " · " +
       label("students", find("students", row.student_id) ?? row, data) +
       " · " +
       text(find("classes", row.class_id), "name")

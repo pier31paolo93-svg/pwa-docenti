@@ -33,7 +33,7 @@ for (const [device, width, height] of [
       .filter({
         has: page.getByRole("heading", { name: "Organizzazione", exact: true }),
       });
-    await expect(section.getByRole("link")).toHaveText(titles);
+    await expect(section.getByRole("link")).toHaveText([...titles,"Passaggio anno"]);
     for (const title of titles) {
       await section.getByRole("link", { name: title, exact: true }).click();
       await expect(

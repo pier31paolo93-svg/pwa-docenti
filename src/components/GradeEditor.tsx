@@ -11,12 +11,16 @@ export function GradeEditor({
   enrollment,
   assignment,
   disabled = false,
+  requireReview = false,
+  fixedRule = false,
 }: {
   source: Row;
   origin: "assessment" | "observation" | "homework";
   enrollment: string;
   assignment: string;
   disabled?: boolean;
+  requireReview?: boolean;
+  fixedRule?: boolean;
 }) {
   const { data, save, online } = useData();
   const { writable } = usePermissions();
@@ -149,7 +153,7 @@ export function GradeEditor({
             aria-label="Regola"
             value={rule}
             onChange={(e) => setRule(e.target.value)}
-            disabled={!!row}
+            disabled={!!row || fixedRule}
           >
             <option value="">Scegli…</option>
             {data.evaluation_rules?.map((c) => (
@@ -267,7 +271,7 @@ export function GradeEditor({
           className="button primary"
           disabled={disabled || busy || !writable("grade_entries", row)}
           onClick={() => {
-            if (window.matchMedia("(max-width: 640px)").matches && !review)
+            if ((requireReview || window.matchMedia("(max-width: 640px)").matches) && !review)
               setReview(true);
             else void submit(true);
           }}

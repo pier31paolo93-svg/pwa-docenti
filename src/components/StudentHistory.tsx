@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { GridEvidence } from "./GridEvidence";
 import { useData, useRows } from "../state/data";
 import { text, type Row } from "../types/model";
 import { tr } from "../domain/catalog";
@@ -82,6 +83,7 @@ export function StudentHistory({
   }
   return (
     <section className="card">
+      <GridEvidence student={student} from={from} to={to} />
       <div className="section-toolbar">
         <h2>Lezioni, compiti e prove</h2>
         <ExportMenu title="Storico didattico studente" rows={history} />

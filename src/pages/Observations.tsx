@@ -34,7 +34,8 @@ export function Observations() {
     data.enrollments?.filter(
       (e) =>
         e.class_id === selected?.class_id &&
-        !e.ends_on &&
+        text(e, "starts_on") <= today() &&
+        (!e.ends_on || text(e, "ends_on") >= today()) &&
         !e.deleted_at &&
         label("enrollments", e, data)
           .toLocaleLowerCase()

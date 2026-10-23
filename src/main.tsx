@@ -1,4 +1,6 @@
 import { Workflow } from "./pages/Workflows";
+import { Grids } from "./pages/Grids";
+import { YearTransition } from "./pages/YearTransition";
 import { Observations } from "./pages/Observations";
 import { Settings, SyncPage, AIPage } from "./pages/Settings";
 import { ImportPage } from "./pages/Import";
@@ -62,6 +64,8 @@ function App() {
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="organizzazione" element={<Organization />} />
+            <Route path="passaggio-anno" element={<YearTransition />} />
+            <Route path="griglie" element={<Grids />} />
             <Route path="archivio/:resource" element={<ResourcePage />} />
             <Route
               path="registro"

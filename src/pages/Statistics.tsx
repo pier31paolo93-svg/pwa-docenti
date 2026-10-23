@@ -1,4 +1,5 @@
 import { PeriodAverage } from "../components/PeriodAverage";
+import { GridEvidence } from "../components/GridEvidence";
 import { CanonicalDashboards } from "../components/CanonicalDashboards";
 import { StudentHistory } from "../components/StudentHistory";
 import { useState } from "react";
@@ -186,6 +187,7 @@ export function Statistics({ student = false }: { student?: boolean }) {
       : [];
   return (
     <>
+      {!student && <GridEvidence from={from} to={to} />}
       {student && (
         <Link className="back-link" to="/studenti">
           ← Studenti

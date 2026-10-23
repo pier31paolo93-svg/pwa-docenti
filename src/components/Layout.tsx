@@ -183,6 +183,9 @@ export function Layout() {
             <Upload size={19} />
             Importa studenti
           </NavLink>
+          <NavLink to="/griglie" onClick={() => setOpen(false)}>
+            Griglie universali
+          </NavLink>
           <NavLink to="/ai" onClick={() => setOpen(false)}>
             <Sparkles size={19} />
             Supporto didattico <span className="nav-tag">AI</span>

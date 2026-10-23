@@ -15,6 +15,8 @@ export function formSchema(fields: Field[]) {
       if (empty) continue;
       if (f.type === "number") {
         const n = Number(value);
+        if (f.name === "register_number" && !Number.isInteger(n))
+          error("Il numero di registro deve essere un intero positivo");
         if (!Number.isFinite(n)) error("Numero non valido");
         else if (f.min != null && n < f.min) error("Minimo " + f.min);
         else if (f.max != null && n > f.max) error("Massimo " + f.max);

@@ -30,10 +30,10 @@ insert into ctx select 'descriptive',id from public.observations where workspace
 insert into ctx select 'assignment1',id from public.teaching_assignments where workspace_id=(select id from ctx where key='w1') limit 1;
 insert into ctx select 'classsubject1',class_subject_id from public.teaching_assignments where id=(select id from ctx where key='assignment1');
 grant select on ctx to authenticated,anon;
-select test_support.ok((select count(*)=2 from public.workspaces),'Workspace automatici: due utenti due workspace');
+select test_support.ok((select count(*)=2 from public.workspaces where owner_id in ((select id from ctx where key='u1'),(select id from ctx where key='u2'))),'Workspace automatici: due utenti due workspace');
 select test_support.ok(not exists(select 1 from public.workspaces w left join public.workspace_members m on m.workspace_id=w.id and m.user_id=w.owner_id and m.role='owner' where m.user_id is null),'Ogni utente Owner del proprio workspace');
-select test_support.ok((select count(*)=15 from public.students),'Seed: quindici studenti fittizi');
-select test_support.ok((select count(*)=3 from public.classes),'Seed: tre classi');
+select test_support.ok((select count(*)=15 from public.students where workspace_id in ((select id from ctx where key='w1'),(select id from ctx where key='w2'))),'Seed: quindici studenti fittizi');
+select test_support.ok((select count(*)=3 from public.classes where workspace_id in ((select id from ctx where key='w1'),(select id from ctx where key='w2'))),'Seed: tre classi');
 select test_support.ok(not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and not c.relrowsecurity),'RLS su tutte le tabelle pubbliche');
 select test_support.ok(not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='v' and not coalesce(c.reloptions @> array['security_invoker=true'],false)),'Viste security_invoker');
 select test_support.ok(not exists(select 1 from public.ai_workspace_settings where enabled),'AI disabilitata');

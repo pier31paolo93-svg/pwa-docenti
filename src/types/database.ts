@@ -154,6 +154,7 @@ export type Database = {
           created_at: string;
           created_by: string;
           deleted_at: string | null;
+          grid_position: number;
           id: string;
           label: string;
           max_score: number;
@@ -171,6 +172,7 @@ export type Database = {
           created_at?: string;
           created_by?: string;
           deleted_at?: string | null;
+          grid_position?: number;
           id?: string;
           label: string;
           max_score: number;
@@ -187,6 +189,7 @@ export type Database = {
           created_at?: string;
           created_by?: string;
           deleted_at?: string | null;
+          grid_position?: number;
           id?: string;
           label?: string;
           max_score?: number;
@@ -333,10 +336,12 @@ export type Database = {
       };
       assessment_rubrics: {
         Row: {
+          archived_at: string | null;
           created_at: string;
           created_by: string;
           deleted_at: string | null;
           description: string | null;
+          grid_definition: Json | null;
           id: string;
           name: string;
           updated_at: string;
@@ -346,10 +351,12 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          archived_at?: string | null;
           created_at?: string;
           created_by?: string;
           deleted_at?: string | null;
           description?: string | null;
+          grid_definition?: Json | null;
           id?: string;
           name: string;
           updated_at?: string;
@@ -358,10 +365,12 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
+          archived_at?: string | null;
           created_at?: string;
           created_by?: string;
           deleted_at?: string | null;
           description?: string | null;
+          grid_definition?: Json | null;
           id?: string;
           name?: string;
           updated_at?: string;
@@ -395,6 +404,8 @@ export type Database = {
           created_by: string;
           deleted_at: string | null;
           evaluation_rule_id: string | null;
+          grid_request_hash: string | null;
+          grid_snapshot: Json | null;
           id: string;
           kind: string;
           rubric_id: string | null;
@@ -414,6 +425,8 @@ export type Database = {
           created_by?: string;
           deleted_at?: string | null;
           evaluation_rule_id?: string | null;
+          grid_request_hash?: string | null;
+          grid_snapshot?: Json | null;
           id?: string;
           kind: string;
           rubric_id?: string | null;
@@ -432,6 +445,8 @@ export type Database = {
           created_by?: string;
           deleted_at?: string | null;
           evaluation_rule_id?: string | null;
+          grid_request_hash?: string | null;
+          grid_snapshot?: Json | null;
           id?: string;
           kind?: string;
           rubric_id?: string | null;
@@ -900,6 +915,7 @@ export type Database = {
           ends_on: string | null;
           id: string;
           outcome: string | null;
+          register_number: number | null;
           starts_on: string;
           student_id: string;
           updated_at: string;
@@ -916,6 +932,7 @@ export type Database = {
           ends_on?: string | null;
           id?: string;
           outcome?: string | null;
+          register_number?: number | null;
           starts_on: string;
           student_id: string;
           updated_at?: string;
@@ -931,6 +948,7 @@ export type Database = {
           ends_on?: string | null;
           id?: string;
           outcome?: string | null;
+          register_number?: number | null;
           starts_on?: string;
           student_id?: string;
           updated_at?: string;
@@ -1084,6 +1102,9 @@ export type Database = {
       };
       evaluation_rules: {
         Row: {
+          band_maximum: number;
+          bands: NonNullable<Json>;
+          conversion_mode: string;
           conversion_points: NonNullable<Json>;
           created_at: string;
           created_by: string;
@@ -1092,6 +1113,7 @@ export type Database = {
           maximum: number;
           minimum: number;
           name: string;
+          pass_mark: number | null;
           rounding_step: number;
           updated_at: string;
           version: number;
@@ -1100,6 +1122,9 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          band_maximum?: number;
+          bands?: NonNullable<Json>;
+          conversion_mode?: string;
           conversion_points?: NonNullable<Json>;
           created_at?: string;
           created_by?: string;
@@ -1108,6 +1133,7 @@ export type Database = {
           maximum: number;
           minimum: number;
           name: string;
+          pass_mark?: number | null;
           rounding_step?: number;
           updated_at?: string;
           version?: number;
@@ -1115,6 +1141,9 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
+          band_maximum?: number;
+          bands?: NonNullable<Json>;
+          conversion_mode?: string;
           conversion_points?: NonNullable<Json>;
           created_at?: string;
           created_by?: string;
@@ -1123,6 +1152,7 @@ export type Database = {
           maximum?: number;
           minimum?: number;
           name?: string;
+          pass_mark?: number | null;
           rounding_step?: number;
           updated_at?: string;
           version?: number;
@@ -2513,6 +2543,7 @@ export type Database = {
           assessment_result_id: string;
           created_at: string;
           created_by: string;
+          criterion_scores: Json | null;
           deleted_at: string | null;
           id: string;
           max_score_snapshot: number;
@@ -2531,6 +2562,7 @@ export type Database = {
           assessment_result_id: string;
           created_at?: string;
           created_by?: string;
+          criterion_scores?: Json | null;
           deleted_at?: string | null;
           id?: string;
           max_score_snapshot: number;
@@ -2548,6 +2580,7 @@ export type Database = {
           assessment_result_id?: string;
           created_at?: string;
           created_by?: string;
+          criterion_scores?: Json | null;
           deleted_at?: string | null;
           id?: string;
           max_score_snapshot?: number;
@@ -3209,6 +3242,55 @@ export type Database = {
           },
         ];
       };
+      year_transitions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          payload: NonNullable<Json>;
+          request_hash: string;
+          result: NonNullable<Json>;
+          status: string;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string;
+          id: string;
+          payload: NonNullable<Json>;
+          request_hash: string;
+          result: NonNullable<Json>;
+          status: string;
+          workspace_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          payload?: NonNullable<Json>;
+          request_hash?: string;
+          result?: NonNullable<Json>;
+          status?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "year_transitions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "year_transitions_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       v_assessment_history: {
@@ -3504,6 +3586,29 @@ export type Database = {
           },
         ];
       };
+      v_grid_competency_progress: {
+        Row: {
+          assessment_id: string | null;
+          available_maximum: number | null;
+          competency_key: string | null;
+          competency_label: string | null;
+          enrollment_id: string | null;
+          evidence_count: number | null;
+          missing_detail_count: number | null;
+          obtained: number | null;
+          workspace_id: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "assessment_results_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       v_homework_completion: {
         Row: {
           assignment_id: string | null;
@@ -3675,6 +3780,26 @@ export type Database = {
         Args: { p_batch: string; p_expected_version: number };
         Returns: number;
       };
+      apply_year_transition: {
+        Args: { p_operation: string; p_plan: Json; p_workspace: string };
+        Returns: Json;
+      };
+      create_grid_assessment: {
+        Args: {
+          p_assignment: string;
+          p_date: string;
+          p_definition: Json;
+          p_kind: string;
+          p_operation: string;
+          p_rule: string;
+          p_rule_version: number;
+          p_template: string;
+          p_template_version: number;
+          p_title: string;
+          p_workspace: string;
+        };
+        Returns: string;
+      };
       frontend_apply_import: {
         Args: { p_batch: string; p_expected_version: number };
         Returns: number;
@@ -3690,9 +3815,17 @@ export type Database = {
         };
         Returns: Json;
       };
+      grid_grade: {
+        Args: { p_max: number; p_rule: Json; p_score: number };
+        Returns: number;
+      };
       preview_import: {
         Args: { p_kind: string; p_rows: Json; p_workspace: string };
         Returns: string;
+      };
+      preview_year_transition: {
+        Args: { p_plan: Json; p_workspace: string };
+        Returns: Json;
       };
       propose_grade: {
         Args: {
@@ -3735,6 +3868,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      validate_grid_definition: { Args: { g: Json }; Returns: boolean };
       workspace_teacher_directory: {
         Args: { p_workspace: string };
         Returns: {
