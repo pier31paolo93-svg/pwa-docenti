@@ -4,6 +4,8 @@ import { useRows, useData } from "../state/data";
 import { useAuth } from "../state/auth";
 import { useCapabilities } from "../hooks/capabilities";
 import { changedFields } from "../domain/teaching";
+import { tr, catalog } from "../domain/catalog";
+import type { TableName } from "../types/model";
 import { text, type Row } from "../types/model";
 import { v12Rpc } from "../services/v12";
 import { PageTitle, ErrorBox } from "../components/ui";
@@ -98,7 +100,7 @@ export function OperationsHistory() {
               "Passaggio anno",
             ].map((v) => (
               <option key={v} value={v}>
-                {v}
+                {tr(v)}
               </option>
             ))}
           </select>
@@ -137,7 +139,7 @@ export function OperationsHistory() {
               : undefined;
         return (
           <article className="card operation-history" key={r.source + r.id}>
-            <h2>{r.kind}</h2>
+            <h2>{tr(r.kind)}</h2>
             <p>
               {new Date(text(r, "created_at")).toLocaleString("it-IT")} ·
               Autore:{" "}
@@ -153,7 +155,11 @@ export function OperationsHistory() {
               <dl>
                 {changedFields(old, next).map((k) => (
                   <div key={k}>
-                    <dt>{k}</dt>
+                    <dt>
+                      {catalog[r.kind as TableName]?.fields.find(
+                        (f) => f.name === k,
+                      )?.label ?? k}
+                    </dt>
                     <dd>
                       {JSON.stringify(old?.[k] ?? null)} →{" "}
                       {JSON.stringify(next[k])}

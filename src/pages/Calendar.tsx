@@ -94,9 +94,8 @@ export function Calendar() {
         </label>
       </div>
       <p>
-        I filtri scuola, anno, classe e materia sono quelli generali del
-        quaderno. Gli eventi personali non sono presenti nello schema: nessun
-        calendario esterno collegato.
+        Usa i filtri scuola, anno, classe e materia del quaderno per trovare
+        lezioni, verifiche e scadenze della classe.
       </p>
       <div className="form-actions">
         {[

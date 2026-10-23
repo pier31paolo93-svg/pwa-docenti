@@ -510,6 +510,15 @@ export const catalog: Partial<Record<TableName, Entity>> = {
   },
 };
 export const translations: Record<string, string> = {
+  students: "Anagrafiche studenti",
+  enrollments: "Iscrizioni",
+  planned: "Pianificato",
+  in_progress: "In corso",
+  completed: "Completato",
+  unchecked: "Non controllato",
+  uncorrected: "Non ancora corretta",
+  incomplete: "Incompleta",
+  absent: "Assente",
   draft: "Bozza",
   confirmed: "Confermata",
   cancelled: "Annullato",

@@ -4,7 +4,7 @@ import { useData, useRows } from "../state/data";
 import { useCapabilities } from "../hooks/capabilities";
 import { GridEvidence } from "../components/GridEvidence";
 import { PageTitle, Spinner } from "../components/ui";
-import { label } from "../domain/catalog";
+import { label, tr } from "../domain/catalog";
 import { text } from "../types/model";
 import { assessmentProgress } from "../domain/teaching";
 import { ExportMenu } from "../components/ExportMenu";
@@ -128,10 +128,12 @@ export function StudentProfile() {
             <p key={a.id}>
               <Link to={"/verifiche/" + a.id}>{text(a, "title")}</Link> ·{" "}
               {text(a, "assessed_on")} ·{" "}
-              {assessmentProgress(
-                a,
-                scoped.find((e) => e.class_id === a.class_id)!,
-                data,
+              {tr(
+                assessmentProgress(
+                  a,
+                  scoped.find((e) => e.class_id === a.class_id)!,
+                  data,
+                ),
               )}
             </p>
           ))}
