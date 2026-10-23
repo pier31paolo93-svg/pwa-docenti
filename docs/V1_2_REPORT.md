@@ -89,11 +89,13 @@ Gli audit finali Chromium e WebKit sono entrambi superati: **0 overflow, 0 campi
 
 - [iPad prima](images/v1.2/ipad-before.png) / [iPad dopo](images/v1.2/ipad-after.png).
 - [Form iPad nel motore WebKit](images/v1.2/ipad-webkit.png).
+- [Filtri data delle statistiche su iPad/WebKit](images/v1.2/statistics-webkit-ipad.png).
 - [Smartphone prima](images/v1.2/mobile-before.png) / [Smartphone dopo](images/v1.2/mobile-after.png).
 - [Editor griglia a 320 px](images/v1.2/grid-mobile.png).
 - [Anteprima passaggio anno su iPad](images/v1.2/year-preview-ipad.png).
 
 WebKit ha evidenziato una larghezza di 139 px per i campi più annidati a 320 px: le spaziature mobile sono state ridotte. La verifica geometrica misura overflow, larghezze dei campi, target da 44 px e dimensioni dei dialoghi.
+La prima CI Linux ha inoltre rilevato i due filtri data delle statistiche a 132,75 px nelle cinque larghezze da 768 a 1180. I contenitori ora hanno una base flessibile di 180 px: la riga può andare a capo senza dipendere dalla larghezza nativa del campo data. I test funzionali erano già verdi; il collaudo CI viene ripetuto dopo la correzione.
 
 ## Limiti e rischi residui
 

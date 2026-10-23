@@ -212,7 +212,7 @@ export function Statistics({ student = false }: { student?: boolean }) {
       />
       <ErrorBox error={grades.error ?? averages.error} />
       {!student && <CanonicalDashboards />}
-      <div className="section-toolbar">
+      <div className="section-toolbar statistics-filters">
         <label>
           Dal
           <input

@@ -666,6 +666,7 @@ td,
 }
 
 /* V1.2: Safari/iPad native date controls must shrink inside the actual editor. */
+.statistics-filters > label {flex:1 1 180px;min-width:min(100%,180px);}
 @media (max-width: 640px) {
   .v12-editor .card {
     padding: 12px;
