@@ -54,6 +54,20 @@ const num = (name: string, label: string, def = 1, min = 0) =>
 const ta = () =>
   ref("teaching_assignment_id", "Classe e materia", "teaching_assignments");
 export const catalog: Partial<Record<TableName, Entity>> = {
+  recovery_activities: {
+    title: "Attività di recupero",
+    singular: "attività di recupero",
+    group: "Programmazione",
+    fields: [
+      ta(),
+      req("title", "Titolo"),
+      req("objective", "Obiettivo", "textarea"),
+      ref("topic_id", "Argomento", "topics", false),
+      ref("assessment_id", "Verifica di origine", "assessments", false),
+      f("due_on", "Scadenza", "date"),
+      choice("status", "Stato", ["planned", "in_progress", "completed"]),
+    ],
+  },
   school_years: {
     title: "Anni scolastici",
     singular: "anno scolastico",
@@ -596,9 +610,13 @@ export function derivePatch(table: TableName, p: Patch, data: DataMap): Patch {
   if (table === "teaching_assignments")
     v.class_id = text(find("class_subjects", "class_subject_id"), "class_id");
   if (
-    ["assignments", "assessments", "observations", "grade_entries"].includes(
-      table,
-    ) &&
+    [
+      "assignments",
+      "assessments",
+      "observations",
+      "grade_entries",
+      "recovery_activities",
+    ].includes(table) &&
     v.teaching_assignment_id
   )
     v.class_id = text(

@@ -666,7 +666,52 @@ td,
 }
 
 /* V1.2: Safari/iPad native date controls must shrink inside the actual editor. */
-.statistics-filters > label {flex:1 1 180px;min-width:min(100%,180px);}
+.profile-sections {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.daily-roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+}
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 12px;
+}
+.calendar-days > * {
+  min-width: 0;
+}
+.calendar-event {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+}
+.calendar-event a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.calendar-month {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+}
+.calendar-days h2 {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.calendar-event small {
+  color: var(--muted);
+}
+.statistics-filters > label {
+  flex: 1 1 180px;
+  min-width: min(100%, 180px);
+}
 @media (max-width: 640px) {
   .v12-editor .card {
     padding: 12px;
@@ -796,3 +841,5 @@ input::-webkit-datetime-edit {
     position: static;
   }
 }
+.operation-history { min-width: 0; overflow-wrap: anywhere; }
+.operation-history dl, .operation-history dd { min-width: 0; margin-inline: 0; }

@@ -5,7 +5,10 @@ export async function v12Rpc<T>(
   name:
     | "preview_year_transition"
     | "apply_year_transition"
-    | "create_grid_assessment",
+    | "create_grid_assessment"
+    | "preview_student_import"
+    | "apply_student_import"
+    | "undo_record_change",
   args: Record<string, unknown>,
 ): Promise<T> {
   if (!navigator.onLine)
@@ -28,7 +31,7 @@ export async function v12Rpc<T>(
   if (error) {
     if (error.code === "PGRST202")
       throw Error(
-        "Funzione V1.2 non ancora disponibile: è necessaria la migrazione cloud autorizzata.",
+        "Funzione non ancora disponibile: è necessaria la relativa migrazione cloud autorizzata.",
       );
     throw friendlyError(error);
   }

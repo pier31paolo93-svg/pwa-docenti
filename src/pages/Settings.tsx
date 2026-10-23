@@ -1,5 +1,6 @@
 import { useCapabilities, capabilityKey } from "../hooks/capabilities";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../state/auth";
 import { useData, baseTables, useSyncState } from "../state/data";
 import { supabase } from "../services/supabase";
@@ -9,6 +10,8 @@ import {
   fetchRows,
   resolveOperation,
   flush,
+  syncHealth,
+  type SyncHealth,
 } from "../offline/sync";
 import { PageTitle, ErrorBox, Badge } from "../components/ui";
 import { text, message } from "../types/model";
@@ -89,6 +92,17 @@ export function Settings() {
         title="Impostazioni"
         subtitle="Account, dispositivo e preferenze personali."
       />
+      <div className="form-actions">
+        <Link className="button" to="/sincronizzazione">
+          Centro sincronizzazione
+        </Link>
+        <Link className="button" to="/storico">
+          Storico operazioni
+        </Link>
+        <Link className="button" to="/esportazione">
+          Esportazione workspace
+        </Link>
+      </div>
       <ErrorBox error={error} />
       <div className="dashboard-columns">
         <section className="card">
@@ -229,7 +243,12 @@ export function Settings() {
 }
 export function SyncPage() {
   const ops = useSyncState();
-  const { notice } = useData();
+  const { notice, online } = useData();
+  const auth = useAuth();
+  const [health, setHealth] = useState<SyncHealth>({});
+  useEffect(() => {
+    void syncHealth(auth.session!.user.id, auth.workspace).then(setHealth);
+  }, [ops, auth.workspace, online]);
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
   async function action(id: string, mode: "remote" | "retry") {
@@ -267,10 +286,38 @@ export function SyncPage() {
         }
       />
       <ErrorBox error={error} />
+      <section className="card">
+        <h2>Stato del dispositivo</h2>
+        <p>
+          {online ? "Online" : "Offline"} · Operazioni: {ops.length} ·
+          Conflitti: {ops.filter((o) => o.state === "conflict").length} ·
+          Errori: {ops.filter((o) => o.state === "error").length}
+        </p>
+        <p>
+          Ultima sincronizzazione riuscita:{" "}
+          {health.lastSuccess
+            ? new Date(health.lastSuccess).toLocaleString("it-IT")
+            : "Non ancora registrata"}
+        </p>
+        <p>
+          Copia locale:{" "}
+          {consent(auth.session!.user.id)
+            ? "Cifrata, abilitata su questo dispositivo"
+            : "Non abilitata"}
+          . Nessuna operazione pendente viene eliminata automaticamente.
+        </p>
+        <ErrorBox error={health.lastError} />
+      </section>
       {!ops.length ? (
         <section className="card">
           <h2>Nessuna modifica in attesa</h2>
-          <p>Le modifiche di questo account sono sincronizzate.</p>
+          <p>
+            {health.lastError
+              ? "È presente un errore: verifica connessione e autorizzazioni."
+              : online
+                ? "Non risultano operazioni in coda per questo account."
+                : "Sei offline: non è possibile verificare il server."}
+          </p>
         </section>
       ) : (
         ops.map((op) => (

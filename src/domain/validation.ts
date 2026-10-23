@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Field } from "./catalog";
 import type { Patch } from "../types/model";
+import { romeInstant } from "./time";
 export function formSchema(fields: Field[]) {
   return z.record(z.string(), z.unknown()).superRefine((values, ctx) => {
     for (const f of fields) {
@@ -13,6 +14,13 @@ export function formSchema(fields: Field[]) {
         continue;
       }
       if (empty) continue;
+      if (f.type === "datetime-local") {
+        try {
+          romeInstant(String(value));
+        } catch (e) {
+          error((e as Error).message);
+        }
+      }
       if (f.type === "number") {
         const n = Number(value);
         if (f.name === "register_number" && !Number.isInteger(n))
@@ -101,7 +109,7 @@ export function serialize(
           : f.type === "json"
             ? JSON.parse(String(value))
             : f.type === "datetime-local"
-              ? new Date(String(value)).toISOString()
+              ? romeInstant(String(value))
               : String(value);
   }
   return patch;

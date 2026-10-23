@@ -1,5 +1,7 @@
 # PWA Docenti — Quaderno Docenti
 
+**V1.3 + V1.4 su `dev` (23 ottobre 2026):** registro rapido, autosave bozze, scheda studente completa, sincronizzazione e audit, calendario, import CSV/XLSX avanzato, analisi, recupero ed export workspace. Include la V1.2 della PR #3. [Report e piano di rilascio](docs/V1_3_V1_4_REPORT.md). Nuove migrazioni 24–26 soltanto locali; cloud non modificato, ultimo stato documentato 20/20. Prima della pubblicazione autorizzare e collaudare le migrazioni mancanti 21–26. Nessun reset, merge o deploy Pages in questo ciclo.
+
 **V1.2 in preparazione su `dev` (23 ottobre 2026):** numeri di registro, iscrizioni filtrate, passaggio anno transazionale, griglie universali con snapshot e correzione online/offline, PDF A4 e verifica smartphone/iPad. [Report completo e sequenza di rilascio](docs/V1_2_REPORT.md). Cloud fermo a **20/20**; migrazioni **21–23 soltanto locali/dry-run**, da autorizzare prima del merge. Le sezioni seguenti documentano le fasi precedenti.
 
 Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il frontend: `npm ci`, configurare `.env.local` seguendo `.env.example`, poi `npm run dev` e aprire `/pwa-docenti/`.

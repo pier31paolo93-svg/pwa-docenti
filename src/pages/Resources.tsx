@@ -57,7 +57,11 @@ export function Organization() {
                   <Link
                     className="resource-card"
                     key={key}
-                    to={"/archivio/" + key}
+                    to={
+                      key === "recovery_activities"
+                        ? "/recupero"
+                        : "/archivio/" + key
+                    }
                   >
                     <span>{c.title}</span>
                     <ArrowRight size={17} />

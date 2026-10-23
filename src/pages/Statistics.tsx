@@ -1,5 +1,6 @@
 import { PeriodAverage } from "../components/PeriodAverage";
 import { GridEvidence } from "../components/GridEvidence";
+import { TeachingSummary } from "../components/TeachingSummary";
 import { CanonicalDashboards } from "../components/CanonicalDashboards";
 import { StudentHistory } from "../components/StudentHistory";
 import { useState } from "react";
@@ -20,18 +21,26 @@ import { label, tr } from "../domain/catalog";
 import { text, type Row } from "../types/model";
 import { PageTitle, ErrorBox, Stat, Empty } from "../components/ui";
 import { ExportMenu } from "../components/ExportMenu";
+import { inContext } from "../domain/context";
+import { useTeachingEvidence } from "../hooks/teachingEvidence";
 export function Statistics({ student = false }: { student?: boolean }) {
   const { id } = useParams();
   const { data, filters } = useData();
   const grades = useRows("v_grade_register");
   const averages = useRows("v_student_averages");
-  const errors = useRows("v_recurring_errors");
   const homework = useRows("v_homework_summary");
-  const competencies = useRows("v_competency_progress");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [category, setCategory] = useState("");
   const [subject, setSubject] = useState("");
+  const evidence = useTeachingEvidence(
+    student ? id : undefined,
+    from,
+    to,
+    subject,
+  );
+  const errors = { error: evidence.error },
+    competencies = { error: evidence.error, data: evidence.competencies };
   const pupil = data.students?.find((s) => s.id === id);
   const enrolled = (data.enrollments ?? []).filter((e) => e.student_id === id);
   const enrollmentIds = enrolled.map((e) => e.id);
@@ -49,6 +58,15 @@ export function Statistics({ student = false }: { student?: boolean }) {
     (!(subject || filters.subject) ||
       r.subject_id === (subject || filters.subject)) &&
     (!filters.year || r.school_year_id === filters.year) &&
+    (!filters.school ||
+      data.classes?.some(
+        (c) =>
+          c.school_id === filters.school &&
+          (c.id === r.class_id ||
+            data.enrollments?.some(
+              (e) => e.class_id === c.id && e.student_id === r.student_id,
+            )),
+      )) &&
     (!category || r.category_id === category);
   const rows = (grades.data ?? []).filter(
     (r) =>
@@ -79,13 +97,33 @@ export function Statistics({ student = false }: { student?: boolean }) {
         ? enrollmentIds.includes(text(o, "enrollment_id"))
         : !filters.classId || o.class_id === filters.classId) &&
       (!from || text(o, "observed_on") >= from) &&
-      (!to || text(o, "observed_on") <= to),
+      (!to || text(o, "observed_on") <= to) &&
+      inContext(o, data, { ...filters, subject: subject || filters.subject }),
   );
-  const studentErrors = (errors.data ?? []).filter(
-    (e) => !student || enrollmentIds.includes(text(e, "enrollment_id")),
-  );
+  const studentErrors = evidence.errors;
   const homeworkRows = (homework.data ?? []).filter(
-    (h) => !student || enrollmentIds.includes(text(h, "enrollment_id")),
+    (h) =>
+      (!student || enrollmentIds.includes(text(h, "enrollment_id"))) &&
+      (!from ||
+        text(
+          data.homework_checks?.find((c) => c.id === h.homework_check_id),
+          "checked_on",
+        ) >= from) &&
+      (!to ||
+        text(
+          data.homework_checks?.find((c) => c.id === h.homework_check_id),
+          "checked_on",
+        ) <= to) &&
+      inContext(
+        data.assignments?.find(
+          (a) =>
+            a.id ===
+            data.homework_checks?.find((c) => c.id === h.homework_check_id)
+              ?.assignment_id,
+        ) ?? h,
+        data,
+        { ...filters, subject: subject || filters.subject },
+      ),
   );
   const exports = rows.map((r) => ({
     Studente: label(
@@ -187,6 +225,7 @@ export function Statistics({ student = false }: { student?: boolean }) {
       : [];
   return (
     <>
+      <TeachingSummary student={student ? id : undefined} from={from} to={to} />
       {!student && <GridEvidence from={from} to={to} />}
       {student && (
         <Link className="back-link" to="/studenti">
@@ -393,27 +432,57 @@ export function Statistics({ student = false }: { student?: boolean }) {
               · {text(e, "occurrences") || text(e, "error_count")}
             </p>
           ))}
-          {!studentErrors.length && <p>Nessun errore classificato.</p>}
+          {!studentErrors.length && (
+            <p>
+              {evidence.pending
+                ? "Caricamento evidenze…"
+                : evidence.error
+                  ? "Evidenze non disponibili."
+                  : "Nessun errore classificato nel contesto e periodo selezionati."}
+            </p>
+          )}
         </section>
         <section className="card">
           <h2>Competenze</h2>
           <ErrorBox error={competencies.error} />
-          {competencies.data
-            ?.filter(
-              (c) =>
-                !student || enrollmentIds.includes(text(c, "enrollment_id")),
-            )
-            .map((c, i) => (
-              <p key={i}>
-                {text(
-                  data.competencies?.find((t) => t.id === c.competency_id),
-                  "description",
-                )}{" "}
-                · {text(c, "average_ratio")}
-              </p>
-            ))}
+          {competencies.data.map((c, i) => (
+            <p key={i}>
+              {text(
+                data.competencies?.find((t) => t.id === c.competency_id),
+                "description",
+              )}{" "}
+              · {(Number(c.average_ratio) * 100).toFixed(1)}% su{" "}
+              {c.evidence_count} evidenze
+            </p>
+          ))}
         </section>
       </div>
+      <section className="card">
+        <h2>Argomenti nel periodo</h2>
+        <p>
+          Solo quesiti realmente associati agli argomenti; nessuna deduzione dai
+          voti globali.
+        </p>
+        {evidence.topics.length ? (
+          evidence.topics.map((t) => (
+            <p key={t.id}>
+              {text(
+                data.topics?.find((x) => x.id === t.id),
+                "title",
+              ) ||
+                text(
+                  data.topics?.find((x) => x.id === t.id),
+                  "name",
+                )}{" "}
+              · {(Number(t.average_ratio) * 100).toFixed(1)}% su{" "}
+              {t.evidence_count} evidenze{" "}
+              {t.evidence_count < 3 ? "(campione ridotto)" : ""}
+            </p>
+          ))
+        ) : (
+          <p>Dati insufficienti per un’analisi per argomento.</p>
+        )}
+      </section>
       {student && (
         <>
           <StudentHistory student={id!} from={from} to={to} />

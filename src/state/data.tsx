@@ -23,12 +23,12 @@ import { orderedEnrollments, orderedStudents } from "../domain/register";
 import type { Row, SourceName, TableName, Patch } from "../types/model";
 import type { DataMap } from "../domain/catalog";
 import { Spinner, ErrorBox } from "../components/ui";
-export function useRows(source: SourceName) {
+export function useRows(source: SourceName, enabled = true) {
   const { session, workspace } = useAuth();
   return useQuery({
     queryKey: ["data", session?.user.id, workspace, source],
     queryFn: () => fetchRows(source, session!.user.id, workspace),
-    enabled: !!session && !!workspace,
+    enabled: !!session && !!workspace && enabled,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
     retry: 1,

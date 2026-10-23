@@ -69,6 +69,7 @@ export function Dashboard() {
           </Link>
         }
       />
+      <nav className="form-actions" aria-label="Azioni rapide della giornata"><Link className="button primary" to="/registro-rapido">Apri registro rapido</Link><Link className="button" to="/griglie">Crea verifica con griglia</Link><Link className="button" to="/verifiche">Correggi verifica</Link><Link className="button" to="/calendario">Visualizza calendario</Link><Link className="button" to="/archivio/classes">Apri classe</Link></nav>
       <div className="stat-grid">
         <Stat
           label="Lezioni di oggi"

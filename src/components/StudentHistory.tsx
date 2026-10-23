@@ -5,6 +5,8 @@ import { text, type Row } from "../types/model";
 import { tr } from "../domain/catalog";
 import { ExportMenu } from "./ExportMenu";
 import { ErrorBox } from "./ui";
+import { inContext } from "../domain/context";
+import { romeDay } from "../domain/teaching";
 export function StudentHistory({
   student,
   from,
@@ -14,13 +16,19 @@ export function StudentHistory({
   from: string;
   to: string;
 }) {
-  const { data } = useData();
+  const { data, filters } = useData();
   const homework = useRows("v_homework_summary");
   const activities = useRows("lesson_activities");
   const results = useRows("v_assessment_history");
-  const enrollments = (data.enrollments ?? []).filter(
-    (e) => e.student_id === student,
-  );
+  const enrollments = (data.enrollments ?? []).filter((e) => {
+    const c = data.classes?.find((c) => c.id === e.class_id);
+    return (
+      e.student_id === student &&
+      (!filters.classId || e.class_id === filters.classId) &&
+      (!filters.year || c?.school_year_id === filters.year) &&
+      (!filters.school || c?.school_id === filters.school)
+    );
+  });
   const ids = enrollments.map((e) => e.id);
   const within = (day: string) => (!from || day >= from) && (!to || day <= to);
   const lessons = (data.lessons ?? []).filter(
@@ -34,15 +42,29 @@ export function StudentHistory({
           text(l, "starts_at").slice(0, 10) >= text(e, "starts_on") &&
           (!e.ends_on ||
             text(l, "starts_at").slice(0, 10) <= text(e, "ends_on")),
-      ) && within(text(l, "starts_at").slice(0, 10)),
+      ) &&
+      inContext(l, data, filters) &&
+      within(romeDay(text(l, "starts_at"))),
   );
   const checks = (data.homework_checks ?? []).filter(
     (c) =>
-      ids.includes(text(c, "enrollment_id")) && within(text(c, "checked_on")),
+      ids.includes(text(c, "enrollment_id")) &&
+      within(text(c, "checked_on")) &&
+      inContext(
+        data.assignments?.find((a) => a.id === c.assignment_id) ?? c,
+        data,
+        filters,
+      ),
   );
   const assessments = (results.data ?? []).filter(
     (r) =>
-      ids.includes(text(r, "enrollment_id")) && within(text(r, "assessed_on")),
+      ids.includes(text(r, "enrollment_id")) &&
+      within(text(r, "assessed_on")) &&
+      inContext(
+        data.assessments?.find((a) => a.id === r.assessment_id) ?? r,
+        data,
+        filters,
+      ),
   );
   const history: Record<string, string>[] = [
     ...lessons.map((l) => ({

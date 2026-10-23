@@ -248,6 +248,7 @@ export type Database = {
       assessment_results: {
         Row: {
           assessment_id: string;
+          attendance: string;
           class_id: string;
           created_at: string;
           created_by: string;
@@ -264,6 +265,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           assessment_id: string;
+          attendance?: string;
           class_id: string;
           created_at?: string;
           created_by?: string;
@@ -279,6 +281,7 @@ export type Database = {
         };
         Update: {
           assessment_id?: string;
+          attendance?: string;
           class_id?: string;
           created_at?: string;
           created_by?: string;
@@ -1460,6 +1463,7 @@ export type Database = {
           class_id: string;
           created_at: string;
           created_by: string;
+          daily_status: string | null;
           deleted_at: string | null;
           enrollment_id: string;
           excuse_reason: string | null;
@@ -1481,6 +1485,7 @@ export type Database = {
           class_id: string;
           created_at?: string;
           created_by?: string;
+          daily_status?: string | null;
           deleted_at?: string | null;
           enrollment_id: string;
           excuse_reason?: string | null;
@@ -1501,6 +1506,7 @@ export type Database = {
           class_id?: string;
           created_at?: string;
           created_by?: string;
+          daily_status?: string | null;
           deleted_at?: string | null;
           enrollment_id?: string;
           excuse_reason?: string | null;
@@ -1717,6 +1723,8 @@ export type Database = {
           deleted_at: string | null;
           id: string;
           kind: string;
+          result_report: Json | null;
+          source_fingerprint: string | null;
           status: string;
           updated_at: string;
           version: number;
@@ -1730,6 +1738,8 @@ export type Database = {
           deleted_at?: string | null;
           id?: string;
           kind: string;
+          result_report?: Json | null;
+          source_fingerprint?: string | null;
           status?: string;
           updated_at?: string;
           version?: number;
@@ -1742,6 +1752,8 @@ export type Database = {
           deleted_at?: string | null;
           id?: string;
           kind?: string;
+          result_report?: Json | null;
+          source_fingerprint?: string | null;
           status?: string;
           updated_at?: string;
           version?: number;
@@ -2345,6 +2357,7 @@ export type Database = {
           class_id: string;
           created_at: string;
           created_by: string;
+          daily_lesson_id: string | null;
           deleted_at: string | null;
           difficulties: string | null;
           enrollment_id: string;
@@ -2367,6 +2380,7 @@ export type Database = {
           class_id: string;
           created_at?: string;
           created_by?: string;
+          daily_lesson_id?: string | null;
           deleted_at?: string | null;
           difficulties?: string | null;
           enrollment_id: string;
@@ -2388,6 +2402,7 @@ export type Database = {
           class_id?: string;
           created_at?: string;
           created_by?: string;
+          daily_lesson_id?: string | null;
           deleted_at?: string | null;
           difficulties?: string | null;
           enrollment_id?: string;
@@ -2406,6 +2421,13 @@ export type Database = {
           workspace_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "observation_daily_lesson_fk";
+            columns: ["workspace_id", "daily_lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["workspace_id", "id"];
+          },
           {
             foreignKeyName: "observations_created_by_fkey";
             columns: ["created_by"];
@@ -2628,6 +2650,230 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "assessment_questions";
             referencedColumns: ["workspace_id", "id", "assessment_id"];
+          },
+        ];
+      };
+      record_audit_log: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          id: string;
+          new_record: NonNullable<Json>;
+          old_record: Json | null;
+          operation: string;
+          record_id: string;
+          table_name: string;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          id?: string;
+          new_record: NonNullable<Json>;
+          old_record?: Json | null;
+          operation: string;
+          record_id: string;
+          table_name: string;
+          workspace_id: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          id?: string;
+          new_record?: NonNullable<Json>;
+          old_record?: Json | null;
+          operation?: string;
+          record_id?: string;
+          table_name?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "record_audit_log_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "record_audit_log_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recovery_activities: {
+        Row: {
+          assessment_id: string | null;
+          class_id: string;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          due_on: string | null;
+          id: string;
+          objective: string;
+          status: string;
+          teaching_assignment_id: string;
+          title: string;
+          topic_id: string | null;
+          updated_at: string;
+          version: number;
+          visibility: string;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assessment_id?: string | null;
+          class_id: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          due_on?: string | null;
+          id?: string;
+          objective: string;
+          status?: string;
+          teaching_assignment_id: string;
+          title: string;
+          topic_id?: string | null;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          workspace_id: string;
+        };
+        Update: {
+          assessment_id?: string | null;
+          class_id?: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          due_on?: string | null;
+          id?: string;
+          objective?: string;
+          status?: string;
+          teaching_assignment_id?: string;
+          title?: string;
+          topic_id?: string | null;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recovery_activities_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recovery_activities_workspace_id_assessment_id_fkey";
+            columns: ["workspace_id", "assessment_id"];
+            isOneToOne: false;
+            referencedRelation: "assessments";
+            referencedColumns: ["workspace_id", "id"];
+          },
+          {
+            foreignKeyName: "recovery_activities_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recovery_activities_workspace_id_teaching_assignment_id_cl_fkey";
+            columns: ["workspace_id", "teaching_assignment_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "teaching_assignments";
+            referencedColumns: ["workspace_id", "id", "class_id"];
+          },
+          {
+            foreignKeyName: "recovery_activities_workspace_id_topic_id_fkey";
+            columns: ["workspace_id", "topic_id"];
+            isOneToOne: false;
+            referencedRelation: "topics";
+            referencedColumns: ["workspace_id", "id"];
+          },
+        ];
+      };
+      recovery_students: {
+        Row: {
+          activity_id: string;
+          class_id: string;
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          enrollment_id: string;
+          id: string;
+          outcome: string | null;
+          status: string;
+          updated_at: string;
+          version: number;
+          visibility: string;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          activity_id: string;
+          class_id: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          enrollment_id: string;
+          id?: string;
+          outcome?: string | null;
+          status?: string;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          workspace_id: string;
+        };
+        Update: {
+          activity_id?: string;
+          class_id?: string;
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          enrollment_id?: string;
+          id?: string;
+          outcome?: string | null;
+          status?: string;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recovery_students_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recovery_students_workspace_id_activity_id_class_id_fkey";
+            columns: ["workspace_id", "activity_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "recovery_activities";
+            referencedColumns: ["workspace_id", "id", "class_id"];
+          },
+          {
+            foreignKeyName: "recovery_students_workspace_id_enrollment_id_class_id_fkey";
+            columns: ["workspace_id", "enrollment_id", "class_id"];
+            isOneToOne: false;
+            referencedRelation: "enrollments";
+            referencedColumns: ["workspace_id", "id", "class_id"];
+          },
+          {
+            foreignKeyName: "recovery_students_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -3780,6 +4026,15 @@ export type Database = {
         Args: { p_batch: string; p_expected_version: number };
         Returns: number;
       };
+      apply_student_import: {
+        Args: {
+          p_operation: string;
+          p_plan: Json;
+          p_source: string;
+          p_workspace: string;
+        };
+        Returns: Json;
+      };
       apply_year_transition: {
         Args: { p_operation: string; p_plan: Json; p_workspace: string };
         Returns: Json;
@@ -3822,6 +4077,10 @@ export type Database = {
       preview_import: {
         Args: { p_kind: string; p_rows: Json; p_workspace: string };
         Returns: string;
+      };
+      preview_student_import: {
+        Args: { p_plan: Json; p_workspace: string };
+        Returns: Json;
       };
       preview_year_transition: {
         Args: { p_plan: Json; p_workspace: string };
@@ -3866,6 +4125,10 @@ export type Database = {
           p_table: string;
           p_workspace: string;
         };
+        Returns: Json;
+      };
+      undo_record_change: {
+        Args: { p_audit: string; p_operation: string; p_version: number };
         Returns: Json;
       };
       validate_grid_definition: { Args: { g: Json }; Returns: boolean };

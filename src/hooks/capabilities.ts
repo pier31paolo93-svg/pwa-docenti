@@ -3,6 +3,9 @@ import { supabase } from "../services/supabase";
 import { useAuth } from "../state/auth";
 import { consent, seal, unseal } from "../offline/vault";
 export type Capabilities = {
+  dailyRegister?: boolean;
+  recovery?: boolean;
+  advancedImport?: boolean;
   extendedHomework: boolean;
   registerNumbers?: boolean;
   yearTransition?: boolean;
@@ -46,6 +49,21 @@ export function useCapabilities() {
           .select("grid_snapshot")
           .eq("workspace_id", workspace)
           .limit(0),
+        supabase
+          .from("observations")
+          .select("daily_lesson_id")
+          .eq("workspace_id", workspace)
+          .limit(0),
+        supabase
+          .from("recovery_activities")
+          .select("id")
+          .eq("workspace_id", workspace)
+          .limit(0),
+        supabase
+          .from("import_batches")
+          .select("source_fingerprint")
+          .eq("workspace_id", workspace)
+          .limit(0),
       ]);
       for (const p of probes)
         if (
@@ -58,6 +76,9 @@ export function useCapabilities() {
         registerNumbers: !probes[0].error,
         yearTransition: !probes[1].error,
         universalGrids: !probes[2].error,
+        dailyRegister: !probes[3].error,
+        recovery: !probes[4].error,
+        advancedImport: !probes[5].error,
       };
       if (consent(owner)) await seal(owner, key, result);
       return result;

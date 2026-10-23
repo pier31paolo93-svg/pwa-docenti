@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { catalog, derivePatch, label, tr, type Field } from "../domain/catalog";
 import { formSchema, serialize } from "../domain/validation";
+import { romeLocal } from "../domain/time";
 import { useData, useRows } from "../state/data";
 import { useAuth } from "../state/auth";
 import { useTeachers } from "../hooks/teachers";
@@ -78,11 +79,7 @@ export function EntityForm({
     if (f.name === "teacher_id" && !v) v = session?.user.id;
     if (f.type === "json" && typeof v !== "string")
       v = JSON.stringify(v, null, 2);
-    if (f.type === "datetime-local" && v)
-      v = new Date(String(v))
-        .toLocaleString("sv-SE")
-        .slice(0, 16)
-        .replace(" ", "T");
+    if (f.type === "datetime-local" && v) v = romeLocal(String(v));
     defaults[f.name] = v;
   }
   const form = useForm<Record<string, unknown>>({
@@ -315,6 +312,7 @@ export function EntityForm({
                 {...form.register(f.name)}
               />
             )}
+            {f.type === "datetime-local" && <small>Orario Europe/Rome</small>}
             {form.formState.errors[f.name] && (
               <small
                 className="field-error"

@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-23",
+  "branch": "dev",
+  "baseline": "6b311a4e0931288881f31d794ce455ef494f6d3c",
+  "cloud": {
+    "project": "pwa-docenti",
+    "ref": "mwabfmooefmkszlrymyx",
+    "writes": 0,
+    "readsInThisCycle": 0,
+    "lastDocumentedMigrationCount": 20
+  },
+  "local": {
+    "postgres": "17.11",
+    "migrations": 26,
+    "resets": 0
+  },
+  "tests": {
+    "unit": 76,
+    "pgtap": 192,
+    "sql": 69,
+    "concurrentWriters": 2,
+    "playwright": 33,
+    "typecheck": "PASS",
+    "databaseLint": "PASS",
+    "productionBuild": "PASS",
+    "releaseConfig": 5,
+    "pagesArtifact": "PASS",
+    "pwa": "PASS"
+  },
+  "security": {
+    "filesScanned": 210,
+    "findings": 0,
+    "ignoredEnvironments": true,
+    "studentData": "fictional-local-fixtures-only",
+    "historicalMigrationsModified": 0
+  },
+  "audits": [
+    {
+      "engine": "Chromium",
+      "screens": 824,
+      "widths": [
+        320,
+        375,
+        390,
+        768,
+        820,
+        834,
+        1024,
+        1180
+      ],
+      "overflow": 0,
+      "narrowFields": 0,
+      "smallTargets": 0,
+      "clippedDialogs": 0
+    },
+    {
+      "engine": "WebKit",
+      "screens": 824,
+      "widths": [
+        320,
+        375,
+        390,
+        768,
+        820,
+        834,
+        1024,
+        1180
+      ],
+      "overflow": 0,
+      "narrowFields": 0,
+      "smallTargets": 0,
+      "clippedDialogs": 0
+    }
+  ],
+  "migrations": [
+    {
+      "number": 1,
+      "file": "20261021000100_accounts.sql",
+      "sha256_lf": "64afd5d4e965b12a53d45ed31ebe8fbd8725e89886f38601a24cc3827b1051d8"
+    },
+    {
+      "number": 2,
+      "file": "20261021000200_school.sql",
+      "sha256_lf": "e8bdda13b612c78138c0d52c7c1b35b9aa119a4d1c62f72a859710f54d8a34b9"
+    },
+    {
+      "number": 3,
+      "file": "20261021000300_lessons.sql",
+      "sha256_lf": "e18febb9dad1301be27f11d5ba71be268ca028aab720456d5698917739e687b3"
+    },
+    {
+      "number": 4,
+      "file": "20261021000400_homework.sql",
+      "sha256_lf": "ad31c750fb7bbc37193b4d947bf2abcd659e215967e473b8c6c0ff3c07b8bdf5"
+    },
+    {
+      "number": 5,
+      "file": "20261021000500_observations.sql",
+      "sha256_lf": "954b54cf75a2e5c14855461c788fb3135b6bdea5e57d1a92ccd762341526dff0"
+    },
+    {
+      "number": 6,
+      "file": "20261021000600_assessments.sql",
+      "sha256_lf": "d63969c5280a566326d37dfe85b5598c25ca4733bfdad0daae28f6e179b4b854"
+    },
+    {
+      "number": 7,
+      "file": "20261021000700_evaluation.sql",
+      "sha256_lf": "57b439bd027bc320b4e324fab675732f00f5097b0e5dccdfde02b093882bbd82"
+    },
+    {
+      "number": 8,
+      "file": "20261021000800_offline_ai.sql",
+      "sha256_lf": "27f5d03010bc8b6eea0d926b5770240ad05c2043b5531c0005c0e7de8616fbe4"
+    },
+    {
+      "number": 9,
+      "file": "20261021000900_security.sql",
+      "sha256_lf": "3b3f8aa965870cbdb6a517368b92d14c341a911f4517361173439002737ef6f2"
+    },
+    {
+      "number": 10,
+      "file": "20261021001000_grading.sql",
+      "sha256_lf": "f2a6b012c0abcd0a8970caa3912d1c79acadaca9c309ac5cd6e8812656f24256"
+    },
+    {
+      "number": 11,
+      "file": "20261021001100_sync_import.sql",
+      "sha256_lf": "bafa4798bab5cacedcd081904bb28a46f67653c68e63a5a6bcc4600ecc7d838e"
+    },
+    {
+      "number": 12,
+      "file": "20261021001200_views.sql",
+      "sha256_lf": "5785959eaf00cda234a3aa90fd89d173e890d1bd710e858ff238b418bbda6afc"
+    },
+    {
+      "number": 13,
+      "file": "20261021001300_integrity.sql",
+      "sha256_lf": "2a3957fe00d931e14a44804fab730c2cb8792c21b5cbe6d9b484ca7d5b16cac9"
+    },
+    {
+      "number": 14,
+      "file": "20261021001400_assignment_authorization.sql",
+      "sha256_lf": "e8fbe2fe3812cc0d6484636e88027d921bbaf79952e276cad6be85d169b4ed31"
+    },
+    {
+      "number": 15,
+      "file": "20261021001500_domain_guards.sql",
+      "sha256_lf": "e4c76904d5aa435eefb8de929722be5601734d69daa84a7ab3e2341e5186bcc6"
+    },
+    {
+      "number": 16,
+      "file": "20261021001600_membership_revocation.sql",
+      "sha256_lf": "a5b5d850ea7cf9aaba6b7b130eac7660d366dd2e278343ce7ebe11619f4651c5"
+    },
+    {
+      "number": 17,
+      "file": "20261022000100_restrict_trigger_execute.sql",
+      "sha256_lf": "c8f638e50ccf27b5b532cc79dc21797c1818287a9ea1a96d76b8d0cbb3e22353"
+    },
+    {
+      "number": 18,
+      "file": "20261022000200_frontend_workflows.sql",
+      "sha256_lf": "42685ef73c688a2465417dcf01b15847be4f2711b3e5b51c24a71abb3fefd1ba"
+    },
+    {
+      "number": 19,
+      "file": "20261022000300_restrict_homework_completion_acl.sql",
+      "sha256_lf": "42e15d349b7e7b8de2ada258c004cb98654acef1d54d61ec9829afb2d2eb4923"
+    },
+    {
+      "number": 20,
+      "file": "20261022000400_workspace_teacher_directory.sql",
+      "sha256_lf": "f13ee398b83f6362716e8ee7acb384d048cd102a750ff79ace210688a8fe3464"
+    },
+    {
+      "number": 21,
+      "file": "20261023000100_register_numbers.sql",
+      "sha256_lf": "2586d8cc9f2661152747d5a91e093277dfa9fd7dddecb5e966690564728330c5"
+    },
+    {
+      "number": 22,
+      "file": "20261023000200_year_transition.sql",
+      "sha256_lf": "f604db0fac2a229eca8215b3837523368f41a9b772a116e7f23d900cf69ac1d2"
+    },
+    {
+      "number": 23,
+      "file": "20261023000300_universal_grids.sql",
+      "sha256_lf": "bdcb2c2bc7ffa241b48a2587a4c54566d89658c1468c1a66adf2413360202c93"
+    },
+    {
+      "number": 24,
+      "file": "20261023000400_daily_recovery_audit.sql",
+      "sha256_lf": "f17a41a5b5ccb0bba7a386f9dcf3d6633db4b4405286f5e68600887ed4f3330e"
+    },
+    {
+      "number": 25,
+      "file": "20261023000500_daily_links_advanced_import.sql",
+      "sha256_lf": "c832be3e1eaa1b75214d6ccea1897c5f9957746fb458b228d68c442bc224a671"
+    },
+    {
+      "number": 26,
+      "file": "20261023000600_attendance_guards.sql",
+      "sha256_lf": "d37137ee6b469d0bf06d82a6ad204b048f205063d7ea93435aadfd79f853e385"
+    }
+  ],
+  "manualPending": [
+    "Physical iPad/iPhone PWA, keyboard, VoiceOver, file sharing, suspension and network changes",
+    "Authorized cloud dry-run/deploy and remote verification of pending migrations 21–26"
+  ]
+}

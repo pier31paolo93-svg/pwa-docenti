@@ -122,6 +122,14 @@ if (
         "importa",
         "impostazioni",
         "sincronizzazione",
+        "registro-rapido",
+        "calendario",
+        "recupero",
+        "analisi-verifiche",
+        "importa-avanzato",
+        "storico",
+        "esportazione",
+        "studenti/"+users[0].rows.students.id,
         "ai",
       ];
       for (const route of routes) {

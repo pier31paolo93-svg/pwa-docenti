@@ -58,6 +58,8 @@ test("backoffice creates, edits, archives and restores a student", async ({
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   const row = page.getByRole("row").filter({ hasText: code });
+  // Keep this fictional record in scope when its name changes its sort position.
+  await page.getByPlaceholder("Cerca nell’elenco…").fill(code);
   await expect(row).toBeVisible();
   await row.getByRole("button", { name: "Modifica", exact: true }).click();
   await page.getByLabel("Nome *", { exact: true }).fill("Modificato");

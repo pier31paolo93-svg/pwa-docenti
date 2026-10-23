@@ -1,6 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useCapabilities } from "../hooks/capabilities";
+import { assessmentProgress } from "../domain/teaching";
 import { useData } from "../state/data";
-import { useCompact } from "../hooks/viewport";
 import { usePermissions } from "../hooks/permissions";
 import { useUnsavedChanges, allowContextChange } from "../hooks/unsaved";
 import {
@@ -23,8 +25,8 @@ import { exportRows } from "../services/export";
 export function GridCorrection({ assessment }: { assessment: Row }) {
   const { data, save, online } = useData(),
     { writable } = usePermissions(),
-    compact = useCompact(),
     grid = assessment.grid_snapshot as Grid;
+  const caps = useCapabilities();
   const [selected, select] = useState(""),
     [index, setIndex] = useState(0),
     [order, setOrder] = useState<RegisterOrder>("register"),
@@ -77,7 +79,7 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
       s.exercises.map((e) => ({ ...e, section: s.label })),
     ),
     position = Math.min(index, exercises.length - 1),
-    visible = compact ? exercises.slice(position, position + 1) : exercises;
+    visible = exercises.slice(position, position + 1);
   const grade = data.grade_entries?.find(
       (r) => r.assessment_result_id === result?.id,
     ),
@@ -149,6 +151,7 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
       );
     } catch (e) {
       setError(friendlyError(e));
+      throw e;
     } finally {
       setBusy(false);
     }
@@ -160,6 +163,68 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
     setDirty(false);
     drafts.current.clear();
     setFeedback("");
+  }
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      if (
+        !event.altKey ||
+        busy ||
+        !enrollment ||
+        !["ArrowLeft", "ArrowRight"].includes(event.key)
+      )
+        return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      if (event.shiftKey) {
+        const target = roster[roster.indexOf(enrollment) + direction];
+        if (target) choose(target.id);
+      } else if (allowContextChange()) {
+        setIndex(
+          Math.max(0, Math.min(exercises.length - 1, position + direction)),
+        );
+        drafts.current.clear();
+        setDirty(false);
+      }
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [
+    busy,
+    dirty,
+    position,
+    enrollment?.id,
+    roster.map((e) => e.id).join(","),
+  ]);
+  async function attendance() {
+    if (!enrollment) return;
+    setBusy(true);
+    setError(undefined);
+    try {
+      const patch = {
+        attendance: result?.attendance === "absent" ? "present" : "absent",
+      };
+      const row = await save(
+        "assessment_results",
+        result
+          ? patch
+          : derivePatch(
+              "assessment_results",
+              {
+                ...patch,
+                assessment_id: assessment.id,
+                enrollment_id: enrollment.id,
+                visibility: text(assessment, "visibility") || "workspace",
+              },
+              data,
+            ),
+        result,
+      );
+      keep(row);
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
   }
   const reports = roster.map((e) => {
     const r = results.find(
@@ -185,6 +250,44 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
         subtitle="Correzione universale · struttura e conversione congelate nella prova"
       />
       <ErrorBox error={error} />
+      <p>
+        Da correggere:{" "}
+        {
+          roster.filter((e) =>
+            ["uncorrected", "incomplete"].includes(
+              assessmentProgress(assessment, e, {
+                ...data,
+                assessment_results: results,
+                question_results: questions,
+              }),
+            ),
+          ).length
+        }{" "}
+        · Esercizi incompleti: {summary.expected - summary.completed}. Uno score
+        mancante non è zero.
+      </p>
+      <p>
+        Scorciatoie: Alt + frecce per esercizio, Alt + Maiusc + frecce per
+        studente, Ctrl + Invio nel campo per salvare. Le bozze valide si salvano
+        automaticamente.
+      </p>
+      <Link className="button" to={"/verifiche/" + assessment.id + "/analisi"}>
+        Analisi della verifica
+      </Link>
+      {caps.data?.recovery && enrollment && (
+        <button
+          className="button"
+          disabled={busy || dirty || !writable("assessment_results", result)}
+          onClick={() => void attendance()}
+        >
+          {result?.attendance === "absent" ? "Segna presente" : "Segna assente"}
+        </button>
+      )}
+      {result?.attendance === "absent" && (
+        <p role="status">
+          Studente assente: correzione e conferma del voto bloccate.
+        </p>
+      )}
       <div className="card form-grid">
         <label>
           Cerca studente
@@ -264,7 +367,7 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
               verifica il riepilogo ed esegui una rettifica motivata.
             </p>
           )}
-          {compact && (
+          {exercises.length > 0 && (
             <div className="form-actions">
               <button
                 className="button"
@@ -303,7 +406,11 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
               exercise={e}
               section={e.section}
               row={e.row}
-              disabled={busy || !writable("assessment_results", result)}
+              disabled={
+                busy ||
+                result?.attendance === "absent" ||
+                !writable("assessment_results", result)
+              }
               precision={grid.precision}
               changed={() => {
                 drafts.current.add(e.id);
@@ -319,7 +426,13 @@ export function GridCorrection({ assessment }: { assessment: Row }) {
               origin="assessment"
               enrollment={enrollment.id}
               assignment={text(assessment, "teaching_assignment_id")}
-              disabled={dirty || busy || !summary.complete || !online}
+              disabled={
+                dirty ||
+                busy ||
+                result.attendance === "absent" ||
+                !summary.complete ||
+                !online
+              }
               requireReview
               fixedRule
             />
@@ -415,6 +528,18 @@ function ExerciseCorrection({
       ),
     ),
     [error, setError] = useState("");
+  const [edited, setEdited] = useState(false);
+  useEffect(() => {
+    if (
+      !edited ||
+      disabled ||
+      (mode === "quick" && !quick.trim()) ||
+      (mode === "analytic" && !Object.values(detail).some((v) => v.trim()))
+    )
+      return;
+    const timer = window.setTimeout(() => void submit(), 900);
+    return () => window.clearTimeout(timer);
+  }, [edited, disabled, mode, quick, detail]);
   async function submit() {
     try {
       let patch: Patch;
@@ -434,6 +559,10 @@ function ExerciseCorrection({
             );
           scores[c.id] = Number(points(n));
         }
+        if (!Object.keys(scores).length)
+          throw Error(
+            "Inserisci almeno un punteggio esplicito: una correzione mancante non vale zero.",
+          );
         patch = {
           score: Number(sumPoints(Object.values(scores))),
           criterion_scores: scores,
@@ -441,16 +570,48 @@ function ExerciseCorrection({
       }
       setError("");
       await store(patch);
+      setEdited(false);
     } catch (e) {
       setError((e as Error).message);
     }
   }
   return (
-    <section className="card" onChangeCapture={changed}>
+    <section
+      className="card"
+      onChangeCapture={() => {
+        changed();
+        setEdited(true);
+      }}
+      onKeyDown={(event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          void submit();
+        }
+      }}
+    >
       <p className="muted">{section}</p>
       <h2>
         {e.label} · massimo {e.maximum}
       </h2>
+      <button
+        className="button"
+        disabled={disabled}
+        onClick={() => {
+          setMode("quick");
+          setQuick(e.maximum);
+          setEdited(true);
+          changed();
+        }}
+      >
+        Assegna massimo esercizio
+      </button>
+      <p role="status">
+        {edited
+          ? "Bozza modificata: salvataggio automatico dei valori validi…"
+          : row
+            ? "Bozza salvata"
+            : "Non corretto: punteggio non assegnato"}
+      </p>
       <label>
         Modalità punteggio
         <select
