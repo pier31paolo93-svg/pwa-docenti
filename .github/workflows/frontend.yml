@@ -27,7 +27,7 @@ jobs:
       - run: node scripts/frontend-fixtures.cjs
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:e2e
-        - run: npm run test:e2e:webkit
+      - run: npm run test:e2e:webkit
       - run: npm run audit:responsive
       - run: node scripts/audit-responsive.cjs after-webkit --webkit --assert
       - run: npm run test:pwa
