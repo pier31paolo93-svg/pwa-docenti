@@ -39,7 +39,12 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     }
     if (!ready) throw Error("Preview did not start");
     const manifest = await (await fetch(base + "manifest.webmanifest")).json();
-    if (manifest.id !== "/pwa-docenti/" || manifest.start_url !== "/pwa-docenti/" || manifest.scope !== "/pwa-docenti/" || manifest.icons.length < 2)
+    if (
+      manifest.id !== "/pwa-docenti/" ||
+      manifest.start_url !== "/pwa-docenti/" ||
+      manifest.scope !== "/pwa-docenti/" ||
+      manifest.icons.length < 2
+    )
       throw Error("Invalid manifest");
     browser = await chromium.launch();
     const context = await browser.newContext({
@@ -62,13 +67,53 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
       .getByRole("button", { name: "Rimuovi copia locale" })
       .waitFor({ state: "visible" });
     await p.waitForFunction(() => !document.querySelector("button:disabled"));
-    await p.evaluate(() => Promise.race([
-      navigator.serviceWorker.ready.then(() => true),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Service worker readiness timeout")), 30_000)),
-    ]));
+    await p.evaluate(() =>
+      Promise.race([
+        navigator.serviceWorker.ready.then(() => true),
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Service worker readiness timeout")),
+            30_000,
+          ),
+        ),
+      ]),
+    );
     await p.reload();
     await p.waitForFunction(() => !!navigator.serviceWorker.controller);
     console.log("PWA: service worker controls Pages base path.");
+    await p.goto(base + "#/orario");
+    await p
+      .getByRole("heading", { name: "Orario settimanale", exact: true })
+      .waitFor();
+    const timetableYear = await p
+      .getByLabel("Anno orario")
+      .locator("option")
+      .evaluateAll(
+        (options) =>
+          options
+            .filter((o) => o.textContent.includes("Orario fittizio"))
+            .at(-1)?.value,
+      );
+    if (timetableYear) {
+      await p.getByLabel("Anno orario").selectOption(timetableYear);
+      await p.locator(".timetable-matrix").waitFor();
+      await context.setOffline(true);
+      await p.reload();
+      await p
+        .getByRole("heading", { name: "Orario settimanale", exact: true })
+        .waitFor();
+      await p.getByLabel("Anno orario").selectOption(timetableYear);
+      await p.locator(".timetable-matrix").waitFor();
+      await p
+        .getByText("Copia offline potenzialmente non aggiornata.", {
+          exact: false,
+        })
+        .waitFor();
+      await context.setOffline(false);
+      console.log(
+        "PWA: encrypted timetable survives offline hard reload; writes remain online-only.",
+      );
+    }
     await p.goto(base + "#/osservazioni");
     await p
       .getByRole("button", { name: "Intervento pertinente", exact: true })
@@ -85,7 +130,9 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     await p.getByText("1 in coda", { exact: true }).waitFor();
     await context.setOffline(false);
     await p.goto(base + "#/sincronizzazione");
-    await p.getByRole("heading", {name:"Nessuna modifica in attesa"}).waitFor({timeout:45_000});
+    await p
+      .getByRole("heading", { name: "Nessuna modifica in attesa" })
+      .waitFor({ timeout: 45_000 });
     await p.goto(base + "#/osservazioni");
     console.log("PWA: offline reload, queue and synchronization passed.");
     const urls = await p.evaluate(async () => {
@@ -98,8 +145,13 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     if (urls.some((u) => /\/auth\/v1|\/rest\/v1/.test(u)))
       throw Error("Personal API response in Cache API");
     originalWorker = fs.readFileSync("dist/sw.js", "utf8");
-    fs.writeFileSync("dist/sw.js", originalWorker + "\n// local release update probe\n");
-    await p.evaluate(async () => (await navigator.serviceWorker.ready).update());
+    fs.writeFileSync(
+      "dist/sw.js",
+      originalWorker + "\n// local release update probe\n",
+    );
+    await p.evaluate(async () =>
+      (await navigator.serviceWorker.ready).update(),
+    );
     await p.getByRole("button", { name: "Aggiorna", exact: true }).waitFor();
     await p.getByRole("button", { name: "Aggiorna", exact: true }).click();
     await p.waitForFunction(async () => {

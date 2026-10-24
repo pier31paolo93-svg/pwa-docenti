@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TimetableDay } from "../components/TimetableDay";
 import { Link } from "react-router-dom";
 import { useData, useRows } from "../state/data";
 import { useCapabilities } from "../hooks/capabilities";
@@ -137,6 +138,19 @@ export function Calendar() {
                     timeZone: "Europe/Rome",
                   }).format(new Date(d + "T12:00:00Z"))}
             </h2>
+            {(!kind || kind === "lesson") &&
+              (mode === "list" ? (
+                days.map((date) => (
+                  <TimetableDay
+                    key={date}
+                    day={date}
+                    title={"Orario previsto · " + date}
+                    hideRegistered
+                  />
+                ))
+              ) : (
+                <TimetableDay day={d} hideRegistered />
+              ))}
             {events
               .filter((e) => mode === "list" || e.day === d)
               .map((e) => (

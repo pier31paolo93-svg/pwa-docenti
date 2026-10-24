@@ -115,6 +115,7 @@ if (
       const routes = [
         "",
         "organizzazione",
+        "orario",
         "passaggio-anno",
         "griglie",
         "registro",

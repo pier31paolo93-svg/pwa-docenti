@@ -1,6 +1,9 @@
 import { Workflow } from "./pages/Workflows";
 import { Grids } from "./pages/Grids";
 import { YearTransition } from "./pages/YearTransition";
+const Timetable = React.lazy(() =>
+  import("./pages/Timetable").then((m) => ({ default: m.Timetable })),
+);
 import { Observations } from "./pages/Observations";
 import { Settings, SyncPage, AIPage } from "./pages/Settings";
 import { ImportPage } from "./pages/Import";
@@ -95,6 +98,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="organizzazione" element={<Organization />} />
             <Route path="passaggio-anno" element={<YearTransition />} />
+            <Route path="orario" element={<Timetable />} />
             <Route path="griglie" element={<Grids />} />
             <Route path="registro-rapido" element={<DailyRegister />} />
             <Route path="calendario" element={<Calendar />} />

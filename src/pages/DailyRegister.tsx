@@ -1,5 +1,9 @@
-import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { TimetableDay } from "../components/TimetableDay";
+import { useTimetable } from "../hooks/timetable";
+import { useAuth } from "../state/auth";
+import { occurrences, type Occurrence } from "../domain/timetable";
 import { useData, useRows } from "../state/data";
 import { useCapabilities } from "../hooks/capabilities";
 import { usePermissions } from "../hooks/permissions";
@@ -18,12 +22,16 @@ import { PageTitle, ErrorBox, Modal } from "../components/ui";
 import { EntityForm } from "../components/EntityForm";
 import { GradeEditor } from "../components/GradeEditor";
 export function DailyRegister() {
+  const [params] = useSearchParams(),
+    timetable = useTimetable(),
+    auth = useAuth();
+  const [scheduled, setScheduled] = useState<Occurrence>();
   const completion = useRows("v_homework_completion");
-  const { data, filters, save, online } = useData(),
+  const { data, filters, save, online, setFilters } = useData(),
     caps = useCapabilities(),
     { writable } = usePermissions();
-  const [ta, setTa] = useState(""),
-    [day, setDay] = useState(today()),
+  const [ta, setTa] = useState(params.get("assignment") ?? ""),
+    [day, setDay] = useState(params.get("day") ?? today()),
     [lessonId, setLesson] = useState(""),
     [assignmentId, setAssignment] = useState(""),
     [error, setError] = useState<unknown>(),
@@ -36,6 +44,54 @@ export function DailyRegister() {
     >({}),
     [local, setLocal] = useState<Record<string, Row>>({});
   const live = useRef<Record<string, Row>>({});
+  const scheduleInitialised = useRef(false);
+  function chooseScheduled(o: Occurrence) {
+    if (
+      Object.keys(drafts).length &&
+      !window.confirm("Abbandonare le annotazioni non salvate?")
+    )
+      return;
+    const a = data.teaching_assignments?.find((a) => a.id === o.assignment);
+    if (!a) return;
+    const cls = data.classes?.find((c) => c.id === a.class_id),
+      cs = data.class_subjects?.find((c) => c.id === a.class_subject_id);
+    setFilters({
+      classId: String(a.class_id),
+      subject: String(cs?.subject_id ?? ""),
+      school: String(cls?.school_id ?? ""),
+      year: String(cls?.school_year_id ?? ""),
+    });
+    setTa(o.assignment);
+    setDay(o.day);
+    setLesson(o.lesson?.id ?? "");
+    setScheduled(o);
+    setDrafts({});
+  }
+  useEffect(() => {
+    if (
+      scheduleInitialised.current ||
+      !timetable.data ||
+      !data.teaching_assignments?.length
+    )
+      return;
+    const available = occurrences(
+      timetable.timetable,
+      data,
+      day,
+      auth.session!.user.id,
+      filters.year,
+      filters.school,
+    );
+    const chosen = params.get("occurrence")
+      ? available.find((o) => o.id === params.get("occurrence"))
+      : !ta && available.length === 1
+        ? available[0]
+        : undefined;
+    if (chosen) {
+      chooseScheduled(chosen);
+      scheduleInitialised.current = true;
+    }
+  }, [timetable.data, data.teaching_assignments, day]);
   useUnsavedChanges(Object.keys(drafts).length > 0);
   const tas = currentAssignments(data, filters),
     selected = tas.find((t) => t.id === ta) ?? tas[0],
@@ -178,6 +234,33 @@ export function DailyRegister() {
         subtitle="Classe, materia e data: compiti, partecipazione e osservazioni nella stessa schermata."
       />
       <ErrorBox error={error} />
+      <TimetableDay day={day} onChoose={chooseScheduled} />
+      {scheduled &&
+        scheduled.day === day &&
+        scheduled.assignment === selected?.id &&
+        !scheduled.cancelled && (
+          <section className="card">
+            <p>
+              Slot selezionato: {scheduled.start}–{scheduled.end}. Classe,
+              materia e orario restano modificabili dal registro.
+            </p>
+            <button
+              className="button"
+              disabled={!online || busy}
+              onClick={() =>
+                void run(async () => {
+                  const id = await timetable.rpc<string>(
+                    "register_timetable_lesson",
+                    { p_occurrence: scheduled.id, p_day: day },
+                  );
+                  setLesson(id);
+                })
+              }
+            >
+              Apri o registra la lezione selezionata
+            </button>
+          </section>
+        )}
       {!caps.data?.dailyRegister ? (
         <p role="alert">
           Registro rapido disponibile dopo le migrazioni V1.3 24–25. I registri
@@ -433,8 +516,18 @@ export function DailyRegister() {
             initial={{
               teaching_assignment_id: selected?.id ?? "",
               title: "",
-              starts_at: day + "T09:00",
-              ends_at: day + "T10:00",
+              starts_at:
+                day +
+                "T" +
+                (scheduled?.day === day && scheduled.assignment === selected?.id
+                  ? scheduled.start
+                  : "09:00"),
+              ends_at:
+                day +
+                "T" +
+                (scheduled?.day === day && scheduled.assignment === selected?.id
+                  ? scheduled.end
+                  : "10:00"),
             }}
             done={() => setEdit(false)}
           />

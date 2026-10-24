@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useData } from "../state/data";
 import { useAuth } from "../state/auth";
@@ -353,6 +354,14 @@ export function YearTransition() {
                 definire restano aperti nell’anno precedente.
               </p>
               <p>Operazione: {result.operation}</p>
+              <p>
+                <Link
+                  className="button"
+                  to={`/orario?sourceYear=${source}&targetYear=${result.target_year_id}`}
+                >
+                  Copia la struttura dell’orario precedente (facoltativo)
+                </Link>
+              </p>
               <button
                 className="button"
                 onClick={() => {
