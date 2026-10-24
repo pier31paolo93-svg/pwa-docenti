@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { gridSummary, type Grid } from "../domain/grids";
 import type { Row } from "../types/model";
 export type GridReportStudent = {
@@ -34,7 +35,7 @@ export const exportBlankGrid = (
     context
       ? {
           ...grid,
-          title: `${context.title} · ${context.context} · ${context.date}`,
+          title: `${context.title} · ${context.context} · ${italianDate(context.date)}`,
         }
       : grid,
   );

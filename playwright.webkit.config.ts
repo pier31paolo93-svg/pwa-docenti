@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 import base from "./playwright.config";
 export default defineConfig({
   ...base,
-  testMatch: "timetable.spec.ts",
+  testMatch: ["timetable.spec.ts", "italian-dates.spec.ts"],
   outputDir: "test-results/webkit",
   reporter: [
     ["list"],

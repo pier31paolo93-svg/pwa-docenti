@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { Link } from "react-router-dom";
 import { GridEvidence } from "./GridEvidence";
 import { useData, useRows } from "../state/data";
@@ -68,7 +69,7 @@ export function StudentHistory({
   );
   const history: Record<string, string>[] = [
     ...lessons.map((l) => ({
-      Data: text(l, "starts_at").slice(0, 10),
+      Data: romeDay(text(l, "starts_at")),
       Tipo: "Lezione",
       Titolo: text(l, "title"),
       Dettagli: (activities.data ?? [])
@@ -125,7 +126,7 @@ export function StudentHistory({
             <tbody>
               {history.map((r, i) => (
                 <tr key={i}>
-                  <td>{r.Data}</td>
+                  <td>{italianDate(r.Data)}</td>
                   <td>{r.Tipo}</td>
                   <td>{r.Titolo}</td>
                   <td>{r.Dettagli}</td>

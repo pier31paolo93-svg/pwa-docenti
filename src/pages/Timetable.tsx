@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../state/auth";
@@ -326,8 +327,8 @@ export function Timetable() {
                       : v.status === "active"
                         ? "Attivo"
                         : "Archiviato"}{" "}
-                    · {String(v.valid_from)} /{" "}
-                    {String(v.valid_to ?? "fine anno")}
+                    · {italianDate(v.valid_from)} /{" "}
+                    {italianDate(v.valid_to) || "fine anno"}
                   </option>
                 ))}
               </select>
@@ -429,9 +430,10 @@ export function Timetable() {
               <section className="card">
                 <h2>{String(v.name)}</h2>
                 <p>
-                  {String(v.valid_from)} — {String(v.valid_to ?? "fine anno")} ·
-                  Creata {String(v.created_at).slice(0, 10)} · Modificata{" "}
-                  {String(v.updated_at).slice(0, 10)}
+                  {italianDate(v.valid_from)} —{" "}
+                  {italianDate(v.valid_to) || "fine anno"} · Creata{" "}
+                  {italianDate(v.created_at)} · Modificata{" "}
+                  {italianDate(v.updated_at)}
                   {" · Autore: " +
                     (v.created_by === auth.session!.user.id
                       ? String(auth.identity.profile?.display_name || "Tu")
@@ -886,7 +888,7 @@ export function Timetable() {
                     .map((e) => (
                       <article key={e.id}>
                         <p>
-                          {String(e.occurs_on)} · {String(e.kind)} ·{" "}
+                          {italianDate(e.occurs_on)} · {String(e.kind)} ·{" "}
                           {String(e.notes ?? "")}
                         </p>
                         <button

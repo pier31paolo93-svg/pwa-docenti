@@ -1,4 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
+import { italianDateValue } from "../domain/time";
 import { TimetableLookup } from "../components/TimetableDay";
 import { Link, useParams } from "react-router-dom";
 import { Plus, Pencil, Archive, ArrowRight } from "lucide-react";
@@ -246,7 +247,9 @@ function ResourceTable({ table }: { table: TableName }) {
               : "No"
             : f.type === "select"
               ? tr(text(row, f.name))
-              : text(row, f.name);
+              : f.type === "date" || f.type === "datetime-local"
+                ? italianDateValue(row[f.name])
+                : text(row, f.name);
   const exports = rows.map((row) =>
     Object.fromEntries(
       exportFields.map((f) => [

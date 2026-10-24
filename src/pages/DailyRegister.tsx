@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { useRef, useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { TimetableDay } from "../components/TimetableDay";
@@ -333,7 +334,7 @@ export function DailyRegister() {
                 <option value="">Nessun compito</option>
                 {assignments.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {text(a, "title")} · {text(a, "due_on")}
+                    {text(a, "title")} · {italianDate(text(a, "due_on"))}
                   </option>
                 ))}
               </select>

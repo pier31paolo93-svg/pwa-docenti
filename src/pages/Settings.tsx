@@ -1,3 +1,4 @@
+import { italianDateTime } from "../domain/time";
 import { useCapabilities, capabilityKey } from "../hooks/capabilities";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -296,7 +297,7 @@ export function SyncPage() {
         <p>
           Ultima sincronizzazione riuscita:{" "}
           {health.lastSuccess
-            ? new Date(health.lastSuccess).toLocaleString("it-IT")
+            ? italianDateTime(new Date(health.lastSuccess).toISOString())
             : "Non ancora registrata"}
         </p>
         <p>

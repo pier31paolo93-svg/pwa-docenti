@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { catalog, derivePatch, label, tr, type Field } from "../domain/catalog";
 import { formSchema, serialize } from "../domain/validation";
-import { romeLocal } from "../domain/time";
+import { romeLocal, italianDateValue } from "../domain/time";
 import { useData, useRows } from "../state/data";
 import { useAuth } from "../state/auth";
 import { useTeachers } from "../hooks/teachers";
@@ -312,6 +312,11 @@ export function EntityForm({
             ) : (
               <input
                 type={f.type}
+                lang={
+                  f.type === "date" || f.type === "datetime-local"
+                    ? "it-IT"
+                    : undefined
+                }
                 aria-label={f.label + (f.required ? " *" : "")}
                 aria-invalid={!!form.formState.errors[f.name]}
                 aria-describedby={
@@ -326,7 +331,13 @@ export function EntityForm({
                 {...form.register(f.name)}
               />
             )}
-            {f.type === "datetime-local" && <small>Orario Europe/Rome</small>}
+            {(f.type === "date" || f.type === "datetime-local") && (
+              <small>
+                gg/mm/aaaa
+                {values[f.name] ? ` · ${italianDateValue(values[f.name])}` : ""}
+                {f.type === "datetime-local" ? " · Orario Europe/Rome" : ""}
+              </small>
+            )}
             {form.formState.errors[f.name] && (
               <small
                 className="field-error"

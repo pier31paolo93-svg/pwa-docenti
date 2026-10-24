@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { useState, lazy, Suspense } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useData, useRows } from "../state/data";
@@ -109,8 +110,9 @@ export function StudentProfile() {
           <h2>Iscrizioni e storico classi</h2>
           {enrollments.map((e) => (
             <p key={e.id}>
-              {label("enrollments", e, data)} · {text(e, "starts_on")} —{" "}
-              {text(e, "ends_on") || "In corso"} ·{" "}
+              {label("enrollments", e, data)} ·{" "}
+              {italianDate(text(e, "starts_on"))} —{" "}
+              {italianDate(text(e, "ends_on")) || "In corso"} ·{" "}
               {text(e, "outcome") || "Non definito"}
             </p>
           ))}
@@ -127,7 +129,7 @@ export function StudentProfile() {
           {tests.map((a) => (
             <p key={a.id}>
               <Link to={"/verifiche/" + a.id}>{text(a, "title")}</Link> ·{" "}
-              {text(a, "assessed_on")} ·{" "}
+              {italianDate(text(a, "assessed_on"))} ·{" "}
               {tr(
                 assessmentProgress(
                   a,
@@ -166,7 +168,7 @@ export function StudentProfile() {
                 data.assignments?.find((a) => a.id === h.assignment_id),
                 "title",
               )}{" "}
-              · {text(h, "checked_on")} ·{" "}
+              · {italianDate(text(h, "checked_on"))} ·{" "}
               {text(
                 completion.data?.find((c) => c.id === h.id),
                 "completion_status",
@@ -183,8 +185,8 @@ export function StudentProfile() {
             .map((o) => (
               <article key={o.id}>
                 <p>
-                  {text(o, "observed_on")} · {text(o, "participation")} ·{" "}
-                  {text(o, "notes")}
+                  {italianDate(text(o, "observed_on"))} ·{" "}
+                  {text(o, "participation")} · {text(o, "notes")}
                 </p>
                 <small>
                   {text(o, "visibility") === "private"
@@ -249,7 +251,7 @@ export function StudentProfile() {
                     {text(a, "title")}
                   </Link>
                   <p>
-                    {text(a, "objective")} · {text(a, "due_on")} ·{" "}
+                    {text(a, "objective")} · {italianDate(text(a, "due_on"))} ·{" "}
                     {text(t, "status")} · {text(t, "outcome")}
                   </p>
                 </article>

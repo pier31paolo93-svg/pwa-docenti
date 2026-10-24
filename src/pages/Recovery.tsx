@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -132,7 +133,7 @@ export function Recovery() {
               <h2>{text(activity, "title")}</h2>
               <p>
                 {text(activity, "objective")} ·{" "}
-                {text(activity, "due_on") || "Senza scadenza"}
+                {italianDate(text(activity, "due_on")) || "Senza scadenza"}
               </p>
               {!!activity.assessment_id && (
                 <Link to={"/verifiche/" + activity.assessment_id}>

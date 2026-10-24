@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { Link } from "react-router-dom";
 import { TimetableDay } from "../components/TimetableDay";
 import {
@@ -49,11 +50,7 @@ export function Dashboard() {
             s.class_id === filters.classId && s.subject_id === filters.subject,
         )
       : undefined;
-  const date = new Date().toLocaleDateString("it-IT", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  const date = italianDate(new Date().toISOString());
   const first = text(identity.profile ?? undefined, "display_name").split(
     " ",
   )[0];
@@ -192,11 +189,7 @@ export function Dashboard() {
                         text(o, "strengths") ||
                         "Osservazione registrata"}
                     </strong>
-                    <small>
-                      {new Date(text(o, "observed_on")).toLocaleDateString(
-                        "it-IT",
-                      )}
-                    </small>
+                    <small>{italianDate(text(o, "observed_on"))}</small>
                   </div>
                   <Badge tone={o.mode === "GRADED" ? "good" : "neutral"}>
                     {o.mode === "GRADED" ? "Valutativa" : "Descrittiva"}
@@ -238,7 +231,7 @@ export function Dashboard() {
                 >
                   <div>
                     <strong>{text(a, "title")}</strong>
-                    <small>Consegna · {text(a, "due_on")}</small>
+                    <small>Consegna · {italianDate(text(a, "due_on"))}</small>
                   </div>
                   <ArrowRight size={17} />
                 </Link>
@@ -254,7 +247,9 @@ export function Dashboard() {
               >
                 <div>
                   <strong>{text(a, "title")}</strong>
-                  <small>Verifica · {text(a, "assessed_on")}</small>
+                  <small>
+                    Verifica · {italianDate(text(a, "assessed_on"))}
+                  </small>
                 </div>
                 <GraduationCap size={17} />
               </Link>

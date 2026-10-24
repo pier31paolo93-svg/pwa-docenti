@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { useState } from "react";
 import { TimetableDay } from "../components/TimetableDay";
 import { Link } from "react-router-dom";
@@ -132,11 +133,8 @@ export function Calendar() {
           <section className="card" key={d}>
             <h2>
               {mode === "list"
-                ? `${first} — ${last}`
-                : new Intl.DateTimeFormat("it-IT", {
-                    dateStyle: "full",
-                    timeZone: "Europe/Rome",
-                  }).format(new Date(d + "T12:00:00Z"))}
+                ? `${italianDate(first)} — ${italianDate(last)}`
+                : italianDate(d)}
             </h2>
             {(!kind || kind === "lesson") &&
               (mode === "list" ? (
@@ -144,7 +142,7 @@ export function Calendar() {
                   <TimetableDay
                     key={date}
                     day={date}
-                    title={"Orario previsto · " + date}
+                    title={"Orario previsto · " + italianDate(date)}
                     hideRegistered
                   />
                 ))
@@ -156,7 +154,7 @@ export function Calendar() {
               .map((e) => (
                 <article className="calendar-event" key={e.kind + e.id}>
                   <Link to={e.route}>
-                    {mode === "list" ? e.day + " · " : ""}
+                    {mode === "list" ? italianDate(e.day) + " · " : ""}
                     {e.time ? e.time + " · " : ""}
                     {e.title}
                   </Link>

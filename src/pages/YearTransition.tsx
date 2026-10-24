@@ -1,3 +1,4 @@
+import { italianDate, italianDateTime } from "../domain/time";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -600,8 +601,8 @@ export function YearTransition() {
                       .map((e) => (
                         <p key={e.id}>
                           {label("enrollments", e, data)} ·{" "}
-                          {tr(text(e, "outcome"))} · {text(e, "ends_on")}{" "}
-                          (storico conservato)
+                          {tr(text(e, "outcome"))} ·{" "}
+                          {italianDate(text(e, "ends_on"))} (storico conservato)
                         </p>
                       ))}
                   </details>
@@ -893,8 +894,7 @@ export function YearTransition() {
             </summary>
             {history.data?.map((r) => (
               <p key={r.id}>
-                {new Date(r.created_at).toLocaleString("it-IT")} · {r.id} ·{" "}
-                {r.status}
+                {italianDateTime(r.created_at)} · {r.id} · {r.status}
               </p>
             ))}
           </details>

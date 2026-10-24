@@ -1,3 +1,4 @@
+import { italianDateTime } from "../domain/time";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRows, useData } from "../state/data";
@@ -141,8 +142,7 @@ export function OperationsHistory() {
           <article className="card operation-history" key={r.source + r.id}>
             <h2>{tr(r.kind)}</h2>
             <p>
-              {new Date(text(r, "created_at")).toLocaleString("it-IT")} ·
-              Autore:{" "}
+              {italianDateTime(text(r, "created_at"))} · Autore:{" "}
               {r.actor_id === auth.session?.user.id
                 ? "Tu"
                 : text(r, "actor_id").slice(0, 8) || "Operazione di sistema"}

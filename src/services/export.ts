@@ -1,4 +1,5 @@
 import { text, type Row } from "../types/model";
+import { italianDateValue, italianDate } from "../domain/time";
 export type ExportRow = Record<string, string | number | boolean | null>;
 export function safeCell(value: unknown): string {
   const s =
@@ -23,6 +24,16 @@ export async function exportRows(
   rows: ExportRow[],
 ) {
   if (!rows.length) throw new Error("Nessun dato autorizzato da esportare.");
+  rows = rows.map((row) =>
+    Object.fromEntries(
+      Object.entries(row).map(([key, value]) => [
+        key,
+        typeof value === "string" && /^\d{4}-\d{2}-\d{2}(?:T.*)?$/.test(value)
+          ? italianDateValue(value)
+          : value,
+      ]),
+    ),
+  );
   const keys = [...new Set(rows.flatMap(Object.keys))];
   const name = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   if (format === "csv") {
@@ -87,7 +98,7 @@ export async function exportRows(
     doc.setFontSize(9);
     doc.setTextColor("#65716b");
     doc.text(
-      "Quaderno Docenti · " + new Date().toLocaleDateString("it-IT"),
+      "Quaderno Docenti · " + italianDate(new Date().toISOString()),
       14,
       28,
     );

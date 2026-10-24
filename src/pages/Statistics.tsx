@@ -1,3 +1,4 @@
+import { italianDate } from "../domain/time";
 import { PeriodAverage } from "../components/PeriodAverage";
 import { GridEvidence } from "../components/GridEvidence";
 import { TeachingSummary } from "../components/TeachingSummary";
@@ -80,7 +81,7 @@ export function Statistics({ student = false }: { student?: boolean }) {
   const chronological = [...confirmed]
     .sort((a, b) => text(a, "graded_on").localeCompare(text(b, "graded_on")))
     .map((r) => ({
-      data: text(r, "graded_on"),
+      data: italianDate(text(r, "graded_on")),
       voto: Number(r.confirmed_value),
     }));
   const distribution = Object.entries(
@@ -498,7 +499,8 @@ export function Statistics({ student = false }: { student?: boolean }) {
                   data.classes?.find((c) => c.id === e.class_id),
                   "name",
                 )}{" "}
-                · {text(e, "starts_on")} → {text(e, "ends_on") || "in corso"} ·{" "}
+                · {italianDate(text(e, "starts_on"))} →{" "}
+                {italianDate(text(e, "ends_on")) || "in corso"} ·{" "}
                 {tr(text(e, "outcome"))}
               </p>
             ))}
@@ -508,7 +510,7 @@ export function Statistics({ student = false }: { student?: boolean }) {
             {observationRows.map((o) => (
               <article className="history-item" key={o.id}>
                 <strong>
-                  {text(o, "observed_on")} · {tr(text(o, "mode"))}
+                  {italianDate(text(o, "observed_on"))} · {tr(text(o, "mode"))}
                 </strong>
                 <p>{text(o, "notes")}</p>
                 {[
@@ -543,7 +545,7 @@ export function Statistics({ student = false }: { student?: boolean }) {
                 <tbody>
                   {rows.map((r) => (
                     <tr key={r.id}>
-                      <td>{text(r, "graded_on")}</td>
+                      <td>{italianDate(text(r, "graded_on"))}</td>
                       <td>{tr(text(r, "origin"))}</td>
                       <td>{text(r, "confirmed_value") || "—"}</td>
                       <td>{text(r, "weight")}</td>
