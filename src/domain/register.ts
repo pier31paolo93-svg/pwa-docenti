@@ -40,9 +40,24 @@ export function orderedEnrollments(
   });
 }
 export function enrollmentCandidates(data: DataMap, classId: string) {
+  const selected = data.classes?.find((c) => c.id === classId);
+  if (!selected?.school_year_id || selected.deleted_at) return [];
+  const sameYear = new Set(
+    data.classes
+      ?.filter(
+        (c) =>
+          c.school_year_id === selected.school_year_id &&
+          c.workspace_id === selected.workspace_id,
+      )
+      .map((c) => c.id),
+  );
   const enrolled = new Set(
     data.enrollments
-      ?.filter((e) => e.class_id === classId)
+      ?.filter(
+        (e) =>
+          e.class_id === classId ||
+          (!e.deleted_at && sameYear.has(String(e.class_id))),
+      )
       .map((e) => e.student_id),
   );
   return (data.students ?? [])
@@ -53,6 +68,44 @@ export function enrollmentCandidates(data: DataMap, classId: string) {
         String(a.first_name).localeCompare(String(b.first_name), "it") ||
         a.id.localeCompare(b.id),
     );
+}
+export function studentClassLabel(
+  student: string,
+  data: DataMap,
+  year = "",
+  classId = "",
+) {
+  const classes = new Map(
+    (data.classes ?? []).filter((c) => !c.deleted_at).map((c) => [c.id, c]),
+  );
+  const selectedYear = year || classes.get(classId)?.school_year_id;
+  const enrollments = (data.enrollments ?? []).filter((e) => {
+    const cls = classes.get(String(e.class_id));
+    return (
+      e.student_id === student &&
+      !e.deleted_at &&
+      cls &&
+      (!selectedYear || cls.school_year_id === selectedYear)
+    );
+  });
+  const scoped = selectedYear
+    ? enrollments
+    : (() => {
+        const latest = studentEnrollment(student, { ...data, enrollments });
+        const latestYear = classes.get(
+          String(latest?.class_id),
+        )?.school_year_id;
+        return enrollments.filter(
+          (e) => classes.get(String(e.class_id))?.school_year_id === latestYear,
+        );
+      })();
+  return [
+    ...new Set(
+      scoped.map((e) => String(classes.get(String(e.class_id))!.name)),
+    ),
+  ]
+    .sort()
+    .join(", ");
 }
 export function nextClassName(name: string, repeat = false) {
   const m = name.match(/^(\s*)([1-5])([ªa°.]?)(.*)$/i);

@@ -142,19 +142,26 @@ describe("register and year transition", () => {
   });
   it("excludes historical duplicates only in the selected class", () => {
     const students = [{ id: "s1" }, { id: "s2" }],
+      classes = [
+        { id: "c", school_year_id: "y" },
+        { id: "other", school_year_id: "next" },
+      ],
       enrollments = [
         { id: "e", class_id: "c", student_id: "s1", ends_on: "2025-06-30" },
       ];
     expect(
-      enrollmentCandidates({ students, enrollments }, "c").map((r) => r.id),
+      enrollmentCandidates({ students, enrollments, classes }, "c").map(
+        (r) => r.id,
+      ),
     ).toEqual(["s2"]);
     expect(
-      enrollmentCandidates({ students, enrollments }, "other"),
+      enrollmentCandidates({ students, enrollments, classes }, "other"),
     ).toHaveLength(2);
     expect(
       enrollmentCandidates(
         {
           students,
+          classes,
           enrollments: enrollments.map((e) => ({
             ...e,
             deleted_at: "2026-01-01",

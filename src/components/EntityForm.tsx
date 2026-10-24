@@ -127,7 +127,8 @@ export function EntityForm({
         )
       ) {
         form.setError("student_id", {
-          message: "Scegli uno studente ancora associabile alla classe.",
+          message:
+            "Scegli uno studente senza classe in questo anno scolastico. Per un’iscrizione archiviata, ripristina quella esistente.",
         });
         return;
       }

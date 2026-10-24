@@ -31,6 +31,7 @@ import {
   orderedEnrollments,
   orderedStudents,
   studentEnrollment,
+  studentClassLabel,
   type RegisterOrder,
 } from "../domain/register";
 export function Organization() {
@@ -198,6 +199,7 @@ function ResourceTable({ table }: { table: TableName }) {
     table === "students"
       ? [
           ...spec.fields,
+          { name: "assigned_class", label: "Classe", type: "text" } as Field,
           {
             name: "register_number",
             label: "Numero di registro",
@@ -205,27 +207,29 @@ function ResourceTable({ table }: { table: TableName }) {
           } as Field,
         ]
       : spec.fields;
-  const fields = exportFields.slice(0, 4);
+  const fields = table === "students" ? exportFields : exportFields.slice(0, 4);
   const currentPage = Math.min(
     page,
     Math.max(0, Math.ceil(rows.length / 50) - 1),
   );
   const visibleRows = rows.slice(currentPage * 50, (currentPage + 1) * 50);
   const cell = (f: Field, row: Row) =>
-    table === "students" && f.name === "register_number"
-      ? String(
-          studentEnrollment(row.id, data, filters.classId)?.register_number ??
-            "Non assegnato",
-        )
-      : f.ref
-        ? referenceLabel(f, row)
-        : f.type === "checkbox"
-          ? row[f.name]
-            ? "Sì"
-            : "No"
-          : f.type === "select"
-            ? tr(text(row, f.name))
-            : text(row, f.name);
+    table === "students" && f.name === "assigned_class"
+      ? studentClassLabel(row.id, data, filters.year, filters.classId)
+      : table === "students" && f.name === "register_number"
+        ? String(
+            studentEnrollment(row.id, data, filters.classId)?.register_number ??
+              "Non assegnato",
+          )
+        : f.ref
+          ? referenceLabel(f, row)
+          : f.type === "checkbox"
+            ? row[f.name]
+              ? "Sì"
+              : "No"
+            : f.type === "select"
+              ? tr(text(row, f.name))
+              : text(row, f.name);
   const exports = rows.map((row) =>
     Object.fromEntries(
       exportFields.map((f) => [
@@ -483,7 +487,11 @@ function ResourceTable({ table }: { table: TableName }) {
                     {fields.slice(1).map((f) => (
                       <div key={f.name}>
                         <dt>{f.label}</dt>
-                        <dd>{cell(f, row) || "—"}</dd>
+                        <dd>
+                          {f.name === "assigned_class"
+                            ? cell(f, row)
+                            : cell(f, row) || "—"}
+                        </dd>
                       </div>
                     ))}
                   </dl>
