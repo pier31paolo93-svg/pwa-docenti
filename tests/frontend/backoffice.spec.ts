@@ -28,12 +28,14 @@ for (const [device, width, height] of [
     await page.setViewportSize({ width, height });
     await login(page);
     await page.goto("./#/organizzazione");
-    const section = page
-      .locator("section")
-      .filter({
-        has: page.getByRole("heading", { name: "Organizzazione", exact: true }),
-      });
-    await expect(section.getByRole("link")).toHaveText([...titles,"Passaggio anno"]);
+    const section = page.locator("section").filter({
+      has: page.getByRole("heading", { name: "Organizzazione", exact: true }),
+    });
+    await expect(section.getByRole("link")).toHaveText([
+      ...titles,
+      "Orario settimanale",
+      "Passaggio anno",
+    ]);
     for (const title of titles) {
       await section.getByRole("link", { name: title, exact: true }).click();
       await expect(

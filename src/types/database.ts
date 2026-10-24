@@ -2003,6 +2003,8 @@ export type Database = {
           starts_at: string;
           status: string;
           teaching_assignment_id: string;
+          timetable_occurrence_id: string | null;
+          timetable_occurs_on: string | null;
           title: string;
           updated_at: string;
           version: number;
@@ -2020,6 +2022,8 @@ export type Database = {
           starts_at: string;
           status?: string;
           teaching_assignment_id: string;
+          timetable_occurrence_id?: string | null;
+          timetable_occurs_on?: string | null;
           title: string;
           updated_at?: string;
           version?: number;
@@ -2036,6 +2040,8 @@ export type Database = {
           starts_at?: string;
           status?: string;
           teaching_assignment_id?: string;
+          timetable_occurrence_id?: string | null;
+          timetable_occurs_on?: string | null;
           title?: string;
           updated_at?: string;
           version?: number;
@@ -3347,6 +3353,274 @@ export type Database = {
           },
         ];
       };
+      timetable_exceptions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          ends_at: string | null;
+          id: string;
+          kind: string;
+          notes: string | null;
+          occurs_on: string;
+          room: string | null;
+          slot_id: string | null;
+          starts_at: string | null;
+          teaching_assignment_id: string | null;
+          timetable_version_id: string;
+          updated_at: string;
+          version: number;
+          visibility: string;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          kind: string;
+          notes?: string | null;
+          occurs_on: string;
+          room?: string | null;
+          slot_id?: string | null;
+          starts_at?: string | null;
+          teaching_assignment_id?: string | null;
+          timetable_version_id: string;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          workspace_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          kind?: string;
+          notes?: string | null;
+          occurs_on?: string;
+          room?: string | null;
+          slot_id?: string | null;
+          starts_at?: string | null;
+          teaching_assignment_id?: string | null;
+          timetable_version_id?: string;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "timetable_exceptions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_exceptions_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_exceptions_workspace_id_slot_id_timetable_versio_fkey";
+            columns: ["workspace_id", "slot_id", "timetable_version_id"];
+            isOneToOne: false;
+            referencedRelation: "timetable_slots";
+            referencedColumns: ["workspace_id", "id", "timetable_version_id"];
+          },
+          {
+            foreignKeyName: "timetable_exceptions_workspace_id_teaching_assignment_id_fkey";
+            columns: ["workspace_id", "teaching_assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "teaching_assignments";
+            referencedColumns: ["workspace_id", "id"];
+          },
+          {
+            foreignKeyName: "timetable_exceptions_workspace_id_timetable_version_id_fkey";
+            columns: ["workspace_id", "timetable_version_id"];
+            isOneToOne: false;
+            referencedRelation: "timetable_versions";
+            referencedColumns: ["workspace_id", "id"];
+          },
+        ];
+      };
+      timetable_slots: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          ends_at: string;
+          id: string;
+          kind: string;
+          notes: string | null;
+          room: string | null;
+          starts_at: string;
+          teaching_assignment_id: string;
+          timetable_version_id: string;
+          updated_at: string;
+          version: number;
+          visibility: string;
+          weekday: number;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          ends_at: string;
+          id?: string;
+          kind?: string;
+          notes?: string | null;
+          room?: string | null;
+          starts_at: string;
+          teaching_assignment_id: string;
+          timetable_version_id: string;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          weekday: number;
+          workspace_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          ends_at?: string;
+          id?: string;
+          kind?: string;
+          notes?: string | null;
+          room?: string | null;
+          starts_at?: string;
+          teaching_assignment_id?: string;
+          timetable_version_id?: string;
+          updated_at?: string;
+          version?: number;
+          visibility?: string;
+          weekday?: number;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "timetable_slots_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_slots_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_slots_workspace_id_teaching_assignment_id_fkey";
+            columns: ["workspace_id", "teaching_assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "teaching_assignments";
+            referencedColumns: ["workspace_id", "id"];
+          },
+          {
+            foreignKeyName: "timetable_slots_workspace_id_timetable_version_id_fkey";
+            columns: ["workspace_id", "timetable_version_id"];
+            isOneToOne: false;
+            referencedRelation: "timetable_versions";
+            referencedColumns: ["workspace_id", "id"];
+          },
+        ];
+      };
+      timetable_versions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          id: string;
+          kind: string;
+          name: string;
+          school_year_id: string;
+          status: string;
+          teacher_id: string;
+          updated_at: string;
+          valid_from: string;
+          valid_to: string | null;
+          version: number;
+          visibility: string;
+          workspace_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          id?: string;
+          kind: string;
+          name: string;
+          school_year_id: string;
+          status?: string;
+          teacher_id: string;
+          updated_at?: string;
+          valid_from: string;
+          valid_to?: string | null;
+          version?: number;
+          visibility?: string;
+          workspace_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted_at?: string | null;
+          id?: string;
+          kind?: string;
+          name?: string;
+          school_year_id?: string;
+          status?: string;
+          teacher_id?: string;
+          updated_at?: string;
+          valid_from?: string;
+          valid_to?: string | null;
+          version?: number;
+          visibility?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "timetable_versions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_versions_teacher_id_fkey";
+            columns: ["teacher_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_versions_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "timetable_versions_workspace_id_school_year_id_fkey";
+            columns: ["workspace_id", "school_year_id"];
+            isOneToOne: false;
+            referencedRelation: "school_years";
+            referencedColumns: ["workspace_id", "id"];
+          },
+        ];
+      };
       topics: {
         Row: {
           created_at: string;
@@ -4022,6 +4296,15 @@ export type Database = {
       };
     };
     Functions: {
+      activate_timetable: {
+        Args: {
+          p_id: string;
+          p_previous?: string;
+          p_previous_version?: number;
+          p_version: number;
+        };
+        Returns: string;
+      };
       apply_import: {
         Args: { p_batch: string; p_expected_version: number };
         Returns: number;
@@ -4052,6 +4335,16 @@ export type Database = {
           p_template_version: number;
           p_title: string;
           p_workspace: string;
+        };
+        Returns: string;
+      };
+      duplicate_timetable: {
+        Args: {
+          p_id: string;
+          p_map?: Json;
+          p_name: string;
+          p_teacher: string;
+          p_year: string;
         };
         Returns: string;
       };
@@ -4095,6 +4388,10 @@ export type Database = {
           p_step: number;
         };
         Returns: number;
+      };
+      register_timetable_lesson: {
+        Args: { p_day: string; p_occurrence: string };
+        Returns: string;
       };
       remove_workspace_member: {
         Args: { p_user: string; p_workspace: string };

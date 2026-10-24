@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { TimetableDay } from "../components/TimetableDay";
 import {
   ArrowRight,
   Plus,
@@ -69,7 +70,24 @@ export function Dashboard() {
           </Link>
         }
       />
-      <nav className="form-actions" aria-label="Azioni rapide della giornata"><Link className="button primary" to="/registro-rapido">Apri registro rapido</Link><Link className="button" to="/griglie">Crea verifica con griglia</Link><Link className="button" to="/verifiche">Correggi verifica</Link><Link className="button" to="/calendario">Visualizza calendario</Link><Link className="button" to="/archivio/classes">Apri classe</Link></nav>
+      <nav className="form-actions" aria-label="Azioni rapide della giornata">
+        <Link className="button primary" to="/registro-rapido">
+          Apri registro rapido
+        </Link>
+        <Link className="button" to="/griglie">
+          Crea verifica con griglia
+        </Link>
+        <Link className="button" to="/verifiche">
+          Correggi verifica
+        </Link>
+        <Link className="button" to="/calendario">
+          Visualizza calendario
+        </Link>
+        <Link className="button" to="/archivio/classes">
+          Apri classe
+        </Link>
+      </nav>
+      <TimetableDay day={now} title="Le mie lezioni di oggi" />
       <div className="stat-grid">
         <Stat
           label="Lezioni di oggi"

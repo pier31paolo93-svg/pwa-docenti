@@ -841,5 +841,80 @@ input::-webkit-datetime-edit {
     position: static;
   }
 }
-.operation-history { min-width: 0; overflow-wrap: anywhere; }
-.operation-history dl, .operation-history dd { min-width: 0; margin-inline: 0; }
+.operation-history {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.operation-history dl,
+.operation-history dd {
+  min-width: 0;
+  margin-inline: 0;
+}
+.timetable-week {
+  display: none;
+  grid-template-columns: repeat(var(--timetable-days, 6), minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.timetable-week .card {
+  padding: 0.65rem;
+  margin-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.timetable-day,
+.timetable-day input,
+.timetable-day select {
+  min-width: 0;
+}
+.timetable-day .section-toolbar {
+  flex-direction: column;
+  align-items: stretch;
+}
+.timetable-occurrence {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border, #d5dced);
+  overflow-wrap: anywhere;
+}
+.timetable-day-only {
+  display: block;
+}
+.timetable-matrix {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.timetable-matrix th,
+.timetable-matrix td {
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: 0.3rem;
+  border: 1px solid var(--border, #d5dced);
+}
+.timetable-matrix .card {
+  padding: 0.4rem;
+  margin: 0;
+  min-width: 0;
+}
+.timetable-matrix .section-toolbar {
+  flex-direction: column;
+  align-items: stretch;
+}
+.timetable-matrix .button {
+  padding: 0.4rem;
+  white-space: normal;
+  min-width: 0;
+}
+.timetable-day-only .timetable-day:not(.selected) {
+  display: none;
+}
+@media (max-width: 767px) {
+  .timetable-matrix {
+    display: none;
+  }
+  .timetable-week {
+    display: block;
+  }
+  .timetable-day:not(.selected) {
+    display: none;
+  }
+}

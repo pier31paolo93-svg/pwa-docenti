@@ -11,7 +11,8 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "npm run dev -- --mode test --port 5176",
+    command:
+      "node --input-type=module -e \"const {createServer}=await import('vite');const server=await createServer({mode:'test',server:{host:'127.0.0.1',port:5176,strictPort:true,watch:null,hmr:false}});await server.listen();\"",
     url: "http://127.0.0.1:5176/pwa-docenti/",
     reuseExistingServer: !process.env.CI,
     timeout: 90_000,

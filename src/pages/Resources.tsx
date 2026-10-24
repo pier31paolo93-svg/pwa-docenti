@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TimetableLookup } from "../components/TimetableDay";
 import { Link, useParams } from "react-router-dom";
 import { Plus, Pencil, Archive, ArrowRight } from "lucide-react";
 import {
@@ -67,6 +68,12 @@ export function Organization() {
                     <ArrowRight size={17} />
                   </Link>
                 ))}
+              {group === "Organizzazione" && (
+                <Link className="resource-card" to="/orario">
+                  <span>Orario settimanale</span>
+                  <ArrowRight size={17} />
+                </Link>
+              )}
               {group === "Organizzazione" && admin && (
                 <Link className="resource-card" to="/passaggio-anno">
                   <span>Passaggio anno</span>
@@ -333,6 +340,7 @@ function ResourceTable({ table }: { table: TableName }) {
         }
       />
       <ErrorBox error={query.error ?? error} />
+      {table === "lessons" && <TimetableLookup />}
       <div className="section-toolbar">
         {["students", "enrollments"].includes(table) && (
           <label>
