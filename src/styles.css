@@ -132,6 +132,9 @@ small,
 .muted {
   color: var(--muted);
 }
+.page-back {
+  margin-bottom: 1rem;
+}
 .button {
   display: inline-flex;
   gap: 9px;

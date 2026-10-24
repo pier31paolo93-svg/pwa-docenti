@@ -1,4 +1,5 @@
 import { useCapabilities } from "../hooks/capabilities";
+import { PageBack } from "./PageBack";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, Link } from "react-router-dom";
 import {
@@ -364,6 +365,7 @@ export function Layout() {
           </div>
         </details>
         <main tabIndex={-1} id="main-content" className="main-content">
+          <PageBack />
           {capabilities.data && !capabilities.data.extendedHomework && (
             <div className="banner">
               Backend in sola lettura: la migrazione frontend 18 richiede
