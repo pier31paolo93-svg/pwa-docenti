@@ -55,7 +55,13 @@ test("annual enrollment candidates and student class on desktop and mobile", asy
       .getByLabel("Studente *", { exact: true })
       .locator(`option[value="${user.rows.students.id}"]`),
   ).toHaveCount(0);
+  page.once("dialog", (confirmation) => confirmation.accept());
+  await dialog.getByRole("button", { name: "Annulla", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
   await page.goto("./#/studenti");
+  await expect(
+    page.getByRole("heading", { name: "Studenti", exact: true }),
+  ).toBeVisible();
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     if (width === 1280) {
