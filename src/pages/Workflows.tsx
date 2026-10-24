@@ -18,6 +18,7 @@ import {
 import { PageTitle, Empty, ErrorBox, Modal, Badge } from "../components/ui";
 import { EntityForm } from "../components/EntityForm";
 import { GradeEditor } from "../components/GradeEditor";
+import { GridCorrection } from "../components/GridCorrection";
 type Editor = { table: TableName; row?: Row; initial?: Patch };
 export function Workflow() {
   const { id } = useParams();
@@ -61,6 +62,8 @@ export function Workflow() {
         description="Verifica i filtri e i permessi del workspace."
       />
     );
+  if (kind === "assessments" && parent.grid_snapshot)
+    return <GridCorrection key={parent.id} assessment={parent} />;
   const enrollments = (data.enrollments ?? [])
     .filter(
       (e) =>

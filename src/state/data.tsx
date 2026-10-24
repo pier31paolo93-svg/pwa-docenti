@@ -19,15 +19,16 @@ import {
   stopSync,
 } from "../offline/sync";
 import { consent } from "../offline/vault";
+import { orderedEnrollments, orderedStudents } from "../domain/register";
 import type { Row, SourceName, TableName, Patch } from "../types/model";
 import type { DataMap } from "../domain/catalog";
 import { Spinner, ErrorBox } from "../components/ui";
-export function useRows(source: SourceName) {
+export function useRows(source: SourceName, enabled = true) {
   const { session, workspace } = useAuth();
   return useQuery({
     queryKey: ["data", session?.user.id, workspace, source],
     queryFn: () => fetchRows(source, session!.user.id, workspace),
-    enabled: !!session && !!workspace,
+    enabled: !!session && !!workspace && enabled,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
     retry: 1,
@@ -94,16 +95,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     })),
   });
   const signature = queries.map((q) => q.dataUpdatedAt).join(",");
-  const data = useMemo(
-    () =>
-      Object.fromEntries(
-        baseTables.map((t, i) => [
-          t,
-          (queries[i].data ?? []).filter((r) => !r.deleted_at),
-        ]),
-      ) as DataMap,
-    [signature, auth.workspace],
-  );
+  const data = useMemo(() => {
+    const map = Object.fromEntries(
+      baseTables.map((t, i) => [
+        t,
+        (queries[i].data ?? []).filter((r) => !r.deleted_at),
+      ]),
+    ) as DataMap;
+    map.enrollments = orderedEnrollments(map.enrollments ?? [], map);
+    map.students = orderedStudents(map.students ?? [], map);
+    return map;
+  }, [signature, auth.workspace]);
   const [toast, setToast] = useState("");
   const [filters, set] = useState<Filters>(() => {
     try {

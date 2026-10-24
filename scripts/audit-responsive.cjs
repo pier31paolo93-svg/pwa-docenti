@@ -1,9 +1,9 @@
 // Read-only UI audit using fictitious users on the local Supabase stack only.
 const fs = require("node:fs");
 const { spawn } = require("node:child_process");
-const { chromium } = require("@playwright/test");
+const { chromium, webkit } = require("@playwright/test");
 const stage = process.argv[2] || "after";
-const widths = [320, 360, 375, 390, 430, 768, 1024];
+const widths = [320, 375, 390, 768, 820, 834, 1024, 1180];
 const base = "http://127.0.0.1:5182/pwa-docenti/";
 const root = `.local-test/mobile-audit/${stage}`;
 fs.mkdirSync(root, { recursive: true });
@@ -12,6 +12,12 @@ const source = fs
   .split("export const catalog")[1]
   .split("export type DataMap")[0];
 const resources = [...source.matchAll(/^  ([a-z_]+): \{$/gm)].map((m) => m[1]);
+const titles = Object.fromEntries(
+  [...source.matchAll(/^  ([a-z_]+): \{\s*title: "([^"]+)"/gm)].map((m) => [
+    m[1],
+    m[2],
+  ]),
+);
 const users = JSON.parse(fs.readFileSync(".local-test/e2e-users.json", "utf8"));
 if (
   !fs
@@ -22,7 +28,7 @@ if (
 (async () => {
   const server = spawn(
     process.execPath,
-    ["node_modules/vite/bin/vite.js", "--mode", "test", "--port", "5182"],
+    ['--input-type=module','-e',"const {createServer}=await import('vite');const s=await createServer({mode:'test',server:{host:'127.0.0.1',port:5182,strictPort:true,watch:null,hmr:false}});await s.listen();"],
     { stdio: "ignore", windowsHide: true },
   );
   let browser;
@@ -33,7 +39,9 @@ if (
       } catch {}
       await new Promise((r) => setTimeout(r, 250));
     }
-    browser = await chromium.launch();
+    browser = await (
+      process.argv.includes("--webkit") ? webkit : chromium
+    ).launch();
     const context = await browser.newContext();
     context.setDefaultTimeout(60000);
     const page = await context.newPage();
@@ -103,6 +111,8 @@ if (
       const routes = [
         "",
         "organizzazione",
+        "passaggio-anno",
+        "griglie",
         "registro",
         "compiti",
         "verifiche",
@@ -112,6 +122,14 @@ if (
         "importa",
         "impostazioni",
         "sincronizzazione",
+        "registro-rapido",
+        "calendario",
+        "recupero",
+        "analisi-verifiche",
+        "importa-avanzato",
+        "storico",
+        "esportazione",
+        "studenti/"+users[0].rows.students.id,
         "ai",
       ];
       for (const route of routes) {
@@ -119,7 +137,16 @@ if (
         await page.locator("main").waitFor();
         await page.getByRole("heading", { level: 1 }).first().waitFor();
         await measure(route);
-        if (["", "organizzazione", "osservazioni", "registro"].includes(route))
+        if (
+          [
+            "",
+            "organizzazione",
+            "osservazioni",
+            "registro",
+            "passaggio-anno",
+            "griglie",
+          ].includes(route)
+        )
           await page.screenshot({
             path: `${root}/${width}-${route || "home"}.png`,
             fullPage: true,
@@ -127,7 +154,13 @@ if (
       }
       for (const resource of resources) {
         await page.goto(base + "#/archivio/" + resource);
-        await page.getByRole("heading", { level: 1 }).first().waitFor();
+        await page
+          .getByRole("heading", {
+            level: 1,
+            name: titles[resource],
+            exact: true,
+          })
+          .waitFor();
         await measure(resource);
         const create = page.locator(".page-heading button").first();
         if (await create.isVisible()) {
@@ -150,6 +183,47 @@ if (
             .getByRole("button", { name: "Chiudi", exact: true })
             .click();
         }
+      }
+      await page.goto(base + "#/griglie");
+      await page
+        .getByRole("button", { name: "Crea griglia universale personalizzata" })
+        .click();
+      for (let step = 0; step < 4; step++) {
+        await measure("griglie/wizard/" + step, true);
+        await page.screenshot({
+          path: `${root}/${width}-griglia-${step}.png`,
+          fullPage: true,
+        });
+        if (step < 3)
+          await page
+            .getByRole("button", { name: "Continua", exact: true })
+            .click();
+      }
+      await page.getByRole("button", { name: "Chiudi editor griglia" }).click();
+      await page.goto(base + "#/passaggio-anno");
+      await page
+        .getByLabel("Anno di origine", { exact: true })
+        .selectOption({ label: "2026/2027 test" });
+      await page
+        .locator("main")
+        .getByLabel("Scuola", { exact: true })
+        .selectOption({ label: "Scuola fittizia E2E" });
+      for (let step = 1; step <= 3; step++) {
+        await page
+          .getByRole("button", {
+            name: step === 3 ? "Verifica anteprima" : "Continua",
+            exact: true,
+          })
+          .click();
+        if (step === 3)
+          await page
+            .getByRole("heading", { name: "Anteprima verificata dal server" })
+            .waitFor();
+        await measure("passaggio-anno/wizard/" + step, true);
+        await page.screenshot({
+          path: `${root}/${width}-anno-${step}.png`,
+          fullPage: true,
+        });
       }
       console.log(`AUDIT ${stage} ${width}px complete`);
     }

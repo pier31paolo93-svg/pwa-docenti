@@ -664,8 +664,182 @@ td,
     scroll-behavior: auto;
   }
 }
+
+/* V1.2: Safari/iPad native date controls must shrink inside the actual editor. */
+.profile-sections {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.daily-roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+}
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 12px;
+}
+.calendar-days > * {
+  min-width: 0;
+}
+.calendar-event {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+}
+.calendar-event a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.calendar-month {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+}
+.calendar-days h2 {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.calendar-event small {
+  color: var(--muted);
+}
+.statistics-filters > label {
+  flex: 1 1 180px;
+  min-width: min(100%, 180px);
+}
+@media (max-width: 640px) {
+  .v12-editor .card {
+    padding: 12px;
+  }
+  .v12-editor details,
+  .v12-editor .criterion,
+  .v12-editor details .card {
+    padding: 8px;
+  }
+}
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+}
+input::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+}
+input::-webkit-datetime-edit {
+  min-width: 0;
+  padding: 0;
+}
+.form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+.form-grid > .wide {
+  grid-column: 1/-1;
+}
+.modal {
+  width: min(94vw, 920px);
+}
+.modal-content {
+  scrollbar-gutter: stable;
+}
+.wizard-steps,
+.wizard-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  align-items: center;
+}
+.wizard-steps span {
+  border: 1px solid var(--line);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+}
+.wizard-steps [aria-current="step"] {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.v12-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+.v12-grid > * {
+  min-width: 0;
+}
+.v12-editor input,
+.v12-editor select,
+.v12-editor textarea {
+  width: 100%;
+}
+.v12-editor details {
+  border: 1px solid var(--line);
+  padding: 12px;
+  border-radius: var(--radius);
+  margin: 12px 0;
+}
+.v12-editor summary {
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.v12-editor .section-card {
+  border-left: 4px solid var(--primary);
+}
+.v12-editor .criterion {
+  padding: 12px;
+  border: 1px solid var(--line);
+  margin: 8px 0;
+  border-radius: var(--radius);
+}
+.v12-editor .sticky-progress {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--surface);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.v12-editor .score-input {
+  min-height: 52px;
+  font-size: 22px;
+}
+@media (max-width: 640px) {
+  .modal[open] {
+    width: 100%;
+  }
+  .v12-editor .wizard-actions {
+    position: sticky;
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    padding: 12px;
+    background: var(--surface);
+    z-index: 6;
+  }
+  .v12-editor .wizard-actions .button {
+    flex: 1;
+  }
+  .v12-editor .sticky-progress {
+    position: static;
+  }
+}
 @media (max-height: 600px) {
   .workflow-student {
     position: static;
   }
 }
+.operation-history { min-width: 0; overflow-wrap: anywhere; }
+.operation-history dl, .operation-history dd { min-width: 0; margin-inline: 0; }

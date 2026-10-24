@@ -31,6 +31,8 @@ import { useData, useSyncState } from "../state/data";
 import { label, tr } from "../domain/catalog";
 const nav = [
   ["/", "La mia giornata", LayoutDashboard],
+  ["/registro-rapido", "Registro rapido", ClipboardList],
+  ["/calendario", "Calendario", CalendarDays],
   ["/registro", "Registro lezioni", CalendarDays],
   ["/compiti", "Compiti a casa", CheckSquare],
   ["/osservazioni", "Osservazioni", MessageSquare],
@@ -41,7 +43,7 @@ const nav = [
 const mobileNav = [
   ["/", "Home", LayoutDashboard],
   ["/archivio/classes", "Classi", Users],
-  ["/osservazioni", "Registro", CalendarDays],
+  ["/registro-rapido", "Registro", CalendarDays],
   ["/verifiche", "Valutazioni", ClipboardList],
 ] as const;
 export function Layout() {
@@ -173,6 +175,18 @@ export function Layout() {
             </NavLink>
           ))}
         </nav>
+        <span className="nav-label">VALUTAZIONI</span>
+        <nav>
+          <NavLink to="/griglie" onClick={() => setOpen(false)}>
+            Griglie universali
+          </NavLink>
+          <NavLink to="/analisi-verifiche" onClick={() => setOpen(false)}>
+            Analisi verifiche
+          </NavLink>
+          <NavLink to="/recupero" onClick={() => setOpen(false)}>
+            Recupero
+          </NavLink>
+        </nav>
         <span className="nav-label">ORGANIZZA</span>
         <nav>
           <NavLink to="/organizzazione" onClick={() => setOpen(false)}>
@@ -242,7 +256,7 @@ export function Layout() {
                 {ops.length
                   ? ops.length + " in coda"
                   : online
-                    ? "Sincronizzato"
+                    ? "Online"
                     : "Offline"}
               </span>
             </Link>

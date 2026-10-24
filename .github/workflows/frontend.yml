@@ -25,9 +25,10 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_local_build_only
       - run: npx --no-install supabase start > /tmp/docenti-local-start.log
       - run: node scripts/frontend-fixtures.cjs
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm run test:e2e
       - run: npm run audit:responsive
+      - run: node scripts/audit-responsive.cjs after-webkit --webkit --assert
       - run: npm run test:pwa
       - run: node scripts/verify-pages-build.mjs
       - uses: actions/upload-artifact@v4
@@ -37,6 +38,7 @@ jobs:
           path: |
             playwright-report/
             .local-test/mobile-audit/after/
+            .local-test/mobile-audit/after-webkit/
           retention-days: 7
           include-hidden-files: true
       - if: always()

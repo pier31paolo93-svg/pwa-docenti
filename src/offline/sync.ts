@@ -35,6 +35,27 @@ let currentOwner = "";
 let currentWorkspace = "";
 let invalidate = () => {};
 let retryTimer: ReturnType<typeof setTimeout> | undefined;
+export type SyncHealth = { lastSuccess?: number; lastError?: string };
+const health = new Map<string, SyncHealth>();
+const healthKey = (owner: string, workspace: string) =>
+  owner + "|" + workspace + "|sync-health";
+export async function syncHealth(
+  owner = currentOwner,
+  workspace = currentWorkspace,
+): Promise<SyncHealth> {
+  return (
+    health.get(healthKey(owner, workspace)) ??
+    (await unseal<SyncHealth>(owner, healthKey(owner, workspace))) ??
+    {}
+  );
+}
+async function markHealth(owner: string, workspace: string, patch: SyncHealth) {
+  const key = healthKey(owner, workspace),
+    next = { ...(await syncHealth(owner, workspace)), ...patch };
+  health.set(key, next);
+  if (consent(owner)) await seal(owner, key, next, Number.MAX_SAFE_INTEGER);
+  emit();
+}
 const queueKey = (owner: string) => owner + "|queue";
 const cacheKey = (owner: string, workspace: string, table: SourceName) =>
   owner + "|" + workspace + "|" + table;
@@ -140,7 +161,17 @@ export async function save(
       throw new Error(
         "Abilita prima la modalità offline nelle impostazioni del dispositivo.",
       );
-    const result = await mutate(table, workspace, id, expected, patch);
+    let result: Row;
+    try {
+      result = await mutate(table, workspace, id, expected, patch);
+    } catch (error) {
+      await markHealth(owner, workspace, { lastError: message(error) });
+      throw error;
+    }
+    await markHealth(owner, workspace, {
+      lastSuccess: Date.now(),
+      lastError: undefined,
+    });
     invalidate();
     return result;
   }
@@ -185,13 +216,21 @@ export async function save(
 export async function flush(owner = currentOwner): Promise<void> {
   if (running || !navigator.onLine || !owner) return;
   running = true;
+  const workspace = currentWorkspace;
   emit();
+  let completed = 0;
   try {
     await ensureSession(owner);
     for (;;) {
       const ops = await queue(owner);
-      const op = ops.find((x) => x.workspace === currentWorkspace);
-      if (!op || op.state !== "pending" || owner !== currentOwner) break;
+      const op = ops.find((x) => x.workspace === workspace);
+      if (
+        !op ||
+        op.state !== "pending" ||
+        owner !== currentOwner ||
+        workspace !== currentWorkspace
+      )
+        break;
       try {
         const result = await mutate(
           op.table,
@@ -201,6 +240,7 @@ export async function flush(owner = currentOwner): Promise<void> {
           op.patch,
           op.operation,
         );
+        completed++;
         if (owner !== currentOwner || !consent(owner)) break;
         await editQueue(owner, async (latest) =>
           persistQueue(
@@ -216,6 +256,9 @@ export async function flush(owner = currentOwner): Promise<void> {
         await seal(owner, key, [...rows.values()]);
         invalidate();
       } catch (error) {
+        await markHealth(owner, workspace, {
+          lastError: message(error),
+        });
         if (
           !navigator.onLine ||
           error instanceof TypeError ||
@@ -256,6 +299,17 @@ export async function flush(owner = currentOwner): Promise<void> {
         break;
       }
     }
+    if (
+      completed &&
+      !(await queue(owner)).some((op) => op.workspace === workspace)
+    )
+      await markHealth(owner, workspace, {
+        lastSuccess: Date.now(),
+        lastError: undefined,
+      });
+  } catch (error) {
+    await markHealth(owner, workspace, { lastError: message(error) });
+    throw error;
   } finally {
     running = false;
     emit();
@@ -300,9 +354,17 @@ export async function resolveOperation(
   });
   invalidate();
   await flush(owner);
+  if (!(await queue(owner)).some((o) => o.workspace === currentWorkspace))
+    await markHealth(owner, currentWorkspace, { lastError: undefined });
 }
 export async function clearOffline(owner: string) {
+  if ((await queue(owner)).length)
+    throw Error(
+      "Operazioni non sincronizzate: risolvile prima di rimuovere la copia locale.",
+    );
   await purge(owner);
+  for (const key of health.keys())
+    if (key.startsWith(owner + "|")) health.delete(key);
   emit();
   invalidate();
 }

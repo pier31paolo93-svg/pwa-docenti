@@ -86,6 +86,7 @@ test("quick descriptive observation is saved without creating a grade", async ({
   await page.goto("./#/osservazioni");
   await page
     .getByRole("button", { name: "Intervento pertinente", exact: true })
+    .first()
     .click();
   await expect(
     page.getByRole("status").filter({ hasText: "Modifica salvata" }),
@@ -138,6 +139,7 @@ test("homework and quick assessment persist, proposal requires explicit confirma
     .click();
   await expect(page.getByText(/Stato: Confermata/)).toBeVisible();
   await page.goto("./#/studenti/" + r.students.id);
+  await page.getByRole("button", { name: "Voti e medie", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Registro e storico voti" }),
   ).toBeVisible();
@@ -178,11 +180,14 @@ test("offline queue survives navigation, synchronizes, and logout purges persona
   ).toBeEnabled();
   await page.goto("./#/osservazioni");
   await expect(
-    page.getByRole("button", { name: "Richiede supporto", exact: true }),
+    page
+      .getByRole("button", { name: "Richiede supporto", exact: true })
+      .first(),
   ).toBeVisible();
   await context.setOffline(true);
   await page
     .getByRole("button", { name: "Richiede supporto", exact: true })
+    .first()
     .click();
   await expect(page.getByText("1 in coda", { exact: true })).toBeVisible();
   await page.goto("./#/sincronizzazione");

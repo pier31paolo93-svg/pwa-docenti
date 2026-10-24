@@ -54,6 +54,20 @@ const num = (name: string, label: string, def = 1, min = 0) =>
 const ta = () =>
   ref("teaching_assignment_id", "Classe e materia", "teaching_assignments");
 export const catalog: Partial<Record<TableName, Entity>> = {
+  recovery_activities: {
+    title: "Attività di recupero",
+    singular: "attività di recupero",
+    group: "Programmazione",
+    fields: [
+      ta(),
+      req("title", "Titolo"),
+      req("objective", "Obiettivo", "textarea"),
+      ref("topic_id", "Argomento", "topics", false),
+      ref("assessment_id", "Verifica di origine", "assessments", false),
+      f("due_on", "Scadenza", "date"),
+      choice("status", "Stato", ["planned", "in_progress", "completed"]),
+    ],
+  },
   school_years: {
     title: "Anni scolastici",
     singular: "anno scolastico",
@@ -101,12 +115,20 @@ export const catalog: Partial<Record<TableName, Entity>> = {
     singular: "iscrizione",
     group: "Organizzazione",
     fields: [
-      ref("student_id", "Studente", "students"),
       ref("class_id", "Classe", "classes"),
+      ref("student_id", "Studente", "students"),
+      f("register_number", "Numero di registro", "number", { min: 1 }),
       date("starts_on", "Data di ingresso"),
       f("ends_on", "Data di uscita", "date"),
       f("outcome", "Esito", "select", {
-        options: ["promoted", "repeating", "transferred", "withdrawn"],
+        options: [
+          "promoted",
+          "repeating",
+          "transferred",
+          "withdrawn",
+          "graduated",
+          "pending",
+        ],
       }),
     ],
   },
@@ -438,6 +460,15 @@ export const catalog: Partial<Record<TableName, Entity>> = {
           [1, 1],
         ],
       }),
+      f("conversion_mode", "Conversione", "select", {
+        options: ["curve", "linear", "bands"],
+        default: "curve",
+      }),
+      f("bands", "Fasce: soglia inclusiva e voto (JSON)", "json", {
+        default: [],
+      }),
+      num("band_maximum", "Base punti delle fasce", 80, 0.001),
+      f("pass_mark", "Sufficienza", "number"),
     ],
   },
   grade_entries: {
@@ -479,6 +510,15 @@ export const catalog: Partial<Record<TableName, Entity>> = {
   },
 };
 export const translations: Record<string, string> = {
+  students: "Anagrafiche studenti",
+  enrollments: "Iscrizioni",
+  planned: "Pianificato",
+  in_progress: "In corso",
+  completed: "Completato",
+  unchecked: "Non controllato",
+  uncorrected: "Non ancora corretta",
+  incomplete: "Incompleta",
+  absent: "Assente",
   draft: "Bozza",
   confirmed: "Confermata",
   cancelled: "Annullato",
@@ -502,6 +542,11 @@ export const translations: Record<string, string> = {
   repeating: "Ripetente",
   transferred: "Trasferito",
   withdrawn: "Ritirato",
+  graduated: "Diplomato / fine ciclo",
+  pending: "Da definire",
+  curve: "Curva personalizzata",
+  linear: "Lineare",
+  bands: "Fasce",
   manual: "Manuale",
   assessment: "Verifica",
   observation: "Osservazione",
@@ -525,6 +570,10 @@ export function label(
     return text(row, "display_name") || "Docente assegnato";
   if (table === "enrollments")
     return (
+      (Number(row.register_number) > 0
+        ? `N. ${row.register_number}`
+        : "N. non assegnato") +
+      " · " +
       label("students", find("students", row.student_id) ?? row, data) +
       " · " +
       text(find("classes", row.class_id), "name")
@@ -570,9 +619,13 @@ export function derivePatch(table: TableName, p: Patch, data: DataMap): Patch {
   if (table === "teaching_assignments")
     v.class_id = text(find("class_subjects", "class_subject_id"), "class_id");
   if (
-    ["assignments", "assessments", "observations", "grade_entries"].includes(
-      table,
-    ) &&
+    [
+      "assignments",
+      "assessments",
+      "observations",
+      "grade_entries",
+      "recovery_activities",
+    ].includes(table) &&
     v.teaching_assignment_id
   )
     v.class_id = text(

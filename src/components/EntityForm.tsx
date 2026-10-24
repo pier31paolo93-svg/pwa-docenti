@@ -1,10 +1,13 @@
 import { useCapabilities } from "../hooks/capabilities";
-import { useState, useId } from "react";
+import { useState, useId, useEffect, useRef } from "react";
+import { enrollmentCandidates, firstRegisterNumber } from "../domain/register";
+import { friendlyError } from "../domain/friendlyErrors";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { catalog, derivePatch, label, tr, type Field } from "../domain/catalog";
 import { formSchema, serialize } from "../domain/validation";
-import { useData } from "../state/data";
+import { romeLocal } from "../domain/time";
+import { useData, useRows } from "../state/data";
 import { useAuth } from "../state/auth";
 import { useTeachers } from "../hooks/teachers";
 import { validTeacher } from "../domain/teachers";
@@ -53,7 +56,15 @@ export function EntityForm({
         ]
       : []),
     ...(!row ? [privacy] : []),
-  ];
+  ].filter(
+    (f) =>
+      !(f.name === "register_number" && !capabilities.data?.registerNumbers) &&
+      !(
+        ["conversion_mode", "bands", "band_maximum", "pass_mark"].includes(
+          f.name,
+        ) && !capabilities.data?.universalGrids
+      ),
+  );
   const defaults: Record<string, unknown> = {};
   for (const f of fields) {
     let v: unknown =
@@ -68,11 +79,7 @@ export function EntityForm({
     if (f.name === "teacher_id" && !v) v = session?.user.id;
     if (f.type === "json" && typeof v !== "string")
       v = JSON.stringify(v, null, 2);
-    if (f.type === "datetime-local" && v)
-      v = new Date(String(v))
-        .toLocaleString("sv-SE")
-        .slice(0, 16)
-        .replace(" ", "T");
+    if (f.type === "datetime-local" && v) v = romeLocal(String(v));
     defaults[f.name] = v;
   }
   const form = useForm<Record<string, unknown>>({
@@ -80,10 +87,50 @@ export function EntityForm({
     resolver: zodResolver(formSchema(fields)),
   });
   const values = form.watch();
+  const historicalEnrollments = useRows("enrollments");
+  const enrollmentData = {
+    ...data,
+    enrollments: historicalEnrollments.data ?? data.enrollments,
+  };
+  const [studentSearch, setStudentSearch] = useState("");
+  const previousClass = useRef("");
+  useEffect(() => {
+    if (table !== "enrollments" || row || !values.class_id) return;
+    const cls = String(values.class_id);
+    if (previousClass.current !== cls) {
+      previousClass.current = cls;
+      form.setValue("student_id", "");
+      if (capabilities.data?.registerNumbers)
+        form.setValue(
+          "register_number",
+          firstRegisterNumber(data.enrollments ?? [], cls),
+        );
+    }
+  }, [table, row, values.class_id, capabilities.data?.registerNumbers]);
   const members = useTeachers(table === "teaching_assignments");
   async function submit(values: Record<string, unknown>) {
     try {
       setError(undefined);
+      if (
+        table === "enrollments" &&
+        !row &&
+        (historicalEnrollments.isPending || historicalEnrollments.isError)
+      )
+        throw Error(
+          "Attendi il caricamento dello storico delle iscrizioni o riprova la connessione.",
+        );
+      if (
+        table === "enrollments" &&
+        !row &&
+        !enrollmentCandidates(enrollmentData, String(values.class_id)).some(
+          (s) => s.id === values.student_id,
+        )
+      ) {
+        form.setError("student_id", {
+          message: "Scegli uno studente ancora associabile alla classe.",
+        });
+        return;
+      }
       if (
         table === "teaching_assignments" &&
         !row &&
@@ -114,10 +161,21 @@ export function EntityForm({
       done();
       onSaved?.(saved);
     } catch (e) {
-      setError(e);
+      setError(friendlyError(e));
     }
   }
   function options(f: Field): Row[] {
+    if (table === "enrollments" && f.name === "student_id" && !row) {
+      if (!values.class_id) return [];
+      return enrollmentCandidates(
+        enrollmentData,
+        String(values.class_id),
+      ).filter((s) =>
+        `${s.last_name} ${s.first_name} ${s.external_code}`
+          .toLocaleLowerCase()
+          .includes(studentSearch.toLocaleLowerCase()),
+      );
+    }
     const rows = f.ref === "members" ? [] : (data[f.ref as TableName] ?? []);
     return rows.filter((r) => {
       if (r.deleted_at) return false;
@@ -187,11 +245,33 @@ export function EntityForm({
               {f.label}
               {f.required ? " *" : ""}
             </span>
+            {table === "enrollments" && f.name === "student_id" && !row && (
+              <input
+                type="search"
+                aria-label="Cerca studente da iscrivere"
+                placeholder="Nome, cognome o codice"
+                value={studentSearch}
+                onChange={(e) => setStudentSearch(e.target.value)}
+                disabled={!values.class_id}
+              />
+            )}
+            {!!row && f.name.endsWith("_id") && (
+              <small>
+                Riferimento storico: per cambiarlo crea una nuova associazione.
+              </small>
+            )}
             {f.type === "select" ? (
               <select
                 {...form.register(f.name)}
                 aria-label={f.label + (f.required ? " *" : "")}
-                disabled={!!row && f.name.endsWith("_id")}
+                disabled={
+                  (!!row && f.name.endsWith("_id")) ||
+                  (table === "enrollments" &&
+                    f.name === "student_id" &&
+                    (!values.class_id ||
+                      historicalEnrollments.isPending ||
+                      historicalEnrollments.isError))
+                }
               >
                 <option value="">Seleziona…</option>
                 {f.ref
@@ -232,6 +312,7 @@ export function EntityForm({
                 {...form.register(f.name)}
               />
             )}
+            {f.type === "datetime-local" && <small>Orario Europe/Rome</small>}
             {form.formState.errors[f.name] && (
               <small
                 className="field-error"

@@ -1,0 +1,268 @@
+{
+  "date": "2026-10-23",
+  "branch": "dev",
+  "baseMain": "53832c8df8695100e79e085f8239622078c3d86a",
+  "cloudProject": "mwabfmooefmkszlrymyx",
+  "cloudApplied": 20,
+  "localPostgres": "17.11",
+  "cloudActions": "history and dry-run only; no migrations applied",
+  "migrations": [
+    {
+      "file": "20261023000100_register_numbers.sql",
+      "sha256": "2586d8cc9f2661152747d5a91e093277dfa9fd7dddecb5e966690564728330c5"
+    },
+    {
+      "file": "20261023000200_year_transition.sql",
+      "sha256": "f604db0fac2a229eca8215b3837523368f41a9b772a116e7f23d900cf69ac1d2"
+    },
+    {
+      "file": "20261023000300_universal_grids.sql",
+      "sha256": "bdcb2c2bc7ffa241b48a2587a4c54566d89658c1468c1a66adf2413360202c93"
+    }
+  ],
+  "tests": {
+    "unit": 56,
+    "pgtap": 153,
+    "sql": 69,
+    "e2e": 27,
+    "concurrentWriters": "A preserved; stale B rejected with 40001",
+    "lint": "pass",
+    "typecheck": "pass",
+    "productionBuild": "pass",
+    "pwa": "pass"
+  },
+  "audits": {
+    "baseline": {
+      "screens": 672,
+      "widths": [
+        320,
+        375,
+        390,
+        768,
+        820,
+        834,
+        1024,
+        1180
+      ],
+      "overflow": 0,
+      "narrowFields": 0,
+      "smallTargets": 0,
+      "clippedDialogs": 0
+    },
+    "chromium": {
+      "screens": 744,
+      "widths": [
+        320,
+        375,
+        390,
+        768,
+        820,
+        834,
+        1024,
+        1180
+      ],
+      "overflow": 0,
+      "narrowFields": 0,
+      "smallTargets": 0,
+      "clippedDialogs": 0
+    },
+    "webkit": {
+      "screens": 744,
+      "widths": [
+        320,
+        375,
+        390,
+        768,
+        820,
+        834,
+        1024,
+        1180
+      ],
+      "overflow": 0,
+      "narrowFields": 0,
+      "smallTargets": 0,
+      "clippedDialogs": 0
+    }
+  },
+  "pdf": [
+    {
+      "file": "quaderno-griglia-blank.pdf",
+      "pages": 1,
+      "a4": true,
+      "bounds": true
+    },
+    {
+      "file": "quaderno-griglia-class.pdf",
+      "pages": 1,
+      "a4": true,
+      "bounds": true
+    },
+    {
+      "file": "quaderno-griglia-competencies.pdf",
+      "pages": 1,
+      "a4": true,
+      "bounds": true
+    },
+    {
+      "file": "quaderno-griglia-student.pdf",
+      "pages": 1,
+      "a4": true,
+      "bounds": true
+    },
+    {
+      "file": "stress-multipage.pdf",
+      "pages": 4,
+      "a4": true,
+      "bounds": true
+    }
+  ],
+  "statisticsDateFilters": {
+    "reason": "WebKit Linux native date inputs shrank to 132.75px; fixed flexible label basis 180px",
+    "checks": [
+      {
+        "name": "webkit",
+        "width": 320,
+        "sizes": [
+          288,
+          288
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 375,
+        "sizes": [
+          343,
+          343
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 390,
+        "sizes": [
+          358,
+          358
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 768,
+        "sizes": [
+          234,
+          234
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 820,
+        "sizes": [
+          184.75,
+          184.75
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 834,
+        "sizes": [
+          188.25,
+          188.25
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 1024,
+        "sizes": [
+          242.671875,
+          242.671875
+        ],
+        "overflow": false
+      },
+      {
+        "name": "webkit",
+        "width": 1180,
+        "sizes": [
+          217.25,
+          217.25
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 320,
+        "sizes": [
+          288,
+          288
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 375,
+        "sizes": [
+          343,
+          343
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 390,
+        "sizes": [
+          358,
+          358
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 768,
+        "sizes": [
+          234,
+          234
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 820,
+        "sizes": [
+          184.75,
+          184.75
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 834,
+        "sizes": [
+          188.25,
+          188.25
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 1024,
+        "sizes": [
+          242.65625,
+          242.671875
+        ],
+        "overflow": false
+      },
+      {
+        "name": "chromium",
+        "width": 1180,
+        "sizes": [
+          217.25,
+          217.25
+        ],
+        "overflow": false
+      }
+    ]
+  }
+}

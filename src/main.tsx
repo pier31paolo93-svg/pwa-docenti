@@ -1,4 +1,6 @@
 import { Workflow } from "./pages/Workflows";
+import { Grids } from "./pages/Grids";
+import { YearTransition } from "./pages/YearTransition";
 import { Observations } from "./pages/Observations";
 import { Settings, SyncPage, AIPage } from "./pages/Settings";
 import { ImportPage } from "./pages/Import";
@@ -6,6 +8,36 @@ const Statistics = React.lazy(() =>
   import("./pages/Statistics").then((m) => ({ default: m.Statistics })),
 );
 import React from "react";
+const DailyRegister = React.lazy(() =>
+  import("./pages/DailyRegister").then((m) => ({ default: m.DailyRegister })),
+);
+const Calendar = React.lazy(() =>
+  import("./pages/Calendar").then((m) => ({ default: m.Calendar })),
+);
+const Recovery = React.lazy(() =>
+  import("./pages/Recovery").then((m) => ({ default: m.Recovery })),
+);
+const OperationsHistory = React.lazy(() =>
+  import("./pages/OperationsHistory").then((m) => ({
+    default: m.OperationsHistory,
+  })),
+);
+const WorkspaceExport = React.lazy(() =>
+  import("./pages/WorkspaceExport").then((m) => ({
+    default: m.WorkspaceExport,
+  })),
+);
+const AssessmentAnalysis = React.lazy(() =>
+  import("./pages/AssessmentAnalysis").then((m) => ({
+    default: m.AssessmentAnalysis,
+  })),
+);
+const StudentProfile = React.lazy(() =>
+  import("./pages/StudentProfile").then((m) => ({ default: m.StudentProfile })),
+);
+const AdvancedImport = React.lazy(() =>
+  import("./pages/AdvancedImport").then((m) => ({ default: m.AdvancedImport })),
+);
 import ReactDOM from "react-dom/client";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -62,6 +94,18 @@ function App() {
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="organizzazione" element={<Organization />} />
+            <Route path="passaggio-anno" element={<YearTransition />} />
+            <Route path="griglie" element={<Grids />} />
+            <Route path="registro-rapido" element={<DailyRegister />} />
+            <Route path="calendario" element={<Calendar />} />
+            <Route path="recupero" element={<Recovery />} />
+            <Route path="storico" element={<OperationsHistory />} />
+            <Route path="esportazione" element={<WorkspaceExport />} />
+            <Route path="analisi-verifiche" element={<AssessmentAnalysis />} />
+            <Route
+              path="verifiche/:id/analisi"
+              element={<AssessmentAnalysis />}
+            />
             <Route path="archivio/:resource" element={<ResourcePage />} />
             <Route
               path="registro"
@@ -83,11 +127,12 @@ function App() {
             <Route path="registro/:id" element={<Workflow />} />
             <Route path="compiti/:id" element={<Workflow />} />
             <Route path="verifiche/:id" element={<Workflow />} />
-            <Route path="studenti/:id" element={<Statistics student />} />
+            <Route path="studenti/:id" element={<StudentProfile />} />
             <Route path="statistiche" element={<Statistics />} />
             <Route path="impostazioni" element={<Settings />} />
             <Route path="sincronizzazione" element={<SyncPage />} />
             <Route path="importa" element={<ImportPage />} />
+            <Route path="importa-avanzato" element={<AdvancedImport />} />
             <Route path="ai" element={<AIPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

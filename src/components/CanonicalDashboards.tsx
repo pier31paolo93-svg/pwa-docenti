@@ -1,4 +1,5 @@
 import { useRows, useData } from "../state/data";
+import { GridEvidence } from "./GridEvidence";
 import { text } from "../types/model";
 import { ErrorBox } from "./ui";
 import { ExportMenu } from "./ExportMenu";
@@ -50,6 +51,7 @@ export function CanonicalDashboards() {
   ];
   return (
     <section className="card">
+      <GridEvidence />
       <div className="section-toolbar">
         <h2>Medie di classe e materia</h2>
         <ExportMenu title="Riepilogo classi e materie" rows={rows} />

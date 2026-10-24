@@ -78,7 +78,7 @@ export default defineConfig(({ mode, command }) => {
         workbox: {
           cleanupOutdatedCaches: true,
           navigateFallback: "/pwa-docenti/index.html",
-          globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],
+          globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2,ttf}"],
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
           runtimeCaching: [],
         },

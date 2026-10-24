@@ -1,5 +1,9 @@
 # PWA Docenti — Quaderno Docenti
 
+**V1.3 + V1.4 su `dev` (23 ottobre 2026):** registro rapido, autosave bozze, scheda studente completa, sincronizzazione e audit, calendario, import CSV/XLSX avanzato, analisi, recupero ed export workspace. Include la V1.2 della PR #3. [Report e piano di rilascio](docs/V1_3_V1_4_REPORT.md). Nuove migrazioni 24–26 soltanto locali; cloud non modificato, ultimo stato documentato 20/20. Prima della pubblicazione autorizzare e collaudare le migrazioni mancanti 21–26. Nessun reset, merge o deploy Pages in questo ciclo.
+
+**V1.2 in preparazione su `dev` (23 ottobre 2026):** numeri di registro, iscrizioni filtrate, passaggio anno transazionale, griglie universali con snapshot e correzione online/offline, PDF A4 e verifica smartphone/iPad. [Report completo e sequenza di rilascio](docs/V1_2_REPORT.md). Cloud fermo a **20/20**; migrazioni **21–23 soltanto locali/dry-run**, da autorizzare prima del merge. Le sezioni seguenti documentano le fasi precedenti.
+
 Frontend React/TypeScript PWA e backend Supabase PostgreSQL 17. Per avviare il frontend: `npm ci`, configurare `.env.local` seguendo `.env.example`, poi `npm run dev` e aprire `/pwa-docenti/`.
 
 **Fase 2:** interfaccia e flussi integrati con RLS, collaudo su dati fittizi locali. Migrazioni 18 e 19 applicate sul cloud autorizzato: **19/19**. Anomalia ACL della vista risolta; controlli remoti **35/35**, pgTAP locali **89/89**. [Report aggiornato](docs/DEPLOY_MIGRATION_19.md). [Deploy migrazione 18](docs/DEPLOY_MIGRATION_18.md), [architettura e utilizzo](docs/FRONTEND.md), [deploy frontend](docs/DEPLOY_FRONTEND.md), [report fase 2](docs/REPORT_FASE_2.md). Nessun merge su `main` o pubblicazione Pages.

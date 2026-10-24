@@ -19,10 +19,9 @@ jobs:
       - run: npm ci
       - run: node scripts/generate-pgtap.mjs --check
       - run: npx --no-install supabase start > /tmp/docenti-db-start.log
-      - name: Migrazioni, seed, pgTAP e lint, due database puliti
+      - name: Migrazioni su stack effimero e doppia verifica senza reset
         run: |
           for pass in 1 2; do
-            npx --no-install supabase db reset --local
             npx --no-install supabase test db
             npx --no-install supabase db lint --local --schema public,private --level warning --fail-on warning
           done

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {Link} from 'react-router-dom';
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../state/auth";
 import { useData } from "../state/data";
@@ -129,6 +130,7 @@ export function ImportPage() {
         subtitle="CSV e XLSX, massimo 1000 righe. Il server controlla i duplicati prima della conferma."
       />
       <ErrorBox error={error} />
+      <Link className="button" to="/importa-avanzato">Importazione avanzata con riconciliazione e registro</Link>
       {role === "viewer" || !canImport ? (
         <p>Il tuo ruolo consente solo la consultazione.</p>
       ) : (

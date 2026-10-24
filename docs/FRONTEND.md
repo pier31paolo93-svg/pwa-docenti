@@ -1,5 +1,7 @@
 # Frontend PWA — Quaderno Docenti
 
+> V1.2, 23 ottobre 2026: [nuovi moduli, migrazioni 21–23, collaudo e rilascio controllato](V1_2_REPORT.md). Il cloud resta a 20/20. I conteggi sotto riguardano le fasi storiche.
+
 > Aggiornamento dopo la correzione autorizzata: **19/19 migrazioni, 35/35 controlli remoti, 89/89 pgTAP locali**. Anomalia ACL della vista risolta; account/workspace invariati. [Report migrazione 19](DEPLOY_MIGRATION_19.md). Le precedenti indicazioni di blocco ACL descrivono lo stato storico dopo la 18.
 
 

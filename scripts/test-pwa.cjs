@@ -72,6 +72,7 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     await p.goto(base + "#/osservazioni");
     await p
       .getByRole("button", { name: "Intervento pertinente", exact: true })
+      .first()
       .waitFor();
     await p.screenshot({ path: ".local-test/desktop.png", fullPage: true });
     await context.setOffline(true);
@@ -79,12 +80,13 @@ if (!env.includes("VITE_SUPABASE_URL=http://127.0.0.1:56321"))
     await p.getByRole("heading", { name: "Osservazioni rapide" }).waitFor();
     await p
       .getByRole("button", { name: "Intervento pertinente", exact: true })
+      .first()
       .click();
     await p.getByText("1 in coda", { exact: true }).waitFor();
     await context.setOffline(false);
-    await p
-      .getByText("Sincronizzato", { exact: true })
-      .waitFor({ timeout: 45_000 });
+    await p.goto(base + "#/sincronizzazione");
+    await p.getByRole("heading", {name:"Nessuna modifica in attesa"}).waitFor({timeout:45_000});
+    await p.goto(base + "#/osservazioni");
     console.log("PWA: offline reload, queue and synchronization passed.");
     const urls = await p.evaluate(async () => {
       const result = [];
