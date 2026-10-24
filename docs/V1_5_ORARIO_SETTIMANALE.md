@@ -1,5 +1,7 @@
 # V1.5 — Orario settimanale
 
+Aggiornamento rilascio: [preflight definitivo produzione](PREFLIGHT_PRODUZIONE_V1_5_2026_10_24.md) completato con backup recuperabile alla26 e chiusura del confronto Auth/assessments. La migrazione27 resta non applicata al cloud. Il piano originale sotto è integrato dagli esiti del nuovo report.
+
 ## Funzioni
 
 Organizzazione → Orario settimanale gestisce versioni provvisorie/definitive, bozza/attivo/archiviato, docente autorizzato, annualità e validità. Una versione comprende le scuole delle assegnazioni del docente: il filtro Scuola restringe gli slot visualizzati, senza duplicare gli orari per scuola o consentire sovrapposizioni tra scuole.
