@@ -25,7 +25,7 @@ const sections = [
 ];
 export function StudentProfile() {
   const { id } = useParams(),
-    { data, filters } = useData(),
+    { data, filters } = useData(true),
     caps = useCapabilities(),
     [section, setSection] = useState("Profilo");
   const recovery = useRows("recovery_activities", !!caps.data?.recovery),

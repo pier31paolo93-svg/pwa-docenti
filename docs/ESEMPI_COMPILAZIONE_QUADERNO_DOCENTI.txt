@@ -1,0 +1,320 @@
+QUADERNO DOCENTI — ESEMPI PRATICI DI COMPILAZIONE
+Guida alla sequenza di inserimento — 25 ottobre 2026
+
+TUTTI GLI ESEMPI SONO FITTIZI.
+Questo file è una guida: non importa né inserisce dati nell'app.
+Non creare gli esempi nel workspace reale se non servono al lavoro didattico.
+
+COME LEGGERE LA GUIDA
+I campi con * nell'app sono obbligatori. Gli altri si possono lasciare vuoti
+quando non pertinenti. I nomi indicati nei selettori sono elementi da scegliere,
+non testi da riscrivere né UUID da copiare.
+Non è necessario compilare tutte le sezioni per ogni lezione o verifica:
+scegli solo i collegamenti e il tipo di correzione che ti servono.
+Le date sono esempi; nell'app usa i selettori di data e ora.
+Per i numeri decimali segui il formato accettato dal campo; nel JSON usa il punto.
+
+PRIMA DI COMINCIARE: ORGANIZZAZIONE
+Controlla il workspace corrente e i filtri anno, scuola, classe e materia.
+Prima di compilare Programmazione e Valutazione devono già esistere:
+1. Anno scolastico: per esempio 2026/2027, dal 15/09/2026 al 05/06/2027.
+2. Scuola: per esempio Scuola Esempio.
+3. Materia: per esempio Matematica, codice MAT.
+4. Classe: per esempio 1Z, collegata alla scuola e all'anno corretti.
+5. Classe / materia: 1Z — Matematica.
+6. Assegnazione docente: scegli il docente autorizzato e 1Z — Matematica.
+7. Studente fittizio: nome Esempio, cognome Alunno, codice DEMO-01.
+8. Iscrizione: classe 1Z, studente Alunno Esempio, numero di registro 1,
+   data di ingresso 15/09/2026. Lascia uscita ed esito vuoti all'ingresso.
+
+Codice locale e numero di registro sono campi distinti: il codice identifica
+l'anagrafica; il numero appartiene all'iscrizione nella classe.
+In Nuova iscrizione il selettore esclude gli studenti già associati a una
+classe dello stesso anno scolastico. Per un'iscrizione archiviata della stessa
+classe, ripristina quella esistente invece di crearne una seconda.
+Nella griglia Studenti la colonna Classe mostra l'associazione per l'anno
+selezionato; se manca, è vuota. Senza filtro anno, usa l'anno associato più recente.
+
+============================================================
+A. PROGRAMMAZIONE — ORDINE CONSIGLIATO
+============================================================
+
+A1. ARGOMENTI
+Da creare prima di collegarli a lezioni, compiti o quesiti.
+  Materia: Matematica
+  Argomento: Addizioni e sottrazioni entro il 20
+Salva una volta. In seguito seleziona questo argomento senza ricrearlo.
+
+A2. COMPETENZE
+  Materia: Matematica
+  Codice: MAT-CALC-01
+  Descrizione: Esegue semplici addizioni e sottrazioni e spiega il procedimento.
+La competenza potrà essere collegata a quesiti e osservazioni.
+
+A3. REGISTRO LEZIONI
+  Classe e materia: 1Z — Matematica
+  Argomento della lezione: Addizioni con la linea dei numeri
+  Inizio: 27/10/2026 ore 09:00
+  Fine: 27/10/2026 ore 10:00
+  Annotazioni: Uso della linea dei numeri e confronto dei procedimenti.
+  Stato: Bozza durante la preparazione; Confermata dopo la verifica dei dati.
+La fine deve essere successiva all'inizio.
+
+A4. ARGOMENTI DELLE LEZIONI
+Richiede una lezione e un argomento già salvati.
+  Lezione: Addizioni con la linea dei numeri
+  Argomento: Addizioni e sottrazioni entro il 20
+Questa voce collega gli elementi: non crea una seconda lezione.
+
+A5. ATTIVITÀ DELLE LEZIONI
+  Lezione: Addizioni con la linea dei numeri
+  Attività svolta: Risoluzione guidata di cinque addizioni usando la linea.
+  Ordine: 1
+Per un'altra attività della stessa lezione crea una riga con ordine 2,
+per esempio: Confronto a coppie e spiegazione del procedimento.
+
+A6. COMPITI A CASA
+  Classe e materia: 1Z — Matematica
+  Titolo: Esercizi sulle addizioni entro il 20
+  Assegnato il: 27/10/2026
+  Scadenza: 29/10/2026
+Prima salva la consegna, poi aggiungi argomenti ed esercizi.
+
+A7. ARGOMENTI DEI COMPITI
+  Consegna: Esercizi sulle addizioni entro il 20
+  Argomento: Addizioni e sottrazioni entro il 20
+
+A8. ESERCIZI ASSEGNATI
+  Consegna: Esercizi sulle addizioni entro il 20
+  Numero esercizio: 1
+  Testo / riferimento: Calcola 7 + 5 e rappresenta il procedimento.
+Seconda riga di esempio:
+  Consegna: la stessa
+  Numero esercizio: 2
+  Testo / riferimento: Calcola 16 - 4 e controlla il risultato.
+
+A9. CONTROLLI COMPITI
+Una riga riguarda il controllo della consegna per uno studente.
+  Consegna: Esercizi sulle addizioni entro il 20
+  Studente: Alunno Esempio, iscritto alla 1Z
+  Controllato il: 29/10/2026
+  Autonomia (1–5): 4
+  Comprensione (1–5): 3
+  Annotazioni / giustificazione: Ha svolto gli esercizi; necessita di una guida
+    nella spiegazione del procedimento.
+  Suggerimenti: Ripetere due esercizi spiegando a voce i passaggi.
+Autonomia e comprensione sono facoltative: non inventare una valutazione.
+
+A10. ESITI DEGLI ESERCIZI
+Da compilare dopo il controllo e gli esercizi assegnati.
+  Controllo: quello del 29/10 per Alunno Esempio e la consegna scelta
+  Esercizio: 1 — Calcola 7 + 5
+  Esito: Corretto
+  Note: Procedimento spiegato correttamente.
+Per l'esercizio 2 puoi creare un'altra riga, per esempio con esito Parziale.
+Se un esercizio non è stato svolto, seleziona Non svolto.
+
+A11. ATTIVITÀ DI RECUPERO
+Usa la pagina Attività di recupero e i campi disponibili nel relativo percorso.
+Esempio dei dati da preparare:
+  Classe e materia: 1Z — Matematica
+  Titolo: Ripasso guidato delle sottrazioni
+  Obiettivo: Eseguire sottrazioni entro il 20 spiegando ogni passaggio.
+  Argomento: Addizioni e sottrazioni entro il 20
+  Verifica di origine: scegli una prova già presente, solo se pertinente.
+  Scadenza: 05/11/2026
+  Stato iniziale: Pianificato
+Se il percorso richiede i destinatari, scegli gli studenti interessati.
+Aggiorna lo stato solo quando l'attività è realmente iniziata o completata.
+
+============================================================
+B. VALUTAZIONE — ORDINE CONSIGLIATO
+============================================================
+
+B1. TIPOLOGIE DI ERRORE
+  Codice: CALC-01
+  Descrizione: Errore nel conteggio sulla linea dei numeri
+Riutilizza il tipo nei compiti, nelle prove o nelle osservazioni.
+
+B2. TIPI DI OSSERVAZIONE
+  Codice: PROC-01
+  Descrizione: Spiegazione del procedimento di calcolo
+  Può contribuire al voto disciplinare: seleziona solo se previsto dai criteri
+    didattici adottati; non attivarlo per ogni osservazione indistintamente.
+
+B3. RUBRICHE
+Serve per il percorso di correzione tramite rubrica.
+  Nome rubrica: Procedimento e calcolo entro il 20
+  Descrizione: Rubrica per correttezza del calcolo e spiegazione dei passaggi.
+
+B4. CRITERI DELLE RUBRICHE
+  Rubrica: Procedimento e calcolo entro il 20
+  Criterio: Correttezza del calcolo
+  Peso: 1
+  Punteggio massimo: 5
+  Livelli (JSON), esempio da copiare mantenendo parentesi e virgolette:
+  [{"label":"In via di acquisizione","score":1},{"label":"Parziale","score":3},{"label":"Acquisito","score":5}]
+Puoi aggiungere un secondo criterio, per esempio Spiegazione del procedimento.
+Il punteggio attribuito a un criterio non deve superare il suo massimo.
+
+B5. GRIGLIE UNIVERSALI — PERCORSO GUIDATO ALTERNATIVO
+Per usare la procedura guidata, apri Griglie universali e segui i passaggi
+mostrati. Prepara questi dati:
+  Titolo verifica: Calcolo entro il 20 — prova di esempio
+  Classe e materia: 1Z — Matematica
+  Esercizio: Addizioni, massimo 10 punti
+  Eventuale secondo esercizio: Sottrazioni, massimo 10 punti
+  Argomenti / competenze: seleziona quelli già creati, se richiesti.
+  Regola di conversione: scegli una regola già configurata e approvata.
+Controlla il riepilogo e approva la struttura prima di creare la verifica.
+Se la procedura crea la verifica e i quesiti, non ricrearli manualmente
+nelle voci successive: apri gli elementi già generati.
+
+B6. VERIFICHE E INTERROGAZIONI — PERCORSO MANUALE
+  Classe e materia: 1Z — Matematica
+  Titolo: Calcolo entro il 20 — prova manuale di esempio
+  Data: 30/10/2026
+  Tipo: Scritta
+  Correzione: Analitica per l'esempio dei quesiti qui sotto.
+  Rubrica: lasciala vuota nel percorso analitico; selezionala se scegli Rubrica.
+Scegli un solo percorso coerente: Rapida, Analitica oppure Rubrica.
+Se compare Regola di valutazione predefinita, scegli quella autorizzata.
+
+B7. QUESITI
+Per una prova analitica già salvata:
+  Prova: Calcolo entro il 20 — prova manuale di esempio
+  Testo del quesito: Calcola 7 + 5 e spiega il procedimento.
+  Punteggio massimo: 10
+  Quesito padre: vuoto, se non è una sottodomanda.
+  Competenza: MAT-CALC-01, se pertinente.
+  Argomento: Addizioni e sottrazioni entro il 20
+
+B8. RISULTATI DELLE PROVE
+  Prova: la prova scelta
+  Studente: Alunno Esempio, iscritto alla 1Z
+  Commento finale: Comprende il procedimento; deve rendere più precisa
+    la spiegazione dei passaggi.
+Se il risultato è già stato creato dal percorso guidato, apri quello esistente.
+
+B9. CORREZIONI DEI QUESITI
+Per il percorso analitico:
+  Risultato: quello di Alunno Esempio per la prova scelta
+  Quesito: Calcola 7 + 5 e spiega il procedimento.
+  Punteggio: 8, su massimo 10
+  Correzione rapida: lascia vuota se stai inserendo il punteggio analitico.
+  Commenti: Calcolo corretto, spiegazione parzialmente completa.
+Nel percorso rapido usa l'esito previsto dall'app, senza mescolare a caso
+modalità o inserire punteggi che non derivano dalla correzione.
+
+B10. VALUTAZIONI PER CRITERIO
+Solo per una prova che usa la rubrica corrispondente:
+  Risultato: quello dello studente per la prova con rubrica
+  Criterio: Correttezza del calcolo
+  Punteggio: 4, su massimo 5
+Non associare criteri di una rubrica diversa da quella della prova.
+
+B11. ERRORI NELLE PROVE
+  Correzione: la correzione del quesito interessato
+  Tipo errore: CALC-01 — Errore nel conteggio sulla linea dei numeri
+Compila solo se l'errore è stato effettivamente osservato.
+
+B12. OSSERVAZIONI
+  Classe e materia: 1Z — Matematica
+  Studente: Alunno Esempio
+  Tipo: PROC-01 — Spiegazione del procedimento di calcolo
+  Data: 30/10/2026
+  Modalità: Descrittiva, per annotare senza attribuire un voto.
+  Note: Descrive il procedimento dopo una domanda guida.
+  Partecipazione: Interviene quando sollecitato.
+  Comportamenti osservabili: Indica i passaggi sulla linea dei numeri.
+  Difficoltà: Esplicitare il motivo della scelta dell'operazione.
+  Punti di forza: Controlla autonomamente il risultato.
+Usa descrizioni concrete e pertinenti, evitando giudizi generici sulla persona.
+
+B13. ARGOMENTI OSSERVATI
+  Osservazione: quella appena salvata per Alunno Esempio
+  Argomento: Addizioni e sottrazioni entro il 20
+
+B14. COMPETENZE OSSERVATE
+  Osservazione: la stessa
+  Competenza: MAT-CALC-01
+
+B15. ERRORI NELLE OSSERVAZIONI
+  Osservazione: quella in cui l'errore è stato rilevato
+  Tipo errore: CALC-01
+Non serve creare questa associazione se l'osservazione non rileva errori.
+
+B16. ERRORI NEI COMPITI
+  Esito esercizio: l'esito Parziale dell'esercizio 2 per Alunno Esempio
+  Tipo errore: CALC-01, solo se corrisponde all'errore riscontrato.
+Prima devono esistere consegna, esercizio, controllo ed esito.
+
+B17. REGISTRO VOTI
+Prima verifica in Configurazione che esistano categoria e regola dei voti.
+Se non puoi configurarle, richiedile a Owner/Admin.
+Esempio di voto inserito manualmente:
+  Classe e materia: 1Z — Matematica
+  Studente: Alunno Esempio
+  Categoria: una categoria disciplinare autorizzata già presente
+  Regola: una regola autorizzata compatibile con il voto
+  Data: 30/10/2026
+  Origine: Manuale
+  Risultato prova / Osservazione / Controllo compiti: vuoti per questo esempio.
+  Voto suggerito: vuoto se non hai una proposta da registrare.
+  Voto confermato: 8, se la regola scelta ammette questo valore.
+  Peso: 1
+  Stato: Bozza finché non hai controllato; Confermata quando definitivo.
+  Escludi dalla media: seleziona solo se previsto per questo voto.
+  Includi esplicitamente partecipazione/comportamento: lascia disattivato
+    se non hai un motivo didattico e una configurazione che lo consentano.
+  Motivazione della modifica: compila quando correggi un voto esistente.
+Se invece il voto deriva da una prova, un'osservazione o un controllo,
+scegli l'origine corretta e il relativo elemento già salvato.
+Controlla che il voto non sia già presente prima di crearne un altro.
+
+============================================================
+C. TRE PERCORSI BREVI PER L'USO QUOTIDIANO
+============================================================
+
+REGISTRARE UNA LEZIONE
+Argomento già presente -> Registro lezioni -> eventuali collegamenti
+in Argomenti delle lezioni e Attività delle lezioni.
+
+ASSEGNARE E CONTROLLARE I COMPITI
+Compiti a casa -> Esercizi assegnati -> Controlli compiti per studente
+-> Esiti degli esercizi -> eventuali Errori nei compiti.
+
+CORREGGERE UNA VERIFICA
+Percorso guidato: Griglie universali -> verifica generata -> correzione
+-> controllo della proposta di voto -> eventuale conferma nel registro.
+Percorso manuale analitico: Verifica -> Quesiti -> Risultato dello studente
+-> Correzioni dei quesiti -> eventuali errori -> voto, se previsto.
+Percorso con rubrica: Rubrica e criteri -> Verifica con quella rubrica
+-> Risultato dello studente -> Valutazioni per criterio -> eventuale voto.
+
+SE UN ELENCO DI SCELTA È VUOTO
+1. Controlla workspace, anno scolastico, classe e materia.
+2. Verifica che l'elemento necessario sia già stato salvato.
+3. Controlla che non sia archiviato o riservato a un altro utente.
+4. Per le iscrizioni, verifica che lo studente non abbia già una classe
+   nello stesso anno scolastico.
+5. Controlla la connessione e la pagina Sincronizzazione.
+Non ricreare dati già presenti solo perché un filtro li nasconde.
+
+RITIRO DI UNO STUDENTE
+Apri Iscrizioni, modifica l'iscrizione interessata, scegli Esito: Ritirato
+e salva. Lo studente resta in Studenti e Iscrizioni, ma quell'iscrizione viene
+esclusa dagli elenchi operativi di lezioni, verifiche, compiti, osservazioni
+e recupero, con i relativi selettori ed esportazioni. Lo storico resta salvato.
+Un'iscrizione attiva in un altro anno non viene ritirata automaticamente.
+Per correggere un ritiro inserito per errore, modifica l'esito dell'iscrizione:
+non creare una nuova anagrafica e non eliminare lo storico.
+
+SALVATAGGIO E SINCRONIZZAZIONE
+Premi il pulsante di salvataggio e controlla il messaggio dell'app.
+Una bozza non è automaticamente una valutazione definitiva.
+Se lavori offline, attendi la sincronizzazione quando torni online.
+Prima di cambiare dispositivo verifica eventuali operazioni in attesa,
+errori o conflitti. Non cancellare i dati locali per risolvere una coda.
+Se abbandoni un modulo modificato senza salvarlo, l'app chiede conferma:
+accetta solo se vuoi davvero scartare le modifiche di quel modulo.

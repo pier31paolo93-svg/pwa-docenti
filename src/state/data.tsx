@@ -20,11 +20,17 @@ import {
 } from "../offline/sync";
 import { consent } from "../offline/vault";
 import { orderedEnrollments, orderedStudents } from "../domain/register";
+import { withdrawalVisibility } from "../domain/withdrawn";
 import type { Row, SourceName, TableName, Patch } from "../types/model";
 import type { DataMap } from "../domain/catalog";
 import { Spinner, ErrorBox } from "../components/ui";
-export function useRows(source: SourceName, enabled = true) {
+export function useRows(
+  source: SourceName,
+  enabled = true,
+  includeWithdrawn = false,
+) {
   const { session, workspace } = useAuth();
+  const context = useContext(Context);
   return useQuery({
     queryKey: ["data", session?.user.id, workspace, source],
     queryFn: () => fetchRows(source, session!.user.id, workspace),
@@ -33,6 +39,10 @@ export function useRows(source: SourceName, enabled = true) {
     refetchOnWindowFocus: true,
     retry: 1,
     networkMode: "always",
+    select: (rows) =>
+      includeWithdrawn || !context
+        ? rows
+        : rows.filter((r) => context.operational.visible(source, r)),
   });
 }
 type Filters = {
@@ -43,6 +53,7 @@ type Filters = {
 };
 type DataValue = {
   data: DataMap;
+  operational: ReturnType<typeof withdrawalVisibility>;
   filters: Filters;
   setFilters: (p: Partial<Filters>) => void;
   save: (table: TableName, patch: Patch, existing?: Row) => Promise<Row>;
@@ -120,6 +131,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return { year: "", school: "", classId: "", subject: "" };
     }
   });
+  const operational = useMemo(
+    () => withdrawalVisibility(data, filters.year, filters.classId),
+    [data, filters.year, filters.classId],
+  );
   useEffect(() => {
     if (!auth.session) return;
     configureSync(auth.session.user.id, auth.workspace, () => {
@@ -181,6 +196,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     <Context.Provider
       value={{
         data,
+        operational,
         filters,
         setFilters,
         save: doSave,
@@ -202,10 +218,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     </Context.Provider>
   );
 }
-export function useData() {
+export function useData(includeWithdrawn = false) {
   const c = useContext(Context);
   if (!c) throw new Error("DataProvider mancante");
-  return c;
+  return includeWithdrawn ? c : { ...c, data: c.operational.data };
 }
 export function useSyncState() {
   useSyncExternalStore(syncEvents.subscribe, syncEvents.snapshot);

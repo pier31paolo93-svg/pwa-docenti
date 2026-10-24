@@ -126,8 +126,9 @@ export function ResourcePage({ resource }: { resource?: TableName }) {
 function ResourceTable({ table }: { table: TableName }) {
   const compact = useCompact();
   const spec = catalog[table];
-  const query = useRows(table);
-  const { data, filters, save } = useData();
+  const administrative = table === "students" || table === "enrollments";
+  const query = useRows(table, true, administrative);
+  const { data, filters, save } = useData(administrative);
   const { writable } = usePermissions();
   const teachers = useTeachers(table === "teaching_assignments");
   const teacherLabels = teacherChoices(teachers.data ?? []);

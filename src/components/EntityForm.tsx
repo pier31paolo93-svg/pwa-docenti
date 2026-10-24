@@ -31,7 +31,9 @@ export function EntityForm({
   const spec = catalog[table]!;
   const formId = useId();
   const closeModal = useModalClose();
-  const { data, save, filters } = useData();
+  const { data, save, filters } = useData(
+    table === "students" || table === "enrollments",
+  );
   const { session } = useAuth();
   const [error, setError] = useState<unknown>();
   const privacy: Field = {
@@ -87,7 +89,7 @@ export function EntityForm({
     resolver: zodResolver(formSchema(fields)),
   });
   const values = form.watch();
-  const historicalEnrollments = useRows("enrollments");
+  const historicalEnrollments = useRows("enrollments", true, true);
   const enrollmentData = {
     ...data,
     enrollments: historicalEnrollments.data ?? data.enrollments,
@@ -181,6 +183,7 @@ export function EntityForm({
     return rows.filter((r) => {
       if (r.deleted_at) return false;
       if (f.ref === "enrollments") {
+        if (r.outcome === "withdrawn") return false;
         const ta = data.teaching_assignments?.find(
           (t) => t.id === values.teaching_assignment_id,
         );
@@ -246,6 +249,16 @@ export function EntityForm({
               {f.label}
               {f.required ? " *" : ""}
             </span>
+            {table === "enrollments" &&
+              f.name === "outcome" &&
+              values.outcome === "withdrawn" && (
+                <small>
+                  Ritirato: dopo il salvataggio questa iscrizione non comparirà
+                  nelle attività, nelle verifiche o negli altri elenchi
+                  operativi. Anagrafica, iscrizione e storico resteranno
+                  conservati.
+                </small>
+              )}
             {table === "enrollments" && f.name === "student_id" && !row && (
               <input
                 type="search"

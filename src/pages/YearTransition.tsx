@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useData } from "../state/data";
+import { preservedWithdrawals } from "../domain/withdrawn";
 import { useAuth } from "../state/auth";
 import { usePermissions } from "../hooks/permissions";
 import { useCapabilities } from "../hooks/capabilities";
@@ -32,6 +33,7 @@ const outcomes = [
   "graduated",
 ];
 export function YearTransition() {
+  const { data: administrativeData } = useData(true);
   const { data, online, setFilters } = useData(),
     auth = useAuth(),
     { admin } = usePermissions(),
@@ -226,15 +228,18 @@ export function YearTransition() {
     setDecisions((old) => ({ ...old, [e.id]: { ...decision(e), ...p } }));
   }
   function plan() {
-    const entries = active.map((e) => ({
-      enrollment_id: e.id,
-      version: e.version,
-      ...decision(e),
-      register_number: decision(e).register_number
-        ? Number(decision(e).register_number)
-        : null,
-      destination_id: decision(e).destination_id || null,
-    }));
+    const entries = [
+      ...active.map((e) => ({
+        enrollment_id: e.id,
+        version: e.version,
+        ...decision(e),
+        register_number: decision(e).register_number
+          ? Number(decision(e).register_number)
+          : null,
+        destination_id: decision(e).destination_id || null,
+      })),
+      ...preservedWithdrawals(administrativeData, sourceClasses),
+    ];
     const used = new Set(
       entries.flatMap((e) => (e.destination_id ? [e.destination_id] : [])),
     );
