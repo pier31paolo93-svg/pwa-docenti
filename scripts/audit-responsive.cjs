@@ -28,7 +28,11 @@ if (
 (async () => {
   const server = spawn(
     process.execPath,
-    ['--input-type=module','-e',"const {createServer}=await import('vite');const s=await createServer({mode:'test',server:{host:'127.0.0.1',port:5182,strictPort:true,watch:null,hmr:false}});await s.listen();"],
+    [
+      "--input-type=module",
+      "-e",
+      "const {createServer}=await import('vite');const s=await createServer({mode:'test',server:{host:'127.0.0.1',port:5182,strictPort:true,watch:null,hmr:false}});await s.listen();",
+    ],
     { stdio: "ignore", windowsHide: true },
   );
   let browser;
@@ -129,7 +133,7 @@ if (
         "importa-avanzato",
         "storico",
         "esportazione",
-        "studenti/"+users[0].rows.students.id,
+        "studenti/" + users[0].rows.students.id,
         "ai",
       ];
       for (const route of routes) {
@@ -208,14 +212,14 @@ if (
         .locator("main")
         .getByLabel("Scuola", { exact: true })
         .selectOption({ label: "Scuola fittizia E2E" });
-      for (let step = 1; step <= 3; step++) {
+      for (let step = 1; step <= 4; step++) {
         await page
           .getByRole("button", {
-            name: step === 3 ? "Verifica anteprima" : "Continua",
+            name: step === 4 ? "Verifica anteprima" : "Continua",
             exact: true,
           })
           .click();
-        if (step === 3)
+        if (step === 4)
           await page
             .getByRole("heading", { name: "Anteprima verificata dal server" })
             .waitFor();

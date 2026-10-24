@@ -289,7 +289,7 @@ export function YearTransition() {
       );
       setPreview(r);
       setApproved(false);
-      setStep(3);
+      setStep(4);
     } catch (e) {
       setError(e);
     } finally {
@@ -370,6 +370,7 @@ export function YearTransition() {
                 {[
                   "Anni e classi",
                   "Esiti studenti",
+                  "Nuove classi",
                   "Destinazioni e materie",
                   "Anteprima e conferma",
                 ].map((s, i) => (
@@ -594,7 +595,7 @@ export function YearTransition() {
               )}
               {step === 2 && (
                 <section>
-                  <h2>Destinazioni e numeri</h2>
+                  <h2>Nuove classi</h2>
                   <p>
                     Modifica le proposte, riutilizza una classe o aggiungine una
                     per accorpamenti e suddivisioni. Dopo la quinta non viene
@@ -638,6 +639,15 @@ export function YearTransition() {
                   >
                     Aggiungi classe di destinazione
                   </button>
+                </section>
+              )}
+              {step === 3 && (
+                <section>
+                  <h2>Destinazioni e numeri</h2>
+                  <p>
+                    Controlla la classe e il numero di registro per ciascuno
+                    studente prima dell’anteprima.
+                  </p>
                   {active.map((e) => (
                     <article className="card" key={e.id}>
                       <h3>
@@ -752,7 +762,7 @@ export function YearTransition() {
                   )}
                 </section>
               )}
-              {step === 3 && preview && (
+              {step === 4 && preview && (
                 <section className="card">
                   <h2>Anteprima verificata dal server</h2>
                   <p>
@@ -833,7 +843,7 @@ export function YearTransition() {
                 >
                   Indietro
                 </button>
-                {step < 2 ? (
+                {step < 3 ? (
                   <button
                     className="button primary"
                     disabled={
@@ -843,7 +853,7 @@ export function YearTransition() {
                   >
                     Continua
                   </button>
-                ) : step === 2 ? (
+                ) : step === 3 ? (
                   <button
                     className="button primary"
                     disabled={busy || !online}

@@ -109,6 +109,13 @@ test("year transition preview remains read-only and is blocked offline", async (
     page.getByRole("heading", { name: "Esiti degli studenti" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Continua", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Nuove classi", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Continua", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Destinazioni e numeri", exact: true }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Verifica anteprima" }).click();
   await expect(
     page.getByRole("heading", { name: "Anteprima verificata dal server" }),
