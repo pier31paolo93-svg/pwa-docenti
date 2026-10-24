@@ -36,6 +36,53 @@ for (const [device, width, height] of [
       "Orario settimanale",
       "Passaggio anno",
     ]);
+    for (const [group, expected] of [
+      [
+        "Programmazione",
+        [
+          "Argomenti",
+          "Competenze",
+          "Registro lezioni",
+          "Argomenti delle lezioni",
+          "Attività delle lezioni",
+          "Compiti a casa",
+          "Argomenti dei compiti",
+          "Esercizi assegnati",
+          "Controlli compiti",
+          "Esiti degli esercizi",
+          "Attività di recupero",
+        ],
+      ],
+      [
+        "Valutazione",
+        [
+          "Tipologie di errore",
+          "Tipi di osservazione",
+          "Rubriche",
+          "Criteri delle rubriche",
+          "Griglie universali",
+          "Verifiche e interrogazioni",
+          "Quesiti",
+          "Risultati delle prove",
+          "Correzioni dei quesiti",
+          "Valutazioni per criterio",
+          "Errori nelle prove",
+          "Osservazioni",
+          "Argomenti osservati",
+          "Competenze osservate",
+          "Errori nelle osservazioni",
+          "Errori nei compiti",
+          "Registro voti",
+        ],
+      ],
+    ] as const) {
+      const groupSection = page
+        .locator("section")
+        .filter({
+          has: page.getByRole("heading", { name: group, exact: true }),
+        });
+      await expect(groupSection.getByRole("link")).toHaveText([...expected]);
+    }
     for (const title of titles) {
       await section.getByRole("link", { name: title, exact: true }).click();
       await expect(

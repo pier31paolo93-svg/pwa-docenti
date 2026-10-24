@@ -476,8 +476,8 @@ export const catalog: Partial<Record<TableName, Entity>> = {
     singular: "voto",
     group: "Valutazione",
     fields: [
-      ref("enrollment_id", "Studente", "enrollments"),
       ta(),
+      ref("enrollment_id", "Studente", "enrollments"),
       ref("category_id", "Categoria", "evaluation_categories"),
       ref("rule_id", "Regola", "evaluation_rules"),
       date("graded_on", "Data"),
@@ -674,14 +674,52 @@ export const organizationOrder: TableName[] = [
   "enrollments",
 ];
 export function organizationEntries(group: string) {
-  const entries = Object.entries(catalog);
-  return (
+  const order =
     group === "Organizzazione"
-      ? [...entries].sort(
-          ([a], [b]) =>
-            organizationOrder.indexOf(a as TableName) -
-            organizationOrder.indexOf(b as TableName),
-        )
-      : entries
-  ).filter(([, c]) => c.group === group);
+      ? organizationOrder
+      : group === "Programmazione"
+        ? programmingOrder
+        : group === "Valutazione"
+          ? evaluationOrder
+          : [];
+  return Object.entries(catalog)
+    .filter(([, c]) => c.group === group)
+    .sort(([a], [b]) => {
+      const rank = (id: string) => {
+        const i = order.indexOf(id as TableName);
+        return i < 0 ? order.length : i;
+      };
+      return rank(a) - rank(b);
+    });
 }
+export const programmingOrder: TableName[] = [
+  "topics",
+  "competencies",
+  "lessons",
+  "lesson_topics",
+  "lesson_activities",
+  "assignments",
+  "assignment_topics",
+  "assignment_exercises",
+  "homework_checks",
+  "homework_exercise_results",
+  "recovery_activities",
+];
+export const evaluationOrder: TableName[] = [
+  "error_types",
+  "observation_types",
+  "assessment_rubrics",
+  "rubric_criteria",
+  "assessments",
+  "assessment_questions",
+  "assessment_results",
+  "question_results",
+  "rubric_scores",
+  "question_errors",
+  "observations",
+  "observation_topics",
+  "observation_competencies",
+  "observation_errors",
+  "homework_errors",
+  "grade_entries",
+];

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { TimetableLookup } from "../components/TimetableDay";
 import { Link, useParams } from "react-router-dom";
 import { Plus, Pencil, Archive, ArrowRight } from "lucide-react";
@@ -52,22 +52,44 @@ export function Organization() {
         ].map((group) => (
           <section key={group}>
             <h2>{group}</h2>
+            {group === "Programmazione" && (
+              <p>
+                Segui l’ordine: prepara argomenti e competenze, registra le
+                lezioni, assegna e controlla i compiti. Pianifica poi gli
+                eventuali recuperi.
+              </p>
+            )}
+            {group === "Valutazione" && (
+              <p>
+                Prepara tipologie e rubriche, crea le prove, inserisci risultati
+                e correzioni, poi completa osservazioni e voti. Categorie e
+                regole dei voti sono in Configurazione.
+              </p>
+            )}
             <div className="resource-grid">
               {organizationEntries(group)
                 .filter(([, c]) => !c.admin || admin)
                 .map(([key, c]) => (
-                  <Link
-                    className="resource-card"
-                    key={key}
-                    to={
-                      key === "recovery_activities"
-                        ? "/recupero"
-                        : "/archivio/" + key
-                    }
-                  >
-                    <span>{c.title}</span>
-                    <ArrowRight size={17} />
-                  </Link>
+                  <Fragment key={key}>
+                    {key === "assessments" && (
+                      <Link className="resource-card" to="/griglie">
+                        <span>Griglie universali</span>
+                        <ArrowRight size={17} />
+                      </Link>
+                    )}
+                    <Link
+                      className="resource-card"
+                      key={key}
+                      to={
+                        key === "recovery_activities"
+                          ? "/recupero"
+                          : "/archivio/" + key
+                      }
+                    >
+                      <span>{c.title}</span>
+                      <ArrowRight size={17} />
+                    </Link>
+                  </Fragment>
                 ))}
               {group === "Organizzazione" && (
                 <Link className="resource-card" to="/orario">
@@ -78,12 +100,6 @@ export function Organization() {
               {group === "Organizzazione" && admin && (
                 <Link className="resource-card" to="/passaggio-anno">
                   <span>Passaggio anno</span>
-                  <ArrowRight size={17} />
-                </Link>
-              )}
-              {group === "Valutazione" && (
-                <Link className="resource-card" to="/griglie">
-                  <span>Griglie universali</span>
                   <ArrowRight size={17} />
                 </Link>
               )}
