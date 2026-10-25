@@ -21,14 +21,16 @@ test("universal grid creates canonical assessment, saves rapid and analytical sc
   await page
     .getByLabel("Titolo verifica", { exact: true })
     .fill("V12 browser fittizio " + Date.now());
+  // Other tests create authorized classes without pupils; their list order is not stable.
   await page
     .getByLabel("Classe e materia della griglia")
-    .selectOption({ index: 1 });
+    .selectOption(users[0].rows.teaching_assignments.id);
+  await page.getByLabel("Data verifica", { exact: true }).fill("2026-10-22");
   await page.getByRole("button", { name: "Continua", exact: true }).click();
   await page.getByRole("button", { name: "Continua", exact: true }).click();
   await page
     .getByLabel("Regola di conversione", { exact: true })
-    .selectOption({ index: 1 });
+    .selectOption(users[0].rows.evaluation_rules.id);
   await page.getByRole("button", { name: "Continua", exact: true }).click();
   await page
     .getByLabel(
@@ -38,6 +40,9 @@ test("universal grid creates canonical assessment, saves rapid and analytical sc
   await page.getByRole("button", { name: "Crea verifica con griglia" }).click();
   await expect(page).toHaveURL(/verifiche\/[a-f0-9-]+/);
   await expect(page.getByLabel("Studente", { exact: true })).toBeVisible();
+  await page
+    .getByLabel("Studente", { exact: true })
+    .selectOption(users[0].rows.enrollments.id);
   await page.getByLabel("Punti esercizio", { exact: true }).fill("8");
   await page.getByRole("button", { name: "Salva senza uscire" }).click();
   await expect(page.getByText(/Punti 8\/10/)).toBeVisible();
@@ -47,7 +52,7 @@ test("universal grid creates canonical assessment, saves rapid and analytical sc
   await expect(page.getByText(/Punti 7\/10/)).toBeVisible();
   await page
     .getByLabel("Categoria", { exact: true })
-    .selectOption({ index: 1 });
+    .selectOption(users[0].rows.evaluation_categories.id);
   await page.getByRole("button", { name: "Calcola e salva bozza" }).click();
   await expect(
     page.getByText("Bozza salvata. Verifica la proposta prima della conferma."),
